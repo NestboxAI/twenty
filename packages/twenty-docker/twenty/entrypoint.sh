@@ -26,6 +26,9 @@ setup_and_migrate_db() {
     fi
     
     yarn command:prod upgrade
+
+    # nestbox: added workspace signup script
+    yarn command:prod workspace:signup -u ${ADMIN_USER_EMAIL} -p ${ADMIN_USER_PASSWORD} -w ${WORKSPACE_NAME} -timezone ${WORKSPACE_TIMEZONE} -f ${ADMIN_USER_FIRST_NAME} -l ${ADMIN_USER_LAST_NAME}
     echo "Successfully migrated DB!"
 }
 setup_and_migrate_db

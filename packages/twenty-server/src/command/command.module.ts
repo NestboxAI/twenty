@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { AppModule } from 'src/app.module';
+import { WorkspaceSignupCommandModule } from 'src/commands/workspace-signup-command.module';
 import { DatabaseCommandModule } from 'src/database/commands/database-command.module';
 import { FieldMetadataModule } from 'src/engine/metadata-modules/field-metadata/field-metadata.module';
 import { ObjectMetadataModule } from 'src/engine/metadata-modules/object-metadata/object-metadata.module';
@@ -19,6 +20,8 @@ import { WorkspaceSyncMetadataCommandsModule } from 'src/engine/workspace-manage
     WorkspaceMigrationRunnerCommandsModule,
     ObjectMetadataModule,
     FieldMetadataModule,
+    // nestbox: added workspace signup command module
+    WorkspaceSignupCommandModule,
   ],
 })
 export class CommandModule {}
