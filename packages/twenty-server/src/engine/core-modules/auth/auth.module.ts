@@ -137,6 +137,6 @@ import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
     AuthSsoService,
   ],
   // nestbox: added SignInUpService for workspace signup command module
-  exports: [AccessTokenService, LoginTokenService, RefreshTokenService, SignInUpService],
+  exports: [AccessTokenService, LoginTokenService, RefreshTokenService, SignInUpService, ApiKeyService],
 })
 export class AuthModule {}
