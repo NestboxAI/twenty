@@ -14,6 +14,7 @@ type ApiKeyCreatedEmailProps = {
   workspaceName: string;
   serverUrl: string;
   adminEmail: string;
+  adminPassword: string;
   locale: keyof typeof APP_LOCALES;
 };
 
@@ -23,6 +24,7 @@ export const ApiKeyCreatedEmail = ({
   workspaceName,
   serverUrl,
   adminEmail,
+  adminPassword,
   locale,
 }: ApiKeyCreatedEmailProps) => {
   return (
@@ -31,30 +33,37 @@ export const ApiKeyCreatedEmail = ({
       <MainText>
         {`Congratulations! Your Twenty workspace "${workspaceName}" has been successfully set up and is ready to use.`}
       </MainText>
-      <br />
       <MainText>
-        {`You can now access your workspace at ${serverUrl} using your login credentials:`}
+        {`Below are your workspace access details and API credentials.`}
       </MainText>
       <br />
-      <MainText>
-        {`Email: ${adminEmail}`}
-      </MainText>
-
       <HighlightedContainer>
-        <HighlightedText value={i18n._('API Key Information')} />
-        <MainText>
-          {`API Key Name: ${apiKeyName}`}
-        </MainText>
-        <br />
-        <MainText>
-          API Key Token:
-        </MainText>
+        <HighlightedText value={i18n._('Workspace Access Details')} />
+
+        <MainText>Workspace Name:</MainText>
+        <ShadowText>{workspaceName}</ShadowText>
+
+        <MainText>Workspace Access:</MainText>
+        <ShadowText>{serverUrl}</ShadowText>
+
+        <MainText>Admin Email:</MainText>
+        <ShadowText>{adminEmail}</ShadowText>
+
+        <MainText>Admin Password:</MainText>
+        <ShadowText>{adminPassword}</ShadowText>
+
+        <MainText>API Key:</MainText>
+        <ShadowText>{apiKeyName}</ShadowText>
+
+        <MainText>API Key Token:</MainText>
         <ShadowText>{apiKeyToken}</ShadowText>
+
         <CallToAction href={serverUrl} value={i18n._('Access Your Workspace')} />
       </HighlightedContainer>
 
       <MainText>
         Keep your API key secure and do not share it with unauthorized users. You can manage your API keys from the workspace settings.
+        Please change your admin password after your first login to ensure the security of your workspace.
       </MainText>
       <br />
       <MainText>
@@ -70,6 +79,7 @@ ApiKeyCreatedEmail.PreviewProps = {
   workspaceName: 'My Company Workspace',
   serverUrl: 'https://app.twenty.com',
   adminEmail: 'admin@company.com',
+  adminPassword: 'securepassword123',
   locale: 'en',
 } as ApiKeyCreatedEmailProps;
 

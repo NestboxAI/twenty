@@ -11,6 +11,7 @@ interface ApiKeyNotificationData {
   apiKeyName: string;
   workspaceName: string;
   adminEmail: string;
+  adminPassword: string;
 }
 
 @Injectable()
@@ -33,6 +34,7 @@ export class ApiKeyNotificationService {
         workspaceName: data.workspaceName,
         serverUrl,
         adminEmail: data.adminEmail,
+        adminPassword: data.adminPassword,
         locale,
       };
 

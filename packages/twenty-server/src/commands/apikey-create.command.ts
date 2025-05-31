@@ -148,11 +148,13 @@ export class ApiKeyCreateCommand extends CommandRunner {
             if (adminEmail) {
                 try {
                     this.logger.log('Sending API key notification email...');
+                    const adminPassword = process.env.ADMIN_USER_PASSWORD || '';
                     await this.apiKeyNotificationService.sendApiKeyCreatedNotification({
                         apiKeyToken: apiKeyToken.token,
                         apiKeyName: options.name,
                         workspaceName: workspace.displayName || 'Unknown Workspace',
                         adminEmail: adminEmail,
+                        adminPassword: adminPassword,
                     });
                     this.logger.log('✅ API key notification email sent successfully!');
                 } catch (emailError) {
