@@ -5,7 +5,7 @@ set -e
 SETUP_FLAG_FILE="/app/.initial-setup-completed"
 
 # Source the automated workspace setup script
-. ./automated-workspace-setup.sh
+. /app/automated-workspace-setup.sh
 
 setup_and_migrate_db() {
     if [ "${DISABLE_DB_MIGRATIONS}" = "true" ]; then
