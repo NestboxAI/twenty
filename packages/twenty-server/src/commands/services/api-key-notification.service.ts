@@ -49,7 +49,7 @@ export class ApiKeyNotificationService {
           'EMAIL_FROM_NAME',
         )} <${this.twentyConfigService.get('EMAIL_FROM_ADDRESS')}>`,
         to: data.adminEmail,
-        subject: 'Your Twenty instance is ready - API Key Created',
+        subject: 'Your AI-Powered Workspace is ready',
         text,
         html,
       });
