@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Source the automated workspace setup script
+. /app/automated-workspace-setup.sh
+
 setup_and_migrate_db() {
     if [ "${DISABLE_DB_MIGRATIONS}" = "true" ]; then
         echo "Database setup and migrations are disabled, skipping..."
@@ -29,6 +32,9 @@ setup_and_migrate_db() {
     echo "Successfully migrated DB!"
 }
 setup_and_migrate_db
+
+# Run automated workspace setup (only on first time)
+automated_workspace_setup
 
 # Continue with the original Docker command
 exec "$@"
