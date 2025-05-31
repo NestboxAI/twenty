@@ -71,13 +71,7 @@ export class ApiKeyCreateCommand extends CommandRunner {
 
             this.logger.log(`Found workspace: ${workspace.displayName} (${workspace.id})`);
 
-            // Set expiration to 100 years from now
-            const expiresAt = new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000);
-
-            this.logger.log(`Creating API key: ${options.name}`);
-            this.logger.log(`Expiration date: ${expiresAt.toISOString()}`);
-
-            // Step 1: Create API key record in workspace schema
+            // Check if API key with the same name already exists
             const apiKeyRepository = await this.twentyORMGlobalManager.getRepositoryForWorkspace<ApiKeyWorkspaceEntity>(
                 workspace.id,
                 'apiKey',
@@ -86,6 +80,32 @@ export class ApiKeyCreateCommand extends CommandRunner {
                 },
             );
 
+            const existingApiKey = await apiKeyRepository.findOne({
+                where: { name: options.name },
+            });
+
+            if (existingApiKey) {
+                this.logger.log('='.repeat(60));
+                this.logger.log('API KEY ALREADY EXISTS');
+                this.logger.log('='.repeat(60));
+                this.logger.log('');
+                this.logger.log(`An API key with the name "${options.name}" already exists in workspace "${workspace.displayName}"`);
+                this.logger.log(`Existing API Key ID: ${existingApiKey.id}`);
+                this.logger.log(`Created At: ${existingApiKey.createdAt}`);
+                this.logger.log(`Expires At: ${existingApiKey.expiresAt?.toISOString()}`);
+                this.logger.log('');
+                this.logger.log('Skipping API key creation. Use a different name or delete the existing key first.');
+                this.logger.log('='.repeat(60));
+                return;
+            }
+
+            // Set expiration to 100 years from now
+            const expiresAt = new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000);
+
+            this.logger.log(`Creating API key: ${options.name}`);
+            this.logger.log(`Expiration date: ${expiresAt.toISOString()}`);
+
+            // Step 1: Create API key record in workspace schema
             const apiKeyId = uuidv4();
             await apiKeyRepository.insert({
                 id: apiKeyId,
