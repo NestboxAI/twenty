@@ -29,33 +29,33 @@ export const ApiKeyCreatedEmail = ({
 }: ApiKeyCreatedEmailProps) => {
   return (
     <BaseEmail width={400} locale={locale}>
-      <Title value={i18n._('Your Twenty instance is ready!')} />
+      <Title value={i18n._('Your AI-Powered workspace is ready!')} />
       <MainText>
-        {`Congratulations! Your Twenty workspace "${workspaceName}" has been successfully set up and is ready to use.`}
+        {`Congratulations! Your workspace "${workspaceName}" has been successfully set up and is ready to use.`}
       </MainText>
       <MainText>
-        {`Below are your workspace access details and API credentials.`}
+        {`Below are your workspace access details and credentials.`}
       </MainText>
       <br />
       <HighlightedContainer>
         <HighlightedText value={i18n._('Workspace Access Details')} />
 
-        <MainText>Workspace Name:</MainText>
+        <MainText>Workspace Name</MainText>
         <ShadowText>{workspaceName}</ShadowText>
 
-        <MainText>Workspace Access:</MainText>
+        <MainText>Workspace Access</MainText>
         <ShadowText>{serverUrl}</ShadowText>
 
-        <MainText>Admin Email:</MainText>
+        <MainText>Admin Email</MainText>
         <ShadowText>{adminEmail}</ShadowText>
 
-        <MainText>Admin Password:</MainText>
+        <MainText>Admin Password</MainText>
         <ShadowText>{adminPassword}</ShadowText>
 
-        <MainText>API Key:</MainText>
+        <MainText>API Key</MainText>
         <ShadowText>{apiKeyName}</ShadowText>
 
-        <MainText>API Key Token:</MainText>
+        <MainText>API Key Token</MainText>
         <ShadowText>{apiKeyToken}</ShadowText>
 
         <CallToAction href={serverUrl} value={i18n._('Access Your Workspace')} />
