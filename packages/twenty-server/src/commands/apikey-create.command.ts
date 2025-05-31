@@ -9,6 +9,7 @@ import { ApiKeyService } from 'src/engine/core-modules/auth/services/api-key.ser
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import { TwentyORMGlobalManager } from 'src/engine/twenty-orm/twenty-orm-global.manager';
 import { ApiKeyWorkspaceEntity } from 'src/modules/api-key/standard-objects/api-key.workspace-entity';
+import { ApiKeyNotificationService } from './services/api-key-notification.service';
 
 interface ApiKeyCreateOptions {
     workspace: string;
@@ -26,6 +27,7 @@ export class ApiKeyCreateCommand extends CommandRunner {
     constructor(
         private readonly apiKeyService: ApiKeyService,
         private readonly twentyORMGlobalManager: TwentyORMGlobalManager,
+        private readonly apiKeyNotificationService: ApiKeyNotificationService,
         @InjectRepository(Workspace, 'core')
         private readonly workspaceRepository: Repository<Workspace>,
     ) {
@@ -140,6 +142,27 @@ export class ApiKeyCreateCommand extends CommandRunner {
             this.logger.log(`Expires At: ${expiresAt.toISOString()}`);
             this.logger.log('');
             this.logger.log('='.repeat(60));
+
+            // Step 3: Send email notification if ADMIN_USER_EMAIL is set
+            const adminEmail = process.env.ADMIN_USER_EMAIL;
+            if (adminEmail) {
+                try {
+                    this.logger.log('Sending API key notification email...');
+                    await this.apiKeyNotificationService.sendApiKeyCreatedNotification({
+                        apiKeyToken: apiKeyToken.token,
+                        apiKeyName: options.name,
+                        workspaceName: workspace.displayName || 'Unknown Workspace',
+                        adminEmail: adminEmail,
+                    });
+                    this.logger.log('✅ API key notification email sent successfully!');
+                } catch (emailError) {
+                    this.logger.warn(`Failed to send notification email: ${emailError.message}`);
+                    // Don't fail the command if email sending fails
+                }
+            } else {
+                this.logger.log('ADMIN_USER_EMAIL not set, skipping email notification');
+            }
+
         } catch (error) {
             this.logger.error('Failed to create API key:', error.message);
             throw error;
