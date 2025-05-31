@@ -4,7 +4,6 @@ config({
   path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
   override: true,
 });
-console.log('🚀 ~ process.env:', process.env);
 
 const typeORMRawModuleOptions: DataSourceOptions = {
   url: process.env.PG_DATABASE_URL,
