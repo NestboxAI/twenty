@@ -1,9 +1,6 @@
 #!/bin/sh
 set -e
 
-# Flag file to track if initial setup has been completed
-SETUP_FLAG_FILE="/app/.initial-setup-completed"
-
 # Source the automated workspace setup script
 . /app/automated-workspace-setup.sh
 

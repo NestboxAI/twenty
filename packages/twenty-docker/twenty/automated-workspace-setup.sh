@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Flag file to track if initial setup has been completed
+SETUP_FLAG_FILE="/app/.initial-setup-completed"
+
 automated_workspace_setup() {    
     # Check if automated setup is enabled and not already completed
     if [ "${AUTO_SETUP_ENABLED}" != "true" ]; then
