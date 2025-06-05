@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { useCallback, useRef } from 'react';
 
-import { useRecordGroupActions } from '@/object-record/record-group/hooks/useRecordGroupActions';
+import { useRecordGroupActions } from '@/object-record/record-group/hooks/useRecordGroupActionsNestboxAI';
 import { DropdownMenu } from '@/ui/layout/dropdown/components/DropdownMenu';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { OverlayContainer } from '@/ui/layout/overlay/components/OverlayContainer';

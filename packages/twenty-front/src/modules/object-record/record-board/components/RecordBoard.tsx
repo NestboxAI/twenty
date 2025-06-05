@@ -20,6 +20,7 @@ import { RecordBoardColumn } from '@/object-record/record-board/record-board-col
 import { RecordBoardScope } from '@/object-record/record-board/scopes/RecordBoardScope';
 import { RecordBoardComponentInstanceContext } from '@/object-record/record-board/states/contexts/RecordBoardComponentInstanceContext';
 import { getDraggedRecordPosition } from '@/object-record/record-board/utils/getDraggedRecordPosition';
+import { AIWorkflowSetupModalContainer } from '@/object-record/record-group/components/AIWorkflowSetupModalContainer';
 import { recordGroupDefinitionFamilyState } from '@/object-record/record-group/states/recordGroupDefinitionFamilyState';
 import { visibleRecordGroupIdsComponentFamilySelector } from '@/object-record/record-group/states/selectors/visibleRecordGroupIdsComponentFamilySelector';
 import { RECORD_INDEX_REMOVE_SORTING_MODAL_ID } from '@/object-record/record-index/constants/RecordIndexRemoveSortingModalId';
@@ -243,6 +244,13 @@ export const RecordBoard = () => {
             </StyledBoardContentContainer>
           </StyledContainerContainer>
         </ScrollWrapper>
+        {/* NestboxAI: way to open the modal */}
+        {visibleRecordGroupIds.map((recordGroupId) => (
+          <AIWorkflowSetupModalContainer 
+            key={`ai-workflow-modal-${recordGroupId}`} 
+            recordGroupId={recordGroupId}
+          />
+        ))}
       </RecordBoardComponentInstanceContext.Provider>
     </RecordBoardScope>
   );
