@@ -65,7 +65,7 @@ export class AiAgentConfigService {
 
       if (existingConfig) {
         throw new Error(
-          `AI Agent Config with workspaceId: ${workspaceId}, fieldMetadataId: ${input.fieldMetadataId}, and viewGroupId: ${input.viewGroupId} already exists`,
+          `AI Agent Config already exists`,
         );
       }
     }
