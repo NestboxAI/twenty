@@ -18,6 +18,7 @@ import { useIsMobile } from 'twenty-ui/utilities';
 
 import { useCreateAiAgentConfig } from '@/object-record/record-group/hooks/useCreateAiAgentConfig';
 import { useDeleteAiAgentConfig } from '@/object-record/record-group/hooks/useDeleteAiAgentConfig';
+import { useGetAgents } from '@/object-record/record-group/hooks/useGetAgents';
 import { useUpdateAiAgentConfig } from '@/object-record/record-group/hooks/useUpdateAiAgentConfig';
 
 const RIGHT_DRAWER_ANIMATION_VARIANTS = {
@@ -143,7 +144,10 @@ export const AIWorkflowSetupDrawer = ({
     viewId,
   });
 
-  const [agentSelection, setAgentSelection] = useState('AI Agent Alpha');
+  // Fetch available agents dynamically
+  const { agentOptions, loading: isLoadingAgents, error: agentsError } = useGetAgents();
+
+  const [agentSelection, setAgentSelection] = useState('');
   const [wipLimit, setWipLimit] = useState('1');
   const [additionalInput, setAdditionalInput] = useState('');
   const [workflowEnabled, setWorkflowEnabled] = useState(true);
@@ -152,31 +156,25 @@ export const AIWorkflowSetupDrawer = ({
     additionalInput?: string;
   }>({});
 
-  const agentOptions = [
-    { value: 'AI Agent Alpha', label: 'AI Agent Alpha' },
-    { value: 'AI Agent Beta', label: 'AI Agent Beta' },
-    { value: 'AI Agent Gamma', label: 'AI Agent Gamma' },
-  ];
-
   const targetVariant = isMobile ? 'fullScreen' : 'normal';
 
   // Populate form with existing data when config is loaded
   useEffect(() => {
     if (aiAgentConfig && isOpen) {
-      setAgentSelection(aiAgentConfig.agent || 'AI Agent Alpha');
+      setAgentSelection(aiAgentConfig.agent || '');
       setWipLimit(aiAgentConfig.wipLimit?.toString() || '3');
       setAdditionalInput(aiAgentConfig.additionalInput || '');
       setWorkflowEnabled(aiAgentConfig.status === 'ENABLED');
       setErrors({});
-    } else if (isOpen && !isLoadingConfig && !aiAgentConfig) {
-      // Reset to defaults when no config is found
-      setAgentSelection('AI Agent Alpha');
+    } else if (isOpen && !isLoadingConfig && !aiAgentConfig && agentOptions.length > 0) {
+      // Reset to defaults when no config is found, and set first available agent as default
+      setAgentSelection(agentOptions[0]?.value || '');
       setWipLimit('1');
       setAdditionalInput('');
       setWorkflowEnabled(true);
       setErrors({});
     }
-  }, [aiAgentConfig, isOpen, isLoadingConfig]);
+  }, [aiAgentConfig, isOpen, isLoadingConfig, agentOptions]);
 
   const validateWipLimit = (value: string): string | undefined => {
     const numValue = parseInt(value, 10);
@@ -223,7 +221,7 @@ export const AIWorkflowSetupDrawer = ({
       }
       
       // Clear form inputs after successful delete
-      setAgentSelection('AI Agent Alpha');
+      setAgentSelection(agentOptions[0]?.value || '');
       setWipLimit('1');
       setAdditionalInput('');
       setWorkflowEnabled(true);
@@ -293,7 +291,7 @@ export const AIWorkflowSetupDrawer = ({
       }
       
       // Clear form inputs after successful save
-      setAgentSelection('AI Agent Alpha');
+      setAgentSelection(agentOptions[0]?.value || '');
       setWipLimit('1');
       setAdditionalInput('');
       setWorkflowEnabled(true);
@@ -359,9 +357,15 @@ export const AIWorkflowSetupDrawer = ({
                 options={agentOptions}
                 dropdownId="ai-workflow-agent-select"
                 fullWidth
+                disabled={isLoadingAgents}
               />
               <StyledDescription>
-                {t`Select an agent to execute the workflow.`}
+                {isLoadingAgents 
+                  ? t`Loading available agents...`
+                  : agentsError 
+                    ? t`Error loading agents. Please try again.`
+                    : t`Select an agent to execute the workflow.`
+                }
               </StyledDescription>
             </StyledFormField>
 
@@ -428,7 +432,7 @@ export const AIWorkflowSetupDrawer = ({
                   accent="danger"
                   title={t`Delete Workflow`}
                   onClick={handleDelete}
-                  disabled={isSubmitting || isLoadingConfig}
+                  disabled={isSubmitting || isLoadingConfig || isLoadingAgents}
                 />
               ] : []),
               <Button
@@ -437,7 +441,7 @@ export const AIWorkflowSetupDrawer = ({
                 accent="blue"
                 title={aiAgentConfig?.id ? t`Update Workflow` : t`Save Workflow`}
                 onClick={handleSave}
-                disabled={isSubmitting || isLoadingConfig}
+                disabled={isSubmitting || isLoadingConfig || isLoadingAgents}
               />,
             ]}
           />
