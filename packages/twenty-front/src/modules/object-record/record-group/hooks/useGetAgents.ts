@@ -1,5 +1,6 @@
 import { AgentsApi, Configuration } from '@nestbox-ai/instances';
 import { useEffect, useState } from 'react';
+import { REACT_APP_NESTBOX_AI_INSTANCE_API_KEY, REACT_APP_NESTBOX_AI_INSTANCE_IP } from '~/config';
 
 export interface Agent {
   id: string;
@@ -27,8 +28,9 @@ export const useGetAgents = () => {
         setLoading(true);
         setError(null);
 
-        const basePath = process.env.REACT_APP_NESTBOX_AI_INSTANCE_IP;
-        const apiKey = process.env.REACT_APP_NESTBOX_AI_INSTANCE_API_KEY;
+        const basePath = REACT_APP_NESTBOX_AI_INSTANCE_IP;
+        console.log("basePath:", basePath)
+        const apiKey = REACT_APP_NESTBOX_AI_INSTANCE_API_KEY;
         
         const configuration = new Configuration({
           basePath,
