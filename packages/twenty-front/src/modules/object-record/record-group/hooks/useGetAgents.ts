@@ -27,11 +27,14 @@ export const useGetAgents = () => {
         setLoading(true);
         setError(null);
 
+        const basePath = process.env.REACT_APP_NESTBOX_AI_INSTANCE_IP;
+        const apiKey = process.env.REACT_APP_NESTBOX_AI_INSTANCE_API_KEY;
+        
         const configuration = new Configuration({
-          basePath: process.env.REACT_APP_NESTBOX_AI_INSTANCE_IP,
+          basePath,
           baseOptions: {
             headers: {
-              Authorization: process.env.REACT_APP_NESTBOX_AI_INSTANCE_API_KEY,
+              Authorization: apiKey,
             },
           },
         });
