@@ -194,7 +194,7 @@ export const AIWorkflowSetupDrawer = ({
 
   const validateAdditionalInput = (value: string): string | undefined => {
     if (value.length > 5000) {
-      return 'Additional Input must not exceed 5000 characters';
+      return 'Instructions must not exceed 5000 characters';
     }
     return undefined;
   };
@@ -416,11 +416,11 @@ export const AIWorkflowSetupDrawer = ({
             </StyledFormField>
 
             <StyledFormField>
-              <StyledLabel>{`Additional Input`}</StyledLabel>
+              <StyledLabel>{`Instructions`}</StyledLabel>
               <TextArea
                 value={additionalInput}
                 onChange={handleAdditionalInputChange}
-                placeholder={`Provide any additional input content for the agent...`}
+                placeholder={`Provide instructions for the agent...`}
                 minRows={8}
                 maxRows={8}
               />
