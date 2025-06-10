@@ -41,6 +41,8 @@ RUN yarn workspaces focus --production twenty-emails twenty-shared twenty-server
 FROM common-deps as twenty-front-build
 
 ARG REACT_APP_SERVER_BASE_URL
+ARG REACT_APP_NESTBOX_AI_INSTANCE_IP
+ARG REACT_APP_NESTBOX_AI_INSTANCE_API_KEY
 
 COPY ./packages/twenty-front /app/packages/twenty-front
 COPY ./packages/twenty-ui /app/packages/twenty-ui
