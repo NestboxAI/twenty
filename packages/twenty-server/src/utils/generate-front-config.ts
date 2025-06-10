@@ -12,8 +12,6 @@ export function generateFrontConfig(): void {
     window: {
       _env_: {
         REACT_APP_SERVER_BASE_URL: process.env.SERVER_URL,
-        REACT_APP_NESTBOX_AI_INSTANCE_IP: process.env.REACT_APP_NESTBOX_AI_INSTANCE_IP,
-        REACT_APP_NESTBOX_AI_INSTANCE_API_KEY: process.env.REACT_APP_NESTBOX_AI_INSTANCE_API_KEY,
       },
     },
   };

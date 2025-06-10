@@ -1097,6 +1097,24 @@ export class ConfigVariables {
   @IsOptionalOrEmptyString()
   @IsTwentySemVer()
   APP_VERSION?: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.Other,
+    description: 'Base URL for Nestbox AI instance API',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  NESTBOX_AI_INSTANCE_IP: string;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.Other,
+    isSensitive: true,
+    description: 'API key for Nestbox AI instance',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  NESTBOX_AI_INSTANCE_API_KEY: string;
+
 }
 
 export const validate = (config: Record<string, unknown>): ConfigVariables => {

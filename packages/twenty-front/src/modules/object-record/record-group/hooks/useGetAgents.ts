@@ -1,6 +1,8 @@
-import { AgentsApi, Configuration } from '@nestbox-ai/instances';
-import { useEffect, useState } from 'react';
-import { REACT_APP_NESTBOX_AI_INSTANCE_API_KEY, REACT_APP_NESTBOX_AI_INSTANCE_IP } from '~/config';
+import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
+import { IconRobot } from 'twenty-ui/display';
+
+import { GET_AGENTS } from '../graphql/queries/getAgents';
 
 export interface Agent {
   id: string;
@@ -14,65 +16,36 @@ export interface Agent {
 export interface AgentSelectOption {
   value: string;
   label: string;
+  Icon?: any;
 }
 
 export const useGetAgents = () => {
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [agentOptions, setAgentOptions] = useState<AgentSelectOption[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error } = useQuery<{ agents: Agent[] }>(GET_AGENTS);
 
-  useEffect(() => {
-    const fetchAgents = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const agents = data?.agents || [];
 
-        const basePath = REACT_APP_NESTBOX_AI_INSTANCE_IP;
-        console.log("basePath:", basePath)
-        const apiKey = REACT_APP_NESTBOX_AI_INSTANCE_API_KEY;
-        
-        const configuration = new Configuration({
-          basePath,
-          baseOptions: {
-            headers: {
-              Authorization: apiKey,
-            },
-          },
-        });
-
-        const agentsApi = new AgentsApi(configuration);
-        const response = await agentsApi.agentManagementControllerGetAllAgents();
-        
-        // Handle the response properly - since the API returns void but may contain data in practice
-        // We'll cast the response to any to access potential data or fallback to empty array
-        const fetchedAgents: Agent[] = (response as any)?.data || [];
-        setAgents(fetchedAgents);
-
-        // Transform agents into select options format
-        const options = fetchedAgents.map((agent: Agent) => ({
-          value: agent.id,
-          label: agent.name,
-        }));
-        setAgentOptions(options);
-      } catch (err) {
-        console.error('Failed to fetch agents:', err);
-        setError('Failed to fetch agents');
-        // Fallback to empty array
-        setAgents([]);
-        setAgentOptions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAgents();
-  }, []);
+  const agentOptions: AgentSelectOption[] = useMemo(() => {
+    if (agents.length === 0) {
+      return [
+        {
+          value: '',
+          label: 'No agents available',
+          Icon: IconRobot,
+        },
+      ];
+    }
+    
+    return agents.map((agent) => ({
+      value: agent.id,
+      label: agent.name,
+      Icon: IconRobot,
+    }));
+  }, [agents]);
 
   return {
     agents,
     agentOptions,
     loading,
-    error,
+    error: error?.message || null,
   };
 }; 

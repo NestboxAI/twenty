@@ -144,7 +144,7 @@ export const AIWorkflowSetupDrawer = ({
   });
 
   // Fetch available agents dynamically
-  const { agentOptions, loading: isLoadingAgents, error: agentsError } = useGetAgents();
+  const { agents, agentOptions, loading: isLoadingAgents, error: agentsError } = useGetAgents();
 
   const [agentSelection, setAgentSelection] = useState('');
   const [wipLimit, setWipLimit] = useState('1');
@@ -153,6 +153,7 @@ export const AIWorkflowSetupDrawer = ({
   const [errors, setErrors] = useState<{
     wipLimit?: string;
     additionalInput?: string;
+    agentSelection?: string;
   }>({});
 
   const targetVariant = isMobile ? 'fullScreen' : 'normal';
@@ -165,15 +166,23 @@ export const AIWorkflowSetupDrawer = ({
       setAdditionalInput(aiAgentConfig.additionalInput || '');
       setWorkflowEnabled(aiAgentConfig.status === 'ENABLED');
       setErrors({});
-    } else if (isOpen && !isLoadingConfig && !aiAgentConfig && agentOptions.length > 0) {
-      // Reset to defaults when no config is found, and set first available agent as default
-      setAgentSelection(agentOptions[0]?.value || '');
-      setWipLimit('1');
-      setAdditionalInput('');
-      setWorkflowEnabled(true);
-      setErrors({});
     }
-  }, [aiAgentConfig, isOpen, isLoadingConfig, agentOptions]);
+  }, [aiAgentConfig, isOpen]);
+
+  // Separate effect for setting defaults when no config and agents are available
+  useEffect(() => {
+    if (isOpen && !isLoadingConfig && !aiAgentConfig && agents.length > 0 && agentSelection === '') {
+      // Find the first valid agent (not the placeholder)
+      const firstValidAgent = agents[0];
+      if (firstValidAgent) {
+        setAgentSelection(firstValidAgent.id);
+        setWipLimit('1');
+        setAdditionalInput('');
+        setWorkflowEnabled(true);
+        setErrors({});
+      }
+    }
+  }, [isOpen, isLoadingConfig, aiAgentConfig, agents.length, agentSelection, agents]);
 
   const validateWipLimit = (value: string): string | undefined => {
     const numValue = parseInt(value, 10);
@@ -186,6 +195,17 @@ export const AIWorkflowSetupDrawer = ({
   const validateAdditionalInput = (value: string): string | undefined => {
     if (value.length > 5000) {
       return 'Additional Input must not exceed 5000 characters';
+    }
+    return undefined;
+  };
+
+  const validateAgentSelection = (value: string): string | undefined => {
+    if (!value || value === '') {
+      return 'Please select an agent';
+    }
+    // Check if no real agents are available (only the placeholder option)
+    if (agents.length === 0) {
+      return 'No agents available';
     }
     return undefined;
   };
@@ -237,11 +257,13 @@ export const AIWorkflowSetupDrawer = ({
     // Validate all fields before saving
     const wipLimitError = validateWipLimit(wipLimit);
     const additionalInputError = validateAdditionalInput(additionalInput);
+    const agentSelectionError = validateAgentSelection(agentSelection);
     
-    if (wipLimitError || additionalInputError) {
+    if (wipLimitError || additionalInputError || agentSelectionError) {
       setErrors({
         wipLimit: wipLimitError,
         additionalInput: additionalInputError,
+        agentSelection: agentSelectionError,
       });
       return;
     }
@@ -352,7 +374,13 @@ export const AIWorkflowSetupDrawer = ({
               <StyledLabel>{`Agent Selection`}</StyledLabel>
               <Select
                 value={agentSelection}
-                onChange={(value: string) => setAgentSelection(value)}
+                onChange={(value: string) => {
+                  setAgentSelection(value);
+                  // Clear validation error when user selects an agent
+                  if (value && value !== '') {
+                    setErrors(prev => ({ ...prev, agentSelection: undefined }));
+                  }
+                }}
                 options={agentOptions}
                 dropdownId="ai-workflow-agent-select"
                 fullWidth
@@ -366,6 +394,11 @@ export const AIWorkflowSetupDrawer = ({
                     : `Select an agent to execute the workflow.`
                 }
               </StyledDescription>
+              {errors.agentSelection && (
+                <StyledDescription style={{ color: 'red' }}>
+                  {errors.agentSelection}
+                </StyledDescription>
+              )}
             </StyledFormField>
 
             <StyledFormField>
@@ -440,7 +473,7 @@ export const AIWorkflowSetupDrawer = ({
                 accent="blue"
                 title={aiAgentConfig?.id ? `Update Workflow` : `Save Workflow`}
                 onClick={handleSave}
-                disabled={isSubmitting || isLoadingConfig || isLoadingAgents}
+                disabled={isSubmitting || isLoadingConfig || isLoadingAgents || agents.length === 0}
               />,
             ]}
           />

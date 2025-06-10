@@ -17,8 +17,6 @@ export default defineConfig(({ command, mode }) => {
 
   const {
     REACT_APP_SERVER_BASE_URL,
-    REACT_APP_NESTBOX_AI_INSTANCE_IP,
-    REACT_APP_NESTBOX_AI_INSTANCE_API_KEY,
     VITE_BUILD_SOURCEMAP,
     VITE_DISABLE_TYPESCRIPT_CHECKER,
     VITE_DISABLE_ESLINT_CHECKER,
@@ -190,13 +188,9 @@ export default defineConfig(({ command, mode }) => {
     define: {
       _env_: {
         REACT_APP_SERVER_BASE_URL,
-        REACT_APP_NESTBOX_AI_INSTANCE_IP,
-        REACT_APP_NESTBOX_AI_INSTANCE_API_KEY,
       },
       'process.env': {
         REACT_APP_SERVER_BASE_URL,
-        REACT_APP_NESTBOX_AI_INSTANCE_IP,
-        REACT_APP_NESTBOX_AI_INSTANCE_API_KEY,
       },
     },
     css: {
