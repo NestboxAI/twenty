@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { t } from '@lingui/core/macro';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
@@ -338,19 +337,19 @@ export const AIWorkflowSetupDrawer = ({
           <StyledDrawerContent>
             <StyledTitle>
               <H1Title 
-                title={aiAgentConfig?.id ? t`Edit Workflow Configuration` : t`Configure Workflow`} 
+                title={aiAgentConfig?.id ? `Edit Workflow Configuration` : `Configure Workflow`} 
                 fontColor={H1TitleFontColor.Primary} 
               />
               <StyledDescription>
                 {aiAgentConfig?.id 
-                  ? t`Update the settings for your automated workflow execution.`
-                  : t`Adjust the settings for your automated workflow execution.`
+                  ? `Update the settings for your automated workflow execution.`
+                  : `Adjust the settings for your automated workflow execution.`
                 }
               </StyledDescription>
             </StyledTitle>
 
             <StyledFormField>
-              <StyledLabel>{t`Agent Selection`}</StyledLabel>
+              <StyledLabel>{`Agent Selection`}</StyledLabel>
               <Select
                 value={agentSelection}
                 onChange={(value: string) => setAgentSelection(value)}
@@ -361,16 +360,16 @@ export const AIWorkflowSetupDrawer = ({
               />
               <StyledDescription>
                 {isLoadingAgents 
-                  ? t`Loading available agents...`
+                  ? `Loading available agents...`
                   : agentsError 
-                    ? t`Error loading agents. Please try again.`
-                    : t`Select an agent to execute the workflow.`
+                    ? `Error loading agents. Please try again.`
+                    : `Select an agent to execute the workflow.`
                 }
               </StyledDescription>
             </StyledFormField>
 
             <StyledFormField>
-              <StyledLabel>{t`WIP Limit`}</StyledLabel>
+              <StyledLabel>{`WIP Limit`}</StyledLabel>
               <TextInputV2
                 value={wipLimit}
                 onChange={handleWipLimitChange}
@@ -379,21 +378,21 @@ export const AIWorkflowSetupDrawer = ({
                 error={errors.wipLimit}
               />
               <StyledDescription>
-                {t`Number of elements to process per batch (minimum 1, e.g., every minute).`}
+                {`Number of elements to process per batch (minimum 1, e.g., every minute).`}
               </StyledDescription>
             </StyledFormField>
 
             <StyledFormField>
-              <StyledLabel>{t`Additional Input`}</StyledLabel>
+              <StyledLabel>{`Additional Input`}</StyledLabel>
               <TextArea
                 value={additionalInput}
                 onChange={handleAdditionalInputChange}
-                placeholder={t`Provide any additional input content for the agent...`}
+                placeholder={`Provide any additional input content for the agent...`}
                 minRows={8}
                 maxRows={8}
               />
               <StyledDescription>
-                {t`Optional: additional content to pass to the triggered agent. ${additionalInput.length}/5000 characters`}
+                {`Optional: additional content to pass to the triggered agent. ${additionalInput.length}/5000 characters`}
               </StyledDescription>
               {errors.additionalInput && (
                 <StyledDescription style={{ color: 'red' }}>
@@ -404,9 +403,9 @@ export const AIWorkflowSetupDrawer = ({
 
             <StyledToggleField>
               <StyledToggleInfo>
-                <StyledLabel>{t`Workflow Status`}</StyledLabel>
+                <StyledLabel>{`Workflow Status`}</StyledLabel>
                 <StyledToggleStatus>
-                  {workflowEnabled ? t`Enabled (Workflow is active)` : t`Disabled (Workflow is inactive)`}
+                  {workflowEnabled ? `Enabled (Workflow is active)` : `Disabled (Workflow is inactive)`}
                 </StyledToggleStatus>
               </StyledToggleInfo>
               <Toggle
@@ -422,7 +421,7 @@ export const AIWorkflowSetupDrawer = ({
                 key="cancel"
                 variant="secondary"
                 accent="default"
-                title={t`Cancel`}
+                title={`Cancel`}
                 onClick={handleCancel}
               />,
               ...(aiAgentConfig?.id ? [
@@ -430,7 +429,7 @@ export const AIWorkflowSetupDrawer = ({
                   key="delete"
                   variant="secondary"
                   accent="danger"
-                  title={t`Delete Workflow`}
+                  title={`Delete Workflow`}
                   onClick={handleDelete}
                   disabled={isSubmitting || isLoadingConfig || isLoadingAgents}
                 />
@@ -439,7 +438,7 @@ export const AIWorkflowSetupDrawer = ({
                 key="save"
                 variant="primary"
                 accent="blue"
-                title={aiAgentConfig?.id ? t`Update Workflow` : t`Save Workflow`}
+                title={aiAgentConfig?.id ? `Update Workflow` : `Save Workflow`}
                 onClick={handleSave}
                 disabled={isSubmitting || isLoadingConfig || isLoadingAgents}
               />,

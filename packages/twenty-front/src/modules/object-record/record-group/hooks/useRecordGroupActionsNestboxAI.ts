@@ -154,7 +154,7 @@ export const useRecordGroupActions = ({
     },
     {
       id: 'aiWorkflowSetup',
-      label: t`AI Workflow Setup`,
+      label: `AI Workflow Setup`,
       icon: IconRobot,
       position: 4,
       condition:
