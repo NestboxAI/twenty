@@ -12,8 +12,6 @@ import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twent
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import { TwentyORMGlobalManager } from 'src/engine/twenty-orm/twenty-orm-global.manager';
 
-export const NESTBOX_AI_AGENT_CRON_PATTERN = '*/1 * * * *';
-
 @Processor(MessageQueue.cronQueue)
 export class NestboxAiAgentCronJob {
   constructor(
@@ -27,7 +25,7 @@ export class NestboxAiAgentCronJob {
   @Process(NestboxAiAgentCronJob.name)
   @SentryCronMonitor(
     NestboxAiAgentCronJob.name,
-    NESTBOX_AI_AGENT_CRON_PATTERN,
+    '*/1 * * * *', // Default pattern for monitoring, actual pattern comes from config
   )
   async handle(): Promise<void> {
     const cronPattern = this.twentyConfigService.get('NESTBOX_AI_AGENT_CRON_PATTERN');
