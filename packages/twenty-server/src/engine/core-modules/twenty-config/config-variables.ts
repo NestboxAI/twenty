@@ -1115,6 +1115,13 @@ export class ConfigVariables {
   @IsOptional()
   NESTBOX_AI_INSTANCE_API_KEY: string;
 
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.Other,
+    description: 'Cron pattern for nestbox AI agent processing job (default: every minute)',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  NESTBOX_AI_AGENT_CRON_PATTERN = '*/1 * * * *';
 }
 
 export const validate = (config: Record<string, unknown>): ConfigVariables => {
