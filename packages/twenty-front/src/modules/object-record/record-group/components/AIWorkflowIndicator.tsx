@@ -13,7 +13,7 @@ const StyledAIIndicator = styled.div<{ $isEnabled: boolean }>`
   display: flex;
   align-items: center;
   color: ${({ theme, $isEnabled }) => 
-    $isEnabled ? theme.color.green50 : theme.color.gray50};
+    $isEnabled ? '#5a9dfb' : theme.color.gray50};
   cursor: pointer;
 `;
 
