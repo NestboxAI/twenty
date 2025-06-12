@@ -152,10 +152,21 @@ export class NestboxAiAgentCronJob {
         const nextPosition = nextViewGroupResult[0].position;
         console.log(`📋 Found next position: ${nextPosition}, fieldValue: ${nextFieldValue}`);
 
-        // Step 7: Query records that match current fieldValue
+        // Step 7: Query records that match current fieldValue with related notes, tasks, and attachments
         const queryResult = await workspaceDataSource.query(
-          `SELECT * FROM "${dataSource.schema}"."${tableName}" 
-           WHERE "${fieldName}" = $1 AND "deletedAt" IS NULL 
+          `SELECT 
+            main.*,
+            COALESCE(json_agg(DISTINCT note.*) FILTER (WHERE note.id IS NOT NULL), '[]'::json) as notes,
+            COALESCE(json_agg(DISTINCT task.*) FILTER (WHERE task.id IS NOT NULL), '[]'::json) as tasks,
+            COALESCE(json_agg(DISTINCT attachment.*) FILTER (WHERE attachment.id IS NOT NULL), '[]'::json) as attachments
+           FROM "${dataSource.schema}"."${tableName}" main
+           LEFT JOIN "${dataSource.schema}"."noteTarget" ON "${dataSource.schema}"."noteTarget"."${objectMetadata.nameSingular}Id" = main.id
+           LEFT JOIN "${dataSource.schema}"."note" ON "${dataSource.schema}"."note".id = "${dataSource.schema}"."noteTarget"."noteId"
+           LEFT JOIN "${dataSource.schema}"."taskTarget" ON "${dataSource.schema}"."taskTarget"."${objectMetadata.nameSingular}Id" = main.id  
+           LEFT JOIN "${dataSource.schema}"."task" ON "${dataSource.schema}"."task".id = "${dataSource.schema}"."taskTarget"."taskId"
+           LEFT JOIN "${dataSource.schema}"."attachment" ON "${dataSource.schema}"."attachment"."${objectMetadata.nameSingular}Id" = main.id
+           WHERE main."${fieldName}" = $1 AND main."deletedAt" IS NULL
+           GROUP BY main.id
            LIMIT ${aiAgentConfig.wipLimit}`,
           [currentFieldValue]
         );
