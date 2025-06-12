@@ -3,6 +3,7 @@ import { RecordBoardContext } from '@/object-record/record-board/contexts/Record
 import { useGetAiAgentConfig } from '@/object-record/record-group/hooks/useGetAiAgentConfig';
 import { recordGroupFieldMetadataComponentState } from '@/object-record/record-group/states/recordGroupFieldMetadataComponentState';
 import { useRecordTableContextOrThrow } from '@/object-record/record-table/contexts/RecordTableContext';
+import { useModal } from '@/ui/layout/modal/hooks/useModal';
 import { useRecoilComponentValueV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValueV2';
 import styled from '@emotion/styled';
 import { useContext } from 'react';
@@ -13,7 +14,7 @@ const StyledAIIndicator = styled.div<{ $isEnabled: boolean }>`
   align-items: center;
   color: ${({ theme, $isEnabled }) => 
     $isEnabled ? theme.color.green50 : theme.color.gray50};
-  cursor: default;
+  cursor: pointer;
 `;
 
 const StyledIcon = styled(IconRobot)`
@@ -32,6 +33,8 @@ export const AIWorkflowIndicator = ({
   viewId,
   context = 'table' 
 }: AIWorkflowIndicatorProps) => {
+  const { openModal } = useModal();
+
   const recordGroupFieldMetadata = useRecoilComponentValueV2(
     recordGroupFieldMetadataComponentState,
   );
@@ -68,14 +71,23 @@ export const AIWorkflowIndicator = ({
 
   const indicatorId = `ai-workflow-indicator-${recordGroupId}`;
 
+  const handleClick = () => {
+    const modalId = `ai-workflow-setup-${recordGroupId}`;
+    openModal(modalId);
+  };
+
   return (
     <>
-      <StyledAIIndicator id={indicatorId} $isEnabled={aiAgentConfig.status === 'ENABLED'}>
+      <StyledAIIndicator 
+        id={indicatorId} 
+        $isEnabled={aiAgentConfig.status === 'ENABLED'}
+        onClick={handleClick}
+      >
         <StyledIcon />
       </StyledAIIndicator>
       <AppTooltip
         anchorSelect={`#${indicatorId}`}
-        content={`AI Workflow: ${aiAgentConfig.agent} (${aiAgentConfig.status})`}
+        content={`AI Workflow: ${aiAgentConfig.agent} (${aiAgentConfig.status}) - Click to configure`}
         noArrow
         place="top"
         positionStrategy="fixed"
