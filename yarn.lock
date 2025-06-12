@@ -10385,6 +10385,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestbox-ai/agents@npm:^1.0.42":
+  version: 1.0.42
+  resolution: "@nestbox-ai/agents@npm:1.0.42"
+  dependencies:
+    axios: "npm:^1.6.1"
+  checksum: 10c0/80466632c2d8c7b08955a402e7cb9bcc4469d8257fd02c4a0c52f528384dae047f566093e842af2ae1b024d75d24b72ae919299420a8c7e1468abb486014f847
+  languageName: node
+  linkType: hard
+
 "@nestbox-ai/instances@npm:1.0.42":
   version: 1.0.42
   resolution: "@nestbox-ai/instances@npm:1.0.42"
@@ -55828,6 +55837,7 @@ __metadata:
     "@mdx-js/react": "npm:^3.0.0"
     "@microsoft/microsoft-graph-client": "npm:^3.0.7"
     "@microsoft/microsoft-graph-types": "npm:^2.40.0"
+    "@nestbox-ai/agents": "npm:^1.0.42"
     "@nestbox-ai/instances": "npm:1.0.42"
     "@nestjs/apollo": "npm:^11.0.5"
     "@nestjs/axios": "npm:^3.0.1"

@@ -4,6 +4,9 @@ set -e
 # Source the automated workspace setup script
 . /app/automated-workspace-setup.sh
 
+# Source the automated cron setup script
+. /app/automated-cron-setup.sh
+
 setup_and_migrate_db() {
     if [ "${DISABLE_DB_MIGRATIONS}" = "true" ]; then
         echo "Database setup and migrations are disabled, skipping..."
@@ -35,6 +38,9 @@ setup_and_migrate_db
 
 # Run automated workspace setup (only on first time)
 automated_workspace_setup
+
+# Run automated cron setup (only on first time)
+automated_cron_setup
 
 # Continue with the original Docker command
 exec "$@"
