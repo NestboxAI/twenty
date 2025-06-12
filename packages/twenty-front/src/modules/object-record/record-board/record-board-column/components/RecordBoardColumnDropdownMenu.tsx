@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { useCallback, useRef } from 'react';
 
-import { useRecordGroupActions } from '@/object-record/record-group/hooks/useRecordGroupActions';
+import { useRecordGroupActions } from '@/object-record/record-group/hooks/useRecordGroupActionsNestboxAI';
 import { DropdownMenu } from '@/ui/layout/dropdown/components/DropdownMenu';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { OverlayContainer } from '@/ui/layout/overlay/components/OverlayContainer';
@@ -14,6 +14,22 @@ const StyledMenuContainer = styled.div`
   top: ${({ theme }) => theme.spacing(10)};
   width: 200px;
   z-index: 1;
+`;
+
+const StyledAIWorkflowMenuItem = styled(MenuItem)`
+  div[data-testid="tooltip"] {
+    font-weight: 500;
+    background: linear-gradient(to right, #5a9dfb, #ff5a8d, #ffad42);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  svg {
+    color: #5a9dfb;
+    stroke: #5a9dfb;
+  }
 `;
 
 type RecordBoardColumnDropdownMenuProps = {
@@ -47,17 +63,21 @@ export const RecordBoardColumnDropdownMenu = ({
       <OverlayContainer>
         <DropdownMenu data-select-disable>
           <DropdownMenuItemsContainer>
-            {recordGroupActions.map((action) => (
-              <MenuItem
-                key={action.id}
-                onClick={() => {
-                  action.callback();
-                  closeMenu();
-                }}
-                LeftIcon={action.icon}
-                text={action.label}
-              />
-            ))}
+            {recordGroupActions.map((action) => {
+              const MenuItemComponent = action.id === 'aiWorkflowSetup' ? StyledAIWorkflowMenuItem : MenuItem;
+              
+              return (
+                <MenuItemComponent
+                  key={action.id}
+                  onClick={() => {
+                    action.callback();
+                    closeMenu();
+                  }}
+                  LeftIcon={action.icon}
+                  text={action.label}
+                />
+              );
+            })}
           </DropdownMenuItemsContainer>
         </DropdownMenu>
       </OverlayContainer>

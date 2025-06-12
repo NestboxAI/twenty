@@ -5,6 +5,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WorkspaceQueryRunnerModule } from 'src/engine/api/graphql/workspace-query-runner/workspace-query-runner.module';
 import { ActorModule } from 'src/engine/core-modules/actor/actor.module';
 import { AdminPanelModule } from 'src/engine/core-modules/admin-panel/admin-panel.module';
+import { AiAgentConfigModule } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.module';
 import { AppTokenModule } from 'src/engine/core-modules/app-token/app-token.module';
 import { ApprovedAccessDomainModule } from 'src/engine/core-modules/approved-access-domain/approved-access-domain.module';
 import { AuthModule } from 'src/engine/core-modules/auth/auth.module';
@@ -80,6 +81,7 @@ import { FileModule } from './file/file.module';
     ActorModule,
     TelemetryModule,
     AdminPanelModule,
+    AiAgentConfigModule,
     LabModule,
     RoleModule,
     RedisClientModule,

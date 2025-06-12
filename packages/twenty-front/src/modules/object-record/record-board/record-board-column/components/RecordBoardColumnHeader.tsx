@@ -7,6 +7,7 @@ import { RecordBoardColumnHeaderAggregateDropdown } from '@/object-record/record
 import { RecordBoardColumnContext } from '@/object-record/record-board/record-board-column/contexts/RecordBoardColumnContext';
 import { useAggregateRecordsForRecordBoardColumn } from '@/object-record/record-board/record-board-column/hooks/useAggregateRecordsForRecordBoardColumn';
 import { RecordBoardColumnHotkeyScope } from '@/object-record/record-board/types/BoardColumnHotkeyScope';
+import { AIWorkflowIndicator } from '@/object-record/record-group/components/AIWorkflowIndicator';
 import { RecordGroupDefinitionType } from '@/object-record/record-group/types/RecordGroupDefinition';
 import { useCreateNewIndexRecord } from '@/object-record/record-table/hooks/useCreateNewIndexRecord';
 import { useHasObjectReadOnlyPermission } from '@/settings/roles/hooks/useHasObjectReadOnlyPermission';
@@ -133,6 +134,11 @@ export const RecordBoardColumnHeader = () => {
               dropdownId={`record-board-column-aggregate-dropdown-${columnDefinition.id}`}
               objectMetadataItem={objectMetadataItem}
               aggregateLabel={aggregateLabel}
+            />
+            {/* nesboxai: add AI workflow indicator */}
+            <AIWorkflowIndicator 
+              recordGroupId={columnDefinition.id}
+              context="board"
             />
           </StyledLeftContainer>
           <StyledRightContainer>
