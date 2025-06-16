@@ -10385,6 +10385,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestbox-ai/agents@npm:^1.0.42":
+  version: 1.0.42
+  resolution: "@nestbox-ai/agents@npm:1.0.42"
+  dependencies:
+    axios: "npm:^1.6.1"
+  checksum: 10c0/80466632c2d8c7b08955a402e7cb9bcc4469d8257fd02c4a0c52f528384dae047f566093e842af2ae1b024d75d24b72ae919299420a8c7e1468abb486014f847
+  languageName: node
+  linkType: hard
+
+"@nestbox-ai/instances@npm:1.0.42":
+  version: 1.0.42
+  resolution: "@nestbox-ai/instances@npm:1.0.42"
+  dependencies:
+    axios: "npm:^1.6.1"
+  checksum: 10c0/526adb58c863a67a21dab2d78c4415ef13c7c5b1f39f7a06b5fbfb2ff491148d3da6be4fe3a80040cb4427233b434d021b2f26b57a7a2efb8721f26fa6dfc5fc
+  languageName: node
+  linkType: hard
+
 "@nestjs/apollo@npm:^11.0.5":
   version: 11.0.6
   resolution: "@nestjs/apollo@npm:11.0.6"
@@ -55819,6 +55837,8 @@ __metadata:
     "@mdx-js/react": "npm:^3.0.0"
     "@microsoft/microsoft-graph-client": "npm:^3.0.7"
     "@microsoft/microsoft-graph-types": "npm:^2.40.0"
+    "@nestbox-ai/agents": "npm:^1.0.42"
+    "@nestbox-ai/instances": "npm:1.0.42"
     "@nestjs/apollo": "npm:^11.0.5"
     "@nestjs/axios": "npm:^3.0.1"
     "@nestjs/cli": "npm:^9.0.0"

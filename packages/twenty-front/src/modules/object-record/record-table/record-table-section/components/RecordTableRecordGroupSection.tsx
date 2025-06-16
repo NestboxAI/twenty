@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { useCallback } from 'react';
 
 import { RecordBoardColumnHeaderAggregateDropdown } from '@/object-record/record-board/record-board-column/components/RecordBoardColumnHeaderAggregateDropdown';
+import { AIWorkflowIndicator } from '@/object-record/record-group/components/AIWorkflowIndicator';
 import { useCurrentRecordGroupId } from '@/object-record/record-group/hooks/useCurrentRecordGroupId';
 import { recordGroupDefinitionFamilyState } from '@/object-record/record-group/states/recordGroupDefinitionFamilyState';
 import { RecordGroupDefinitionType } from '@/object-record/record-group/types/RecordGroupDefinition';
@@ -16,9 +17,9 @@ import { useRecoilComponentFamilyStateV2 } from '@/ui/utilities/state/component-
 import { useRecoilComponentValueV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValueV2';
 import { useRecoilValue } from 'recoil';
 import { isDefined } from 'twenty-shared/utils';
-import { AnimatedLightIconButton } from 'twenty-ui/input';
-import { IconChevronDown } from 'twenty-ui/display';
 import { Tag } from 'twenty-ui/components';
+import { IconChevronDown } from 'twenty-ui/display';
+import { AnimatedLightIconButton } from 'twenty-ui/input';
 
 const StyledTrContainer = styled.tr`
   cursor: pointer;
@@ -118,6 +119,11 @@ export const RecordTableRecordGroupSection = () => {
           dropdownId={`record-group-section-aggregate-dropdown-${currentRecordGroupId}`}
           objectMetadataItem={objectMetadataItem}
           aggregateLabel={aggregateLabel}
+        />
+        {/* nesboxai: add AI workflow indicator */}
+        <AIWorkflowIndicator 
+          recordGroupId={currentRecordGroupId}
+          context="table"
         />
         <RecordTableRecordGroupStickyEffect />
       </StyledRecordGroupSection>
