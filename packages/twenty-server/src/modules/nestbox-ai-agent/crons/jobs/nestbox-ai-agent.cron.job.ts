@@ -152,6 +152,19 @@ export class NestboxAiAgentCronJob {
         const nextPosition = nextViewGroupResult[0].position;
         console.log(`📋 Found next position: ${nextPosition}, fieldValue: ${nextFieldValue}`);
 
+        // Step 6a: Get ALL view groups for this field so AI agent can decide where to move
+        const allViewGroupsResult = await workspaceDataSource.query(
+          `SELECT "fieldValue", "position" FROM "${dataSource.schema}"."viewGroup" 
+           WHERE "deletedAt" IS NULL AND "fieldMetadataId" = $1 AND "isVisible" = true
+           ORDER BY "position" ASC`,
+          [aiAgentConfig.fieldMetadataId]
+        );
+
+        const availableViewGroups = allViewGroupsResult.map((vg: any) => ({
+          fieldValue: vg.fieldValue,
+          position: vg.position
+        }));
+
         // Step 7: Query records that match current fieldValue with related notes, tasks, and attachments
         const queryResult = await workspaceDataSource.query(
           `SELECT 
@@ -192,9 +205,21 @@ export class NestboxAiAgentCronJob {
               // Step 8a: Call Nestbox AI API for each record
               console.log(`🤖 Processing record ${record.id} with Nestbox AI agent ${aiAgentConfig.agent}`);
 
+              // Add view group information to the record
+              const enrichedRecord = {
+                ...record,
+                viewGroupContext: {
+                  availableViewGroups: availableViewGroups,
+                  currentViewGroup: {
+                    fieldValue: currentFieldValue,
+                    position: currentPosition
+                  }
+                }
+              };
+
               const queries = await queryApi.agentOperationsQueryControllerCreateQuery(aiAgentConfig.agent, {
                 params: {
-                  data: record,
+                  data: enrichedRecord,
                   additional_agent: aiAgentConfig.additionalInput,
                 }
               });
