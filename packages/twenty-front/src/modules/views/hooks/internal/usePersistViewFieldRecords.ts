@@ -1,14 +1,15 @@
-import { useApolloClient } from '@apollo/client';
 import { useCallback } from 'react';
 import { v4 } from 'uuid';
 
 import { triggerCreateRecordsOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerCreateRecordsOptimisticEffect';
 import { triggerUpdateRecordOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerUpdateRecordOptimisticEffect';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { CoreObjectNameSingular } from '@/object-metadata/types/CoreObjectNameSingular';
 import { useGetRecordFromCache } from '@/object-record/cache/hooks/useGetRecordFromCache';
 import { useCreateOneRecordMutation } from '@/object-record/hooks/useCreateOneRecordMutation';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { useUpdateOneRecordMutation } from '@/object-record/hooks/useUpdateOneRecordMutation';
 import { GraphQLView } from '@/views/types/GraphQLView';
 import { ViewField } from '@/views/types/ViewField';
@@ -33,15 +34,15 @@ export const usePersistViewFieldRecords = () => {
   });
 
   const { objectMetadataItems } = useObjectMetadataItems();
-
-  const apolloClient = useApolloClient();
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
+  const apolloCoreClient = useApolloCoreClient();
 
   const createViewFieldRecords = useCallback(
     (viewFieldsToCreate: ViewField[], view: GraphQLView) => {
       if (!viewFieldsToCreate.length) return;
       return Promise.all(
         viewFieldsToCreate.map((viewField) =>
-          apolloClient.mutate({
+          apolloCoreClient.mutate({
             mutation: createOneRecordMutation,
             variables: {
               input: {
@@ -62,6 +63,7 @@ export const usePersistViewFieldRecords = () => {
                 objectMetadataItem,
                 recordsToCreate: [record],
                 objectMetadataItems,
+                objectPermissionsByObjectMetadataId,
               });
             },
           }),
@@ -69,10 +71,11 @@ export const usePersistViewFieldRecords = () => {
       );
     },
     [
-      apolloClient,
+      apolloCoreClient,
       createOneRecordMutation,
       objectMetadataItem,
       objectMetadataItems,
+      objectPermissionsByObjectMetadataId,
     ],
   );
 
@@ -82,7 +85,7 @@ export const usePersistViewFieldRecords = () => {
 
       return Promise.all(
         viewFieldsToUpdate.map((viewField) =>
-          apolloClient.mutate({
+          apolloCoreClient.mutate({
             mutation: updateOneRecordMutation,
             variables: {
               idToUpdate: viewField.id,
@@ -116,7 +119,7 @@ export const usePersistViewFieldRecords = () => {
       );
     },
     [
-      apolloClient,
+      apolloCoreClient,
       getRecordFromCache,
       objectMetadataItem,
       objectMetadataItems,

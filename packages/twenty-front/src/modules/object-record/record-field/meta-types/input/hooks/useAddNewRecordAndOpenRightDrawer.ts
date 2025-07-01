@@ -1,7 +1,9 @@
 import { useSetRecoilState } from 'recoil';
 import { v4 } from 'uuid';
 
+import { SEARCH_QUERY } from '@/command-menu/graphql/queries/search';
 import { useOpenRecordInCommandMenu } from '@/command-menu/hooks/useOpenRecordInCommandMenu';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { FieldMetadataItem } from '@/object-metadata/types/FieldMetadataItem';
 import { ObjectMetadataItem } from '@/object-metadata/types/ObjectMetadataItem';
 import { getLabelIdentifierFieldMetadataItem } from '@/object-metadata/utils/getLabelIdentifierFieldMetadataItem';
@@ -9,11 +11,9 @@ import { useCreateOneRecord } from '@/object-record/hooks/useCreateOneRecord';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { viewableRecordIdState } from '@/object-record/record-right-drawer/states/viewableRecordIdState';
 import { viewableRecordNameSingularState } from '@/object-record/record-right-drawer/states/viewableRecordNameSingularState';
-import {
-  FieldMetadataType,
-  RelationDefinitionType,
-} from '~/generated-metadata/graphql';
+import { getOperationName } from '@apollo/client/utilities';
 import { isDefined } from 'twenty-shared/utils';
+import { FieldMetadataType, RelationType } from '~/generated-metadata/graphql';
 
 type RecordDetailRelationSectionProps = {
   relationObjectMetadataNameSingular: string;
@@ -21,6 +21,7 @@ type RecordDetailRelationSectionProps = {
   relationFieldMetadataItem?: FieldMetadataItem;
   recordId: string;
 };
+
 export const useAddNewRecordAndOpenRightDrawer = ({
   relationObjectMetadataNameSingular,
   relationObjectMetadataItem,
@@ -38,17 +39,18 @@ export const useAddNewRecordAndOpenRightDrawer = ({
 
   const { updateOneRecord } = useUpdateOneRecord({
     objectNameSingular:
-      relationFieldMetadataItem?.relationDefinition?.targetObjectMetadata
-        .nameSingular ?? 'workspaceMember',
+      relationFieldMetadataItem?.relation?.targetObjectMetadata.nameSingular ??
+      'workspaceMember',
   });
 
   const { openRecordInCommandMenu } = useOpenRecordInCommandMenu();
 
+  const apolloCoreClient = useApolloCoreClient();
+
   if (
     relationObjectMetadataNameSingular === 'workspaceMember' ||
     !isDefined(
-      relationFieldMetadataItem?.relationDefinition?.targetObjectMetadata
-        .nameSingular,
+      relationFieldMetadataItem?.relation?.targetObjectMetadata.nameSingular,
     )
   ) {
     return {
@@ -83,24 +85,22 @@ export const useAddNewRecordAndOpenRightDrawer = ({
           : { id: newRecordId, name: searchInput ?? '' };
 
       if (
-        relationFieldMetadataItem?.relationDefinition?.direction ===
-        RelationDefinitionType.MANY_TO_ONE
+        relationFieldMetadataItem?.relation?.type === RelationType.MANY_TO_ONE
       ) {
         createRecordPayload[
-          `${relationFieldMetadataItem?.relationDefinition?.sourceFieldMetadata.name}Id`
+          `${relationFieldMetadataItem?.relation?.sourceFieldMetadata.name}Id`
         ] = recordId;
       }
 
       await createOneRecord(createRecordPayload);
 
       if (
-        relationFieldMetadataItem?.relationDefinition?.direction ===
-        RelationDefinitionType.ONE_TO_MANY
+        relationFieldMetadataItem?.relation?.type === RelationType.ONE_TO_MANY
       ) {
         await updateOneRecord({
           idToUpdate: recordId,
           updateOneRecordInput: {
-            [`${relationFieldMetadataItem?.relationDefinition?.targetFieldMetadata.name}Id`]:
+            [`${relationFieldMetadataItem?.relation?.targetFieldMetadata.name}Id`]:
               newRecordId,
           },
         });
@@ -109,10 +109,16 @@ export const useAddNewRecordAndOpenRightDrawer = ({
       setViewableRecordId(newRecordId);
       setViewableRecordNameSingular(relationObjectMetadataNameSingular);
 
+      apolloCoreClient.refetchQueries({
+        include: [getOperationName(SEARCH_QUERY) ?? ''],
+      });
+
       openRecordInCommandMenu({
         recordId: newRecordId,
         objectNameSingular: relationObjectMetadataNameSingular,
       });
+
+      return newRecordId;
     },
   };
 };

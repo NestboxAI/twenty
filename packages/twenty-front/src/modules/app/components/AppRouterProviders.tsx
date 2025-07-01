@@ -8,8 +8,9 @@ import { ChromeExtensionSidecarProvider } from '@/chrome-extension-sidecar/compo
 import { ClientConfigProvider } from '@/client-config/components/ClientConfigProvider';
 import { ClientConfigProviderEffect } from '@/client-config/components/ClientConfigProviderEffect';
 import { MainContextStoreProvider } from '@/context-store/components/MainContextStoreProvider';
+import { ErrorMessageEffect } from '@/error-handler/components/ErrorMessageEffect';
 import { PromiseRejectionEffect } from '@/error-handler/components/PromiseRejectionEffect';
-import { ApolloMetadataClientProvider } from '@/object-metadata/components/ApolloMetadataClientProvider';
+import { ApolloCoreProvider } from '@/object-metadata/components/ApolloCoreProvider';
 import { ObjectMetadataItemsLoadEffect } from '@/object-metadata/components/ObjectMetadataItemsLoadEffect';
 import { ObjectMetadataItemsProvider } from '@/object-metadata/components/ObjectMetadataItemsProvider';
 import { PrefetchDataProvider } from '@/prefetch/components/PrefetchDataProvider';
@@ -32,23 +33,24 @@ export const AppRouterProviders = () => {
   const pageTitle = getPageTitleFromPath(pathname);
 
   return (
-    <CaptchaProvider>
-      <ApolloProvider>
-        <BaseThemeProvider>
-          <ClientConfigProviderEffect />
-          <ClientConfigProvider>
+    <ApolloProvider>
+      <BaseThemeProvider>
+        <ClientConfigProviderEffect />
+        <UserProviderEffect />
+        <WorkspaceProviderEffect />
+        <ClientConfigProvider>
+          <CaptchaProvider>
             <ChromeExtensionSidecarEffect />
             <ChromeExtensionSidecarProvider>
-              <UserProviderEffect />
-              <WorkspaceProviderEffect />
               <UserProvider>
                 <AuthProvider>
-                  <ApolloMetadataClientProvider>
+                  <ApolloCoreProvider>
                     <ObjectMetadataItemsLoadEffect />
                     <ObjectMetadataItemsProvider>
                       <PrefetchDataProvider>
                         <UserThemeProviderEffect />
                         <SnackBarProvider>
+                          <ErrorMessageEffect />
                           <DialogManagerScope dialogManagerScopeId="dialog-manager">
                             <DialogManager>
                               <StrictMode>
@@ -65,13 +67,13 @@ export const AppRouterProviders = () => {
                       </PrefetchDataProvider>
                       <PageChangeEffect />
                     </ObjectMetadataItemsProvider>
-                  </ApolloMetadataClientProvider>
+                  </ApolloCoreProvider>
                 </AuthProvider>
               </UserProvider>
             </ChromeExtensionSidecarProvider>
-          </ClientConfigProvider>
-        </BaseThemeProvider>
-      </ApolloProvider>
-    </CaptchaProvider>
+          </CaptchaProvider>
+        </ClientConfigProvider>
+      </BaseThemeProvider>
+    </ApolloProvider>
   );
 };

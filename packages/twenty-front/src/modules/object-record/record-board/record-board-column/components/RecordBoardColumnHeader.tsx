@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { useContext, useState } from 'react';
 
+import { useObjectPermissionsForObject } from '@/object-record/hooks/useObjectPermissionsForObject';
 import { RecordBoardContext } from '@/object-record/record-board/contexts/RecordBoardContext';
 import { RecordBoardColumnDropdownMenu } from '@/object-record/record-board/record-board-column/components/RecordBoardColumnDropdownMenu';
 import { RecordBoardColumnHeaderAggregateDropdown } from '@/object-record/record-board/record-board-column/components/RecordBoardColumnHeaderAggregateDropdown';
@@ -10,7 +11,6 @@ import { RecordBoardColumnHotkeyScope } from '@/object-record/record-board/types
 import { AIWorkflowIndicator } from '@/object-record/record-group/components/AIWorkflowIndicator';
 import { RecordGroupDefinitionType } from '@/object-record/record-group/types/RecordGroupDefinition';
 import { useCreateNewIndexRecord } from '@/object-record/record-table/hooks/useCreateNewIndexRecord';
-import { useHasObjectReadOnlyPermission } from '@/settings/roles/hooks/useHasObjectReadOnlyPermission';
 import { usePreviousHotkeyScope } from '@/ui/utilities/hotkey/hooks/usePreviousHotkeyScope';
 import { Tag } from 'twenty-ui/components';
 import { IconDotsVertical, IconPlus } from 'twenty-ui/display';
@@ -96,7 +96,11 @@ export const RecordBoardColumnHeader = () => {
   const { aggregateValue, aggregateLabel } =
     useAggregateRecordsForRecordBoardColumn();
 
-  const hasObjectReadOnlyPermission = useHasObjectReadOnlyPermission();
+  const objectPermissions = useObjectPermissionsForObject(
+    objectMetadataItem.id,
+  );
+
+  const hasObjectUpdatePermissions = objectPermissions.canUpdateObjectRecords;
 
   const { createNewIndexRecord } = useCreateNewIndexRecord({
     objectMetadataItem: objectMetadataItem,
@@ -149,7 +153,7 @@ export const RecordBoardColumnHeader = () => {
                   Icon={IconDotsVertical}
                   onClick={handleBoardColumnMenuOpen}
                 />
-                {!hasObjectReadOnlyPermission && (
+                {hasObjectUpdatePermissions && (
                   <LightIconButton
                     accent="tertiary"
                     Icon={IconPlus}

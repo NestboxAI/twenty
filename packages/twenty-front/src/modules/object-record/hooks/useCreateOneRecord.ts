@@ -1,10 +1,10 @@
-import { useApolloClient } from '@apollo/client';
 import { useState } from 'react';
 import { v4 } from 'uuid';
 
 import { triggerCreateRecordsOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerCreateRecordsOptimisticEffect';
 import { triggerDestroyRecordsOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerDestroyRecordsOptimisticEffect';
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { useCreateOneRecordInCache } from '@/object-record/cache/hooks/useCreateOneRecordInCache';
@@ -14,6 +14,7 @@ import { getRecordNodeFromRecord } from '@/object-record/cache/utils/getRecordNo
 import { RecordGqlOperationGqlRecordFields } from '@/object-record/graphql/types/RecordGqlOperationGqlRecordFields';
 import { generateDepthOneRecordGqlFields } from '@/object-record/graphql/utils/generateDepthOneRecordGqlFields';
 import { useCreateOneRecordMutation } from '@/object-record/hooks/useCreateOneRecordMutation';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { useRefetchAggregateQueries } from '@/object-record/hooks/useRefetchAggregateQueries';
 import { ObjectRecord } from '@/object-record/types/ObjectRecord';
 import { computeOptimisticCreateRecordBaseRecordInput } from '@/object-record/utils/computeOptimisticCreateRecordBaseRecordInput';
@@ -38,7 +39,7 @@ export const useCreateOneRecord = <
   skipPostOptimisticEffect = false,
   shouldMatchRootQueryFilter,
 }: useCreateOneRecordProps) => {
-  const apolloClient = useApolloClient();
+  const apolloCoreClient = useApolloCoreClient();
   const [loading, setLoading] = useState(false);
 
   const { objectMetadataItem } = useObjectMetadataItem({
@@ -62,6 +63,7 @@ export const useCreateOneRecord = <
   );
 
   const { objectMetadataItems } = useObjectMetadataItems();
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
 
   const { refetchAggregateQueries } = useRefetchAggregateQueries({
     objectMetadataNamePlural: objectMetadataItem.namePlural,
@@ -81,7 +83,7 @@ export const useCreateOneRecord = <
     };
 
     const optimisticRecordInput = computeOptimisticRecordFromInput({
-      cache: apolloClient.cache,
+      cache: apolloCoreClient.cache,
       currentWorkspaceMember: currentWorkspaceMember,
       objectMetadataItem,
       objectMetadataItems,
@@ -90,6 +92,7 @@ export const useCreateOneRecord = <
         ...recordInput,
         id: idForCreation,
       },
+      objectPermissionsByObjectMetadataId,
     });
     const recordCreatedInCache = createOneRecordInCache({
       ...optimisticRecordInput,
@@ -108,11 +111,12 @@ export const useCreateOneRecord = <
 
       if (skipPostOptimisticEffect === false && optimisticRecordNode !== null) {
         triggerCreateRecordsOptimisticEffect({
-          cache: apolloClient.cache,
+          cache: apolloCoreClient.cache,
           objectMetadataItem,
           recordsToCreate: [optimisticRecordNode],
           objectMetadataItems,
           shouldMatchRootQueryFilter,
+          objectPermissionsByObjectMetadataId,
         });
       }
     }
@@ -120,7 +124,7 @@ export const useCreateOneRecord = <
     const mutationResponseField =
       getCreateOneRecordMutationResponseField(objectNameSingular);
 
-    const createdObject = await apolloClient
+    const createdObject = await apolloCoreClient
       .mutate({
         mutation: createOneRecordMutation,
         variables: {
@@ -136,6 +140,7 @@ export const useCreateOneRecord = <
               objectMetadataItems,
               shouldMatchRootQueryFilter,
               checkForRecordInCache: true,
+              objectPermissionsByObjectMetadataId,
             });
           }
 
@@ -150,12 +155,12 @@ export const useCreateOneRecord = <
         deleteRecordFromCache({
           objectMetadataItems,
           objectMetadataItem,
-          cache: apolloClient.cache,
+          cache: apolloCoreClient.cache,
           recordToDestroy: recordCreatedInCache,
         });
 
         triggerDestroyRecordsOptimisticEffect({
-          cache: apolloClient.cache,
+          cache: apolloCoreClient.cache,
           objectMetadataItem,
           recordsToDestroy: [recordCreatedInCache],
           objectMetadataItems,

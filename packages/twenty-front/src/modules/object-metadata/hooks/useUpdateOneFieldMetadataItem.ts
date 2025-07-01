@@ -17,16 +17,15 @@ import { useSetRecoilState } from 'recoil';
 import { getRecordsFromRecordConnection } from '@/object-record/cache/utils/getRecordsFromRecordConnection';
 import { RecordGqlConnection } from '@/object-record/graphql/types/RecordGqlConnection';
 import { useSetRecordGroups } from '@/object-record/record-group/hooks/useSetRecordGroups';
-import { useApolloMetadataClient } from './useApolloMetadataClient';
 import { isDefined } from 'twenty-shared/utils';
 
 export const useUpdateOneFieldMetadataItem = () => {
-  const apolloMetadataClient = useApolloMetadataClient();
   const apolloClient = useApolloClient();
   const { refreshObjectMetadataItems } =
     useRefreshObjectMetadataItems('network-only');
 
   const { setRecordGroupsFromViewGroups } = useSetRecordGroups();
+  const cache = useApolloClient().cache;
 
   const setCurrentWorkspace = useSetRecoilState(currentWorkspaceState);
 
@@ -47,9 +46,7 @@ export const useUpdateOneFieldMetadataItem = () => {
   const [mutate] = useMutation<
     UpdateOneFieldMetadataItemMutation,
     UpdateOneFieldMetadataItemMutationVariables
-  >(UPDATE_ONE_FIELD_METADATA_ITEM, {
-    client: apolloMetadataClient ?? undefined,
-  });
+  >(UPDATE_ONE_FIELD_METADATA_ITEM);
 
   const updateOneFieldMetadataItem = async ({
     objectMetadataId,
@@ -113,6 +110,7 @@ export const useUpdateOneFieldMetadataItem = () => {
           correspondingObjectMetadataItemRefreshed,
         );
       }
+      cache.evict({ id: `Views:${view.id}` });
     }
 
     return result;

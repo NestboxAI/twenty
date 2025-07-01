@@ -1,6 +1,9 @@
+import { useClientConfig } from '@/client-config/hooks/useClientConfig';
+import { aiModelsState } from '@/client-config/states/aiModelsState';
 import { apiConfigState } from '@/client-config/states/apiConfigState';
 import { authProvidersState } from '@/client-config/states/authProvidersState';
 import { billingState } from '@/client-config/states/billingState';
+import { calendarBookingPageIdState } from '@/client-config/states/calendarBookingPageIdState';
 import { canManageFeatureFlagsState } from '@/client-config/states/canManageFeatureFlagsState';
 import { captchaState } from '@/client-config/states/captchaState';
 import { chromeExtensionIdState } from '@/client-config/states/chromeExtensionIdState';
@@ -8,7 +11,6 @@ import { clientConfigApiStatusState } from '@/client-config/states/clientConfigA
 import { isAnalyticsEnabledState } from '@/client-config/states/isAnalyticsEnabledState';
 import { isAttachmentPreviewEnabledState } from '@/client-config/states/isAttachmentPreviewEnabledState';
 import { isConfigVariablesInDbEnabledState } from '@/client-config/states/isConfigVariablesInDbEnabledState';
-import { isDebugModeState } from '@/client-config/states/isDebugModeState';
 import { isDeveloperDefaultSignInPrefilledState } from '@/client-config/states/isDeveloperDefaultSignInPrefilledState';
 import { isEmailVerificationRequiredState } from '@/client-config/states/isEmailVerificationRequiredState';
 import { isGoogleCalendarEnabledState } from '@/client-config/states/isGoogleCalendarEnabledState';
@@ -23,13 +25,12 @@ import { domainConfigurationState } from '@/domain-manager/states/domainConfigur
 import { useEffect } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { isDefined } from 'twenty-shared/utils';
-import { useGetClientConfigQuery } from '~/generated/graphql';
 
 export const ClientConfigProviderEffect = () => {
-  const setIsDebugMode = useSetRecoilState(isDebugModeState);
   const setIsAnalyticsEnabled = useSetRecoilState(isAnalyticsEnabledState);
   const setDomainConfiguration = useSetRecoilState(domainConfigurationState);
   const setAuthProviders = useSetRecoilState(authProvidersState);
+  const setAiModels = useSetRecoilState(aiModelsState);
 
   const setIsDeveloperDefaultSignInPrefilled = useSetRecoilState(
     isDeveloperDefaultSignInPrefilledState,
@@ -87,16 +88,27 @@ export const ClientConfigProviderEffect = () => {
     isConfigVariablesInDbEnabledState,
   );
 
-  const { data, loading, error } = useGetClientConfigQuery({
-    skip: clientConfigApiStatus.isLoaded,
-  });
+  const setCalendarBookingPageId = useSetRecoilState(
+    calendarBookingPageIdState,
+  );
+
+  const { data, loading, error, fetchClientConfig } = useClientConfig();
+
+  useEffect(() => {
+    if (
+      !clientConfigApiStatus.isLoadedOnce &&
+      !clientConfigApiStatus.isLoading
+    ) {
+      fetchClientConfig();
+    }
+  }, [
+    clientConfigApiStatus.isLoadedOnce,
+    clientConfigApiStatus.isLoading,
+    fetchClientConfig,
+  ]);
 
   useEffect(() => {
     if (loading) return;
-    setClientConfigApiStatus((currentStatus) => ({
-      ...currentStatus,
-      isLoaded: true,
-    }));
 
     if (error instanceof Error) {
       setClientConfigApiStatus((currentStatus) => ({
@@ -124,7 +136,7 @@ export const ClientConfigProviderEffect = () => {
       magicLink: false,
       sso: data?.clientConfig.authProviders.sso,
     });
-    setIsDebugMode(data?.clientConfig.debugMode);
+    setAiModels(data?.clientConfig.aiModels || []);
     setIsAnalyticsEnabled(data?.clientConfig.analyticsEnabled);
     setIsDeveloperDefaultSignInPrefilled(data?.clientConfig.signInPrefilled);
     setIsMultiWorkspaceEnabled(data?.clientConfig.isMultiWorkspaceEnabled);
@@ -165,24 +177,30 @@ export const ClientConfigProviderEffect = () => {
     setIsConfigVariablesInDbEnabled(
       data?.clientConfig?.isConfigVariablesInDbEnabled,
     );
+    setClientConfigApiStatus((currentStatus) => ({
+      ...currentStatus,
+      isSaved: true,
+    }));
+
+    setCalendarBookingPageId(data?.clientConfig?.calendarBookingPageId ?? null);
   }, [
     data,
-    setIsDebugMode,
+    loading,
+    error,
     setIsDeveloperDefaultSignInPrefilled,
     setIsMultiWorkspaceEnabled,
     setIsEmailVerificationRequired,
     setSupportChat,
     setBilling,
     setSentryConfig,
-    loading,
     setClientConfigApiStatus,
     setCaptcha,
     setChromeExtensionId,
     setApiConfig,
     setIsAnalyticsEnabled,
-    error,
     setDomainConfiguration,
     setAuthProviders,
+    setAiModels,
     setCanManageFeatureFlags,
     setLabPublicFeatureFlags,
     setMicrosoftMessagingEnabled,
@@ -191,6 +209,7 @@ export const ClientConfigProviderEffect = () => {
     setGoogleCalendarEnabled,
     setIsAttachmentPreviewEnabled,
     setIsConfigVariablesInDbEnabled,
+    setCalendarBookingPageId,
   ]);
 
   return <></>;

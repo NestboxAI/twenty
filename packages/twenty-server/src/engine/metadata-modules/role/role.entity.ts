@@ -10,11 +10,11 @@ import {
 } from 'typeorm';
 
 import { ObjectPermissionEntity } from 'src/engine/metadata-modules/object-permission/object-permission.entity';
-import { UserWorkspaceRoleEntity } from 'src/engine/metadata-modules/role/user-workspace-role.entity';
+import { RoleTargetsEntity } from 'src/engine/metadata-modules/role/role-targets.entity';
 import { SettingPermissionEntity } from 'src/engine/metadata-modules/setting-permission/setting-permission.entity';
 
 @Entity('role')
-@Unique('IndexOnRoleUnique', ['label', 'workspaceId'])
+@Unique('IDX_ROLE_LABEL_WORKSPACE_ID_UNIQUE', ['label', 'workspaceId'])
 export class RoleEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -56,10 +56,10 @@ export class RoleEntity {
   isEditable: boolean;
 
   @OneToMany(
-    () => UserWorkspaceRoleEntity,
-    (userWorkspaceRole: UserWorkspaceRoleEntity) => userWorkspaceRole.role,
+    () => RoleTargetsEntity,
+    (roleTargets: RoleTargetsEntity) => roleTargets.role,
   )
-  userWorkspaceRoles: Relation<UserWorkspaceRoleEntity[]>;
+  roleTargets: Relation<RoleTargetsEntity[]>;
 
   @OneToMany(
     () => ObjectPermissionEntity,

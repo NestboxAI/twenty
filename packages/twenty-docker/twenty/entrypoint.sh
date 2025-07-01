@@ -34,7 +34,23 @@ setup_and_migrate_db() {
     yarn command:prod upgrade
     echo "Successfully migrated DB!"
 }
+
+register_background_jobs() {
+    if [ "${DISABLE_CRON_JOBS_REGISTRATION}" = "true" ]; then
+        echo "Cron job registration is disabled, skipping..."
+        return
+    fi
+  
+    echo "Registering background sync jobs..."
+    if yarn command:prod cron:register:all; then
+        echo "Successfully registered all background sync jobs!"
+    else
+        echo "Warning: Failed to register background jobs, but continuing startup..."
+    fi
+}
+
 setup_and_migrate_db
+register_background_jobs
 
 # Run automated workspace setup (only on first time)
 automated_workspace_setup

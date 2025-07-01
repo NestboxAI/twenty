@@ -27,7 +27,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { H2Title, IconRepeat, IconTrash } from 'twenty-ui/display';
 import { Button } from 'twenty-ui/input';
 import { Section } from 'twenty-ui/layout';
-import { useGenerateApiKeyTokenMutation } from '~/generated/graphql';
+import { useGenerateApiKeyTokenMutation } from '~/generated-metadata/graphql';
 import { useNavigateSettings } from '~/hooks/useNavigateSettings';
 import { getSettingsPath } from '~/utils/navigation/getSettingsPath';
 
@@ -143,7 +143,7 @@ export const SettingsDevelopersApiKeyDetail = () => {
 
         if (isNonEmptyString(apiKey?.token)) {
           setApiKeyTokenCallback(apiKey.id, apiKey.token);
-          navigate(SettingsPath.DevelopersApiKeyDetail, {
+          navigate(SettingsPath.ApiKeyDetail, {
             apiKeyId: apiKey.id,
           });
         }
@@ -173,7 +173,7 @@ export const SettingsDevelopersApiKeyDetail = () => {
               children: t`APIs`,
               href: getSettingsPath(SettingsPath.APIs),
             },
-            { children: t`${apiKeyName} API Key` },
+            { children: t`${apiKeyName}` },
           ]}
         >
           <SettingsPageContainer>
