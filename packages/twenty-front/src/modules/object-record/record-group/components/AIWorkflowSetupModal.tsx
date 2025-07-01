@@ -8,7 +8,6 @@ import { TextArea } from '@/ui/input/components/TextArea';
 import { TextInputV2 } from '@/ui/input/components/TextInputV2';
 import { RootStackingContextZIndices } from '@/ui/layout/constants/RootStackingContextZIndices';
 import { RightDrawerFooter } from '@/ui/layout/right-drawer/components/RightDrawerFooter';
-import { useListenRightDrawerClose } from '@/ui/layout/right-drawer/hooks/useListenRightDrawerClose';
 import { useListenClickOutside } from '@/ui/utilities/pointer-event/hooks/useListenClickOutside';
 import { H1Title, H1TitleFontColor } from 'twenty-ui/display';
 import { Button, Toggle } from 'twenty-ui/input';
@@ -19,6 +18,7 @@ import { useCreateAiAgentConfig } from '@/object-record/record-group/hooks/useCr
 import { useDeleteAiAgentConfig } from '@/object-record/record-group/hooks/useDeleteAiAgentConfig';
 import { useGetAgents } from '@/object-record/record-group/hooks/useGetAgents';
 import { useUpdateAiAgentConfig } from '@/object-record/record-group/hooks/useUpdateAiAgentConfig';
+import { useListenToSidePanelClosing } from '@/ui/layout/right-drawer/hooks/useListenToSidePanelClosing';
 
 const RIGHT_DRAWER_ANIMATION_VARIANTS = {
   normal: {
@@ -325,7 +325,7 @@ export const AIWorkflowSetupDrawer = ({
     }
   };
 
-  useListenRightDrawerClose(onClose);
+  useListenToSidePanelClosing(onClose);
 
   useListenClickOutside({
     refs: [drawerRef],
