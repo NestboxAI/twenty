@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from 'src/engine/core-modules/auth/auth.module';
 import { DomainManagerModule } from 'src/engine/core-modules/domain-manager/domain-manager.module';
+import { OnboardingModule } from 'src/engine/core-modules/onboarding/onboarding.module';
+import { UserWorkspaceModule } from 'src/engine/core-modules/user-workspace/user-workspace.module';
 import { User } from 'src/engine/core-modules/user/user.entity';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceModule } from 'src/engine/core-modules/workspace/workspace.module';
@@ -15,8 +17,10 @@ import { WorkspaceSignupCommand } from './workspace-signup.command';
     TypeOrmModule.forFeature([User, Workspace], 'core'),
     AuthModule,
     WorkspaceModule,
+    OnboardingModule,
+    UserWorkspaceModule,
     DomainManagerModule,
   ],
   providers: [WorkspaceSignupCommand],
 })
-export class WorkspaceSignupCommandModule {} 
+export class WorkspaceSignupCommandModule {}
