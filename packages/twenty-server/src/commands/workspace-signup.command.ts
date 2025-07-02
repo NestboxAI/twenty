@@ -9,6 +9,7 @@ import { hashPassword } from 'src/engine/core-modules/auth/auth.util';
 import { SignInUpService } from 'src/engine/core-modules/auth/services/sign-in-up.service';
 import { DomainManagerService } from 'src/engine/core-modules/domain-manager/services/domain-manager.service';
 import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
+import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { User } from 'src/engine/core-modules/user/user.entity';
 import { WorkspaceService } from 'src/engine/core-modules/workspace/services/workspace.service';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -35,6 +36,7 @@ export class WorkspaceSignupCommand extends CommandRunner {
     private readonly signInUpService: SignInUpService,
     // Removed AuthService since it's not being used
     private readonly workspaceService: WorkspaceService,
+    private readonly userWorkspaceService: UserWorkspaceService,
     private readonly onboardingService: OnboardingService,
     private readonly domainManagerService: DomainManagerService,
     @InjectRepository(User, 'core')
@@ -159,6 +161,12 @@ export class WorkspaceSignupCommand extends CommandRunner {
 
       // complete onboarding process
       await this.completeOnboarding(user, workspace);
+
+      // make sure that the user is added to the workspace
+      await this.userWorkspaceService.addUserToWorkspaceIfUserNotInWorkspace(
+        user,
+        workspace,
+      );
 
       this.logger.log(`Workspace created with ID: ${workspace.id}`);
       this.logger.log(`User created with ID: ${user.id}`);
