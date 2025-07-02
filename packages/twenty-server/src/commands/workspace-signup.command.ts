@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { hashPassword } from 'src/engine/core-modules/auth/auth.util';
 import { SignInUpService } from 'src/engine/core-modules/auth/services/sign-in-up.service';
 import { DomainManagerService } from 'src/engine/core-modules/domain-manager/services/domain-manager.service';
+import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { User } from 'src/engine/core-modules/user/user.entity';
 import { WorkspaceService } from 'src/engine/core-modules/workspace/services/workspace.service';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -34,6 +35,7 @@ export class WorkspaceSignupCommand extends CommandRunner {
     private readonly signInUpService: SignInUpService,
     // Removed AuthService since it's not being used
     private readonly workspaceService: WorkspaceService,
+    private readonly onboardingService: OnboardingService,
     private readonly domainManagerService: DomainManagerService,
     @InjectRepository(User, 'core')
     private readonly userRepository: Repository<User>,
@@ -115,6 +117,7 @@ export class WorkspaceSignupCommand extends CommandRunner {
 
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
       if (!emailRegex.test(options.username)) {
         throw new Error('Invalid email format for username');
       }
@@ -138,7 +141,7 @@ export class WorkspaceSignupCommand extends CommandRunner {
 
       // Create new user with admin privileges
       const passwordHash = await hashPassword(options.password);
-      
+
       const newUserData = {
         email: options.username,
         firstName: options.adminFirstName,
@@ -148,10 +151,14 @@ export class WorkspaceSignupCommand extends CommandRunner {
       };
 
       // Use the existing signUpOnNewWorkspace method
-      const { user, workspace } = await this.signInUpService.signUpOnNewWorkspace({
-        type: 'newUserWithPicture',
-        newUserWithPicture: newUserData,
-      });
+      const { user, workspace } =
+        await this.signInUpService.signUpOnNewWorkspace({
+          type: 'newUserWithPicture',
+          newUserWithPicture: newUserData,
+        });
+
+      // complete onboarding process
+      await this.completeOnboarding(user, workspace);
 
       this.logger.log(`Workspace created with ID: ${workspace.id}`);
       this.logger.log(`User created with ID: ${user.id}`);
@@ -172,7 +179,8 @@ export class WorkspaceSignupCommand extends CommandRunner {
       this.logger.log(`Workspace activated successfully`);
 
       // Generate workspace URLs
-      const workspaceUrls = this.domainManagerService.getWorkspaceUrls(activatedWorkspace);
+      const workspaceUrls =
+        this.domainManagerService.getWorkspaceUrls(activatedWorkspace);
 
       // Output confirmation
       this.logger.log('='.repeat(60));
@@ -182,7 +190,9 @@ export class WorkspaceSignupCommand extends CommandRunner {
       this.logger.log(`Workspace Name: ${activatedWorkspace.displayName}`);
       this.logger.log(`Workspace Subdomain: ${activatedWorkspace.subdomain}`);
       this.logger.log(`Workspace URL: ${workspaceUrls.subdomainUrl}`);
-      this.logger.log(`Activation Status: ${activatedWorkspace.activationStatus}`);
+      this.logger.log(
+        `Activation Status: ${activatedWorkspace.activationStatus}`,
+      );
       this.logger.log('');
       this.logger.log('ADMIN USER SETUP CONFIRMED');
       this.logger.log('='.repeat(60));
@@ -191,15 +201,37 @@ export class WorkspaceSignupCommand extends CommandRunner {
       this.logger.log(`Admin First Name: ${user.firstName}`);
       this.logger.log(`Admin Last Name: ${user.lastName}`);
       this.logger.log(`Can Impersonate: ${user.canImpersonate}`);
-      this.logger.log(`Can Access Full Admin Panel: ${user.canAccessFullAdminPanel}`);
+      this.logger.log(
+        `Can Access Full Admin Panel: ${user.canAccessFullAdminPanel}`,
+      );
       this.logger.log(`Email Verified: ${user.isEmailVerified}`);
       this.logger.log('');
       this.logger.log('Workspace is ready for use!');
       this.logger.log('='.repeat(60));
-
     } catch (error) {
       this.logger.error('Failed to create workspace:', error.message);
       throw error;
     }
+  }
+
+  private async completeOnboarding(user: User, workspace: Workspace) {
+    const onboardingActivationStatus = {
+      userId: user.id,
+      workspaceId: workspace.id,
+      value: true,
+    };
+
+    await this.onboardingService.setOnboardingConnectAccountPending(
+      onboardingActivationStatus,
+    );
+    await this.onboardingService.setOnboardingBookOnboardingPending(
+      onboardingActivationStatus,
+    );
+    await this.onboardingService.setOnboardingCreateProfilePending(
+      onboardingActivationStatus,
+    );
+    await this.onboardingService.setOnboardingInviteTeamPending(
+      onboardingActivationStatus,
+    );
   }
 }
