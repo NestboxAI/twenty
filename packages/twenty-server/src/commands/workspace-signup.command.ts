@@ -153,20 +153,10 @@ export class WorkspaceSignupCommand extends CommandRunner {
       };
 
       // Use the existing signUpOnNewWorkspace method
-      const { user, workspace } =
-        await this.signInUpService.signUpOnNewWorkspace({
-          type: 'newUserWithPicture',
-          newUserWithPicture: newUserData,
-        });
-
-      // complete onboarding process
-      await this.completeOnboarding(user, workspace);
-
-      // make sure that the user is added to the workspace
-      await this.userWorkspaceService.addUserToWorkspaceIfUserNotInWorkspace(
-        user,
-        workspace,
-      );
+      const { user, workspace } = await this.signInUpService.signInUp({
+        type: 'newUserWithPicture',
+        newUserWithPicture: newUserData,
+      });
 
       this.logger.log(`Workspace created with ID: ${workspace.id}`);
       this.logger.log(`User created with ID: ${user.id}`);
@@ -183,6 +173,15 @@ export class WorkspaceSignupCommand extends CommandRunner {
       if (!activatedWorkspace) {
         throw new Error('Failed to activate workspace');
       }
+
+      // complete onboarding process
+      await this.skipOnboarding(user, workspace);
+
+      // make sure that the user is added to the workspace
+      await this.userWorkspaceService.addUserToWorkspaceIfUserNotInWorkspace(
+        user,
+        workspace,
+      );
 
       this.logger.log(`Workspace activated successfully`);
 
@@ -222,24 +221,19 @@ export class WorkspaceSignupCommand extends CommandRunner {
     }
   }
 
-  private async completeOnboarding(user: User, workspace: Workspace) {
+  private async skipOnboarding(user: User, workspace: Workspace) {
     const onboardingActivationStatus = {
       userId: user.id,
       workspaceId: workspace.id,
-      value: true,
     };
 
-    await this.onboardingService.setOnboardingConnectAccountPending(
-      onboardingActivationStatus,
-    );
-    await this.onboardingService.setOnboardingBookOnboardingPending(
-      onboardingActivationStatus,
-    );
-    await this.onboardingService.setOnboardingCreateProfilePending(
-      onboardingActivationStatus,
-    );
-    await this.onboardingService.setOnboardingInviteTeamPending(
-      onboardingActivationStatus,
-    );
+    await this.onboardingService.setOnboardingConnectAccountPending({
+      ...onboardingActivationStatus,
+      value: false,
+    });
+    await this.onboardingService.setOnboardingBookOnboardingPending({
+      ...onboardingActivationStatus,
+      value: false,
+    });
   }
 }
