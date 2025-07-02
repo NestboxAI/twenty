@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AiAgentConfig } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.entity';
 
+import { AiAgentConfig } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.entity';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import { DataSourceEntity } from 'src/engine/metadata-modules/data-source/data-source.entity';
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
@@ -12,8 +12,10 @@ import { NestboxAiAgentCronJob } from 'src/modules/nestbox-ai-agent/crons/jobs/n
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Workspace, AiAgentConfig], 'core'),
-    TypeOrmModule.forFeature([ObjectMetadataEntity, DataSourceEntity], 'metadata'),
+    TypeOrmModule.forFeature(
+      [Workspace, AiAgentConfig, ObjectMetadataEntity, DataSourceEntity],
+      'core',
+    ),
   ],
   providers: [
     NestboxAiAgentCronCommand,
@@ -23,4 +25,4 @@ import { NestboxAiAgentCronJob } from 'src/modules/nestbox-ai-agent/crons/jobs/n
   ],
   exports: [],
 })
-export class NestboxAiAgentModule {} 
+export class NestboxAiAgentModule {}

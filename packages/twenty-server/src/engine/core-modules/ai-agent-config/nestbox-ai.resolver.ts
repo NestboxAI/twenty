@@ -1,8 +1,8 @@
 import { Field, ID, ObjectType, Query, Resolver } from '@nestjs/graphql';
 
-import { NestboxAiService, Agent as ServiceAgent } from './nestbox-ai.service';
+import { NestboxAiService, ServiceAgent } from './nestbox-ai.service';
 
-@ObjectType()
+@ObjectType('NestboxAiAgent')
 export class Agent {
   @Field(() => ID)
   id: string;
@@ -31,4 +31,4 @@ export class NestboxAiResolver {
   async agents(): Promise<ServiceAgent[]> {
     return this.nestboxAiService.getAllAgents();
   }
-} 
+}

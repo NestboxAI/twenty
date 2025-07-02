@@ -70,8 +70,8 @@ const StyledDrawerContent = styled.div`
 `;
 
 const StyledTitle = styled.div`
-  text-align: center;
   margin-bottom: ${({ theme }) => theme.spacing(4)};
+  text-align: center;
 `;
 
 const StyledFormField = styled.div`
@@ -93,9 +93,9 @@ const StyledDescription = styled.div`
 `;
 
 const StyledToggleField = styled.div`
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
 `;
 
 const StyledToggleInfo = styled.div`
@@ -118,25 +118,30 @@ export type AIWorkflowSetupDrawerProps = {
   fieldMetadataId?: string;
 };
 
-export const AIWorkflowSetupDrawer = ({ 
-  isOpen, 
-  onClose, 
-  workspaceId, 
-  objectMetadataId, 
-  viewGroupId, 
+export const AIWorkflowSetupDrawer = ({
+  isOpen,
+  onClose,
+  workspaceId,
+  objectMetadataId,
+  viewGroupId,
   viewId,
-  fieldMetadataId 
+  fieldMetadataId,
 }: AIWorkflowSetupDrawerProps) => {
   const isMobile = useIsMobile();
   const drawerRef = useRef<HTMLDivElement>(null);
   const { createAiAgentConfig, loading: isCreating } = useCreateAiAgentConfig();
   const { updateAiAgentConfig, loading: isUpdating } = useUpdateAiAgentConfig();
   const { deleteAiAgentConfig, loading: isDeleting } = useDeleteAiAgentConfig();
-  
+
   const isSubmitting = isCreating || isUpdating || isDeleting;
-  
+
   // Fetch existing AI agent config for this context
-  const { aiAgentConfig, loading: isLoadingConfig, error: configError, refetch } = useGetAiAgentConfig({
+  const {
+    aiAgentConfig,
+    loading: isLoadingConfig,
+    error: configError,
+    refetch,
+  } = useGetAiAgentConfig({
     objectMetadataId,
     fieldMetadataId,
     viewGroupId,
@@ -144,7 +149,12 @@ export const AIWorkflowSetupDrawer = ({
   });
 
   // Fetch available agents dynamically
-  const { agents, agentOptions, loading: isLoadingAgents, error: agentsError } = useGetAgents();
+  const {
+    agents,
+    agentOptions,
+    loading: isLoadingAgents,
+    error: agentsError,
+  } = useGetAgents();
 
   const [agentSelection, setAgentSelection] = useState('');
   const [wipLimit, setWipLimit] = useState('1');
@@ -171,7 +181,13 @@ export const AIWorkflowSetupDrawer = ({
 
   // Separate effect for setting defaults when no config and agents are available
   useEffect(() => {
-    if (isOpen && !isLoadingConfig && !aiAgentConfig && agents.length > 0 && agentSelection === '') {
+    if (
+      isOpen &&
+      !isLoadingConfig &&
+      !aiAgentConfig &&
+      agents.length > 0 &&
+      agentSelection === ''
+    ) {
       // Find the first valid agent (not the placeholder)
       const firstValidAgent = agents[0];
       if (firstValidAgent) {
@@ -182,7 +198,14 @@ export const AIWorkflowSetupDrawer = ({
         setErrors({});
       }
     }
-  }, [isOpen, isLoadingConfig, aiAgentConfig, agents.length, agentSelection, agents]);
+  }, [
+    isOpen,
+    isLoadingConfig,
+    aiAgentConfig,
+    agents.length,
+    agentSelection,
+    agents,
+  ]);
 
   const validateWipLimit = (value: string): string | undefined => {
     const numValue = parseInt(value, 10);
@@ -213,13 +236,13 @@ export const AIWorkflowSetupDrawer = ({
   const handleWipLimitChange = (value: string) => {
     setWipLimit(value);
     const error = validateWipLimit(value);
-    setErrors(prev => ({ ...prev, wipLimit: error }));
+    setErrors((prev) => ({ ...prev, wipLimit: error }));
   };
 
   const handleAdditionalInputChange = (value: string) => {
     setAdditionalInput(value);
     const error = validateAdditionalInput(value);
-    setErrors(prev => ({ ...prev, additionalInput: error }));
+    setErrors((prev) => ({ ...prev, additionalInput: error }));
   };
 
   const handleCancel = () => {
@@ -233,19 +256,19 @@ export const AIWorkflowSetupDrawer = ({
 
     try {
       await deleteAiAgentConfig(aiAgentConfig.id);
-      
+
       // Refetch to get the latest data (should show no config now)
       if (refetch) {
         await refetch();
       }
-      
+
       // Clear form inputs after successful delete
       setAgentSelection(agentOptions[0]?.value || '');
       setWipLimit('1');
       setAdditionalInput('');
       setWorkflowEnabled(true);
       setErrors({});
-      
+
       onClose();
     } catch (error) {
       // Error handling is done in the hook
@@ -258,7 +281,7 @@ export const AIWorkflowSetupDrawer = ({
     const wipLimitError = validateWipLimit(wipLimit);
     const additionalInputError = validateAdditionalInput(additionalInput);
     const agentSelectionError = validateAgentSelection(agentSelection);
-    
+
     if (wipLimitError || additionalInputError || agentSelectionError) {
       setErrors({
         wipLimit: wipLimitError,
@@ -269,7 +292,13 @@ export const AIWorkflowSetupDrawer = ({
     }
 
     // Check required fields
-    if (!workspaceId || !objectMetadataId || !viewGroupId || !viewId || !fieldMetadataId) {
+    if (
+      !workspaceId ||
+      !objectMetadataId ||
+      !viewGroupId ||
+      !viewId ||
+      !fieldMetadataId
+    ) {
       console.error('Missing required fields for AI agent config creation');
       return;
     }
@@ -285,7 +314,9 @@ export const AIWorkflowSetupDrawer = ({
           agent: agentSelection,
           wipLimit: parseInt(wipLimit, 10),
           additionalInput,
-          status: workflowEnabled ? ('ENABLED' as const) : ('DISABLED' as const),
+          status: workflowEnabled
+            ? ('ENABLED' as const)
+            : ('DISABLED' as const),
         };
 
         await updateAiAgentConfig(aiAgentConfig.id, updateInput);
@@ -300,24 +331,26 @@ export const AIWorkflowSetupDrawer = ({
           additionalInput,
           viewGroupId,
           viewId,
-          status: workflowEnabled ? ('ENABLED' as const) : ('DISABLED' as const),
+          status: workflowEnabled
+            ? ('ENABLED' as const)
+            : ('DISABLED' as const),
         };
 
         await createAiAgentConfig(createInput);
       }
-      
+
       // Refetch to get the latest data
       if (refetch) {
         await refetch();
       }
-      
+
       // Clear form inputs after successful save
       setAgentSelection(agentOptions[0]?.value || '');
       setWipLimit('1');
       setAdditionalInput('');
       setWorkflowEnabled(true);
       setErrors({});
-      
+
       onClose();
     } catch (error) {
       // Error handling is done in the hook
@@ -358,15 +391,18 @@ export const AIWorkflowSetupDrawer = ({
         >
           <StyledDrawerContent>
             <StyledTitle>
-              <H1Title 
-                title={aiAgentConfig?.id ? `Edit Workflow Configuration` : `Configure Workflow`} 
-                fontColor={H1TitleFontColor.Primary} 
+              <H1Title
+                title={
+                  aiAgentConfig?.id
+                    ? `Edit Workflow Configuration`
+                    : `Configure Workflow`
+                }
+                fontColor={H1TitleFontColor.Primary}
               />
               <StyledDescription>
-                {aiAgentConfig?.id 
+                {aiAgentConfig?.id
                   ? `Update the settings for your automated workflow execution.`
-                  : `Adjust the settings for your automated workflow execution.`
-                }
+                  : `Adjust the settings for your automated workflow execution.`}
               </StyledDescription>
             </StyledTitle>
 
@@ -378,7 +414,10 @@ export const AIWorkflowSetupDrawer = ({
                   setAgentSelection(value);
                   // Clear validation error when user selects an agent
                   if (value && value !== '') {
-                    setErrors(prev => ({ ...prev, agentSelection: undefined }));
+                    setErrors((prev) => ({
+                      ...prev,
+                      agentSelection: undefined,
+                    }));
                   }
                 }}
                 options={agentOptions}
@@ -387,12 +426,11 @@ export const AIWorkflowSetupDrawer = ({
                 disabled={isLoadingAgents}
               />
               <StyledDescription>
-                {isLoadingAgents 
+                {isLoadingAgents
                   ? `Loading available agents...`
-                  : agentsError 
+                  : agentsError
                     ? `Error loading agents. Please try again.`
-                    : `Select an agent to execute the workflow.`
-                }
+                    : `Select an agent to execute the workflow.`}
               </StyledDescription>
               {errors.agentSelection && (
                 <StyledDescription style={{ color: 'red' }}>
@@ -438,13 +476,12 @@ export const AIWorkflowSetupDrawer = ({
               <StyledToggleInfo>
                 <StyledLabel>{`Workflow Status`}</StyledLabel>
                 <StyledToggleStatus>
-                  {workflowEnabled ? `Enabled (Workflow is active)` : `Disabled (Workflow is inactive)`}
+                  {workflowEnabled
+                    ? `Enabled (Workflow is active)`
+                    : `Disabled (Workflow is inactive)`}
                 </StyledToggleStatus>
               </StyledToggleInfo>
-              <Toggle
-                value={workflowEnabled}
-                onChange={setWorkflowEnabled}
-              />
+              <Toggle value={workflowEnabled} onChange={setWorkflowEnabled} />
             </StyledToggleField>
           </StyledDrawerContent>
 
@@ -457,23 +494,32 @@ export const AIWorkflowSetupDrawer = ({
                 title={`Cancel`}
                 onClick={handleCancel}
               />,
-              ...(aiAgentConfig?.id ? [
-                <Button
-                  key="delete"
-                  variant="secondary"
-                  accent="danger"
-                  title={`Delete Workflow`}
-                  onClick={handleDelete}
-                  disabled={isSubmitting || isLoadingConfig || isLoadingAgents}
-                />
-              ] : []),
+              ...(aiAgentConfig?.id
+                ? [
+                    <Button
+                      key="delete"
+                      variant="secondary"
+                      accent="danger"
+                      title={`Delete Workflow`}
+                      onClick={handleDelete}
+                      disabled={
+                        isSubmitting || isLoadingConfig || isLoadingAgents
+                      }
+                    />,
+                  ]
+                : []),
               <Button
                 key="save"
                 variant="primary"
                 accent="blue"
                 title={aiAgentConfig?.id ? `Update Workflow` : `Save Workflow`}
                 onClick={handleSave}
-                disabled={isSubmitting || isLoadingConfig || isLoadingAgents || agents.length === 0}
+                disabled={
+                  isSubmitting ||
+                  isLoadingConfig ||
+                  isLoadingAgents ||
+                  agents.length === 0
+                }
               />,
             ]}
           />
@@ -481,4 +527,4 @@ export const AIWorkflowSetupDrawer = ({
       )}
     </AnimatePresence>
   );
-}; 
+};
