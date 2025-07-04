@@ -216,6 +216,7 @@ export class NestboxAiAgentCronJob {
                   }
                 },
                 NestboxApiPath: objectMetadata.namePlural,
+                NestboxTwentyObjectName: objectMetadata.nameSingular,
               };
 
               const queries = await queryApi.agentOperationsQueryControllerCreateQuery(aiAgentConfig.agent, {
