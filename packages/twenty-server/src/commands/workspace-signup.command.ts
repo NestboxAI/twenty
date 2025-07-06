@@ -153,10 +153,11 @@ export class WorkspaceSignupCommand extends CommandRunner {
       };
 
       // Use the existing signUpOnNewWorkspace method
-      const { user, workspace } = await this.signInUpService.signInUp({
-        type: 'newUserWithPicture',
-        newUserWithPicture: newUserData,
-      });
+      const { user, workspace } =
+        await this.signInUpService.signUpOnNewWorkspace({
+          type: 'newUserWithPicture',
+          newUserWithPicture: newUserData,
+        });
 
       this.logger.log(`Workspace created with ID: ${workspace.id}`);
       this.logger.log(`User created with ID: ${user.id}`);

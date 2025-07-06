@@ -55,7 +55,7 @@ const StyledRightDrawer = styled(motion.div)`
   position: fixed;
   right: 0%;
   top: 0%;
-  z-index: ${RootStackingContextZIndices.RootModal};
+  z-index: ${RootStackingContextZIndices.CommandMenu};
   display: flex;
   flex-direction: column;
 `;
