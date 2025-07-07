@@ -5,8 +5,8 @@ OAUTH_CRON_SETUP_FLAG_FILE="/app/.oauth-cron-setup-completed"
 
 automated_oauth_integration_cron_setup() {
     # Check if cron setup is enabled and not already completed
-    if [ "${AUTO_CRON_SETUP_ENABLED}" != "true" ]; then
-        echo "Automated cron setup is disabled (AUTO_CRON_SETUP_ENABLED=${AUTO_CRON_SETUP_ENABLED})"
+    if [ "${AUTO_OAUTH_CRON_SETUP_ENABLED}" != "true" ]; then
+        echo "Automated cron setup is disabled (AUTO_OAUTH_CRON_SETUP_ENABLED=${AUTO_OAUTH_CRON_SETUP_ENABLED})"
         return
     fi
 
