@@ -28,7 +28,7 @@ automated_cron_setup() {
         # Mark cron setup as completed
         touch "${CRON_SETUP_FLAG_FILE}"
         echo "✅ Cron setup completed and marked as done"
-
+        
         echo "============================================================"
         echo "AUTOMATED CRON SETUP COMPLETED SUCCESSFULLY"
         echo "============================================================"
