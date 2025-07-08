@@ -19,21 +19,6 @@ msgstr ""
 "X-Crowdin-File-ID: 27\n"
 
 #. js-lingui-explicit-id
-#: src/emails/api-key-created.email.tsx
-msgid "Your AI-Powered workspace is ready!"
-msgstr ""
-
-#. js-lingui-explicit-id
-#: src/emails/api-key-created.email.tsx
-msgid "Workspace Access Details"
-msgstr ""
-
-#. js-lingui-explicit-id
-#: src/emails/api-key-created.email.tsx
-msgid "Access Your Workspace"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: src/emails/warn-suspended-workspace.email.tsx
 msgid "Suspended Workspace"
 msgstr ""
@@ -176,6 +161,21 @@ msgstr ""
 #. js-lingui-explicit-id
 #: src/emails/clean-suspended-workspace.email.tsx
 msgid "Create a new workspace"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/emails/api-key-created.email.tsx
+msgid "Your AI-Powered workspace is ready!"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/emails/api-key-created.email.tsx
+msgid "Workspace Access Details"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/emails/api-key-created.email.tsx
+msgid "Access Your Workspace"
 msgstr ""
 
 #. js-lingui-explicit-id
