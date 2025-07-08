@@ -70,6 +70,10 @@ RUN chmod +x /app/automated-workspace-setup.sh
 COPY ./packages/twenty-docker/twenty/automated-cron-setup.sh /app/automated-cron-setup.sh
 RUN chmod +x /app/automated-cron-setup.sh
 
+# oauth integration specific script to setup the cron jobs
+COPY ./packages/twenty-docker/twenty/automated-oauth-integration-setup.sh /app/automated-oauth-integration-setup.sh
+RUN chmod +x /app/automated-oauth-integration-setup.sh
+
 WORKDIR /app/packages/twenty-server
 
 ARG REACT_APP_SERVER_BASE_URL
