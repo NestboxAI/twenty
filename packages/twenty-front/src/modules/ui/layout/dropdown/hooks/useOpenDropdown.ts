@@ -5,7 +5,6 @@ import { isDropdownOpenComponentState } from '@/ui/layout/dropdown/states/isDrop
 import { usePushFocusItemToFocusStack } from '@/ui/utilities/focus/hooks/usePushFocusItemToFocusStack';
 import { FocusComponentType } from '@/ui/utilities/focus/types/FocusComponentType';
 import { GlobalHotkeysConfig } from '@/ui/utilities/hotkey/types/GlobalHotkeysConfig';
-import { HotkeyScope } from '@/ui/utilities/hotkey/types/HotkeyScope';
 import { useAvailableComponentInstanceId } from '@/ui/utilities/state/component-state/hooks/useAvailableComponentInstanceId';
 import { useRecoilCallback } from 'recoil';
 import { isDefined } from 'twenty-shared/utils';
@@ -51,10 +50,14 @@ export const useOpenDropdown = () => {
             type: FocusComponentType.DROPDOWN,
             instanceId: dropdownComponentInstanceId,
           },
-          globalHotkeysConfig: args?.globalHotkeysConfig ?? undefined,
-          // TODO: Remove this once we've fully migrated away from hotkey scopes
-          hotkeyScope: { scope: 'dropdown' } as HotkeyScope,
-          memoizeKey: 'global',
+          globalHotkeysConfig: {
+            enableGlobalHotkeysConflictingWithKeyboard:
+              args?.globalHotkeysConfig
+                ?.enableGlobalHotkeysConflictingWithKeyboard ?? false,
+            enableGlobalHotkeysWithModifiers:
+              args?.globalHotkeysConfig?.enableGlobalHotkeysWithModifiers ??
+              false,
+          },
         });
       },
     [

@@ -1,4 +1,4 @@
-import { InputHotkeyScope } from '@/ui/input/types/InputHotkeyScope';
+import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { useRecoilComponentStateV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentStateV2';
 import { useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -9,11 +9,11 @@ import { useScrollWrapperElement } from '@/ui/utilities/scroll/hooks/useScrollWr
 import { STREAM_CHAT_QUERY } from '@/workflow/workflow-steps/workflow-actions/ai-agent-action/api/agent-chat-apollo.api';
 import { AgentChatMessageRole } from '@/workflow/workflow-steps/workflow-actions/ai-agent-action/constants/agent-chat-message-role';
 import { useApolloClient } from '@apollo/client';
-import { isDefined } from 'twenty-shared/utils';
 import { v4 } from 'uuid';
 import { agentChatInputState } from '../states/agentChatInputState';
 import { agentChatMessagesComponentState } from '../states/agentChatMessagesComponentState';
 import { agentStreamingMessageState } from '../states/agentStreamingMessageState';
+import { parseAgentStreamingChunk } from '../utils/parseAgentStreamingChunk';
 import { AgentChatMessage, useAgentChatMessages } from './useAgentChatMessages';
 import { useAgentChatThreads } from './useAgentChatThreads';
 
@@ -23,6 +23,7 @@ interface OptimisticMessage extends AgentChatMessage {
 
 export const useAgentChat = (agentId: string) => {
   const apolloClient = useApolloClient();
+  const { enqueueErrorSnackBar } = useSnackBar();
 
   const [agentChatMessages, setAgentChatMessages] = useRecoilComponentStateV2(
     agentChatMessagesComponentState,
@@ -51,20 +52,13 @@ export const useAgentChat = (agentId: string) => {
     useAgentChatThreads(agentId);
   const currentThreadId = threads[0]?.id;
 
-  const {
-    data: messagesData,
-    loading: messagesLoading,
-    refetch: refetchMessages,
-  } = useAgentChatMessages(currentThreadId);
+  const { loading: messagesLoading, refetch: refetchMessages } =
+    useAgentChatMessages(currentThreadId, ({ messages }) => {
+      setAgentChatMessages(messages);
+      scrollToBottom();
+    });
 
   const isLoading = messagesLoading || threadsLoading || isStreaming;
-
-  if (
-    agentChatMessages.length === 0 &&
-    isDefined(messagesData?.messages?.length)
-  ) {
-    setAgentChatMessages(messagesData.messages);
-  }
 
   const createOptimisticMessages = (content: string): AgentChatMessage[] => {
     const optimisticUserMessage: OptimisticMessage = {
@@ -105,8 +99,27 @@ export const useAgentChat = (agentId: string) => {
       },
       context: {
         onChunk: (chunk: string) => {
-          setAgentStreamingMessage(chunk);
-          scrollToBottom();
+          parseAgentStreamingChunk(chunk, {
+            onTextDelta: (message: string) => {
+              setAgentStreamingMessage((prev) => ({
+                ...prev,
+                streamingText: prev.streamingText + message,
+              }));
+              scrollToBottom();
+            },
+            onToolCall: (message: string) => {
+              setAgentStreamingMessage((prev) => ({
+                ...prev,
+                toolCall: message,
+              }));
+              scrollToBottom();
+            },
+            onError: (message: string) => {
+              enqueueErrorSnackBar({
+                message,
+              });
+            },
+          });
         },
       },
     });
@@ -129,7 +142,10 @@ export const useAgentChat = (agentId: string) => {
     const { data } = await refetchMessages();
 
     setAgentChatMessages(data?.messages);
-    setAgentStreamingMessage('');
+    setAgentStreamingMessage({
+      toolCall: '',
+      streamingText: '',
+    });
     scrollToBottom();
   };
 
@@ -151,7 +167,6 @@ export const useAgentChat = (agentId: string) => {
       }
     },
     focusId: `${agentId}-chat-input`,
-    scope: InputHotkeyScope.TextInput,
     dependencies: [agentChatInput, isLoading],
     options: {
       enableOnFormTags: true,

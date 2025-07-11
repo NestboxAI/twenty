@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Response } from 'express';
@@ -28,6 +28,8 @@ export type StreamAgentChatResult = {
 
 @Injectable()
 export class AgentStreamingService {
+  private readonly logger = new Logger(AgentStreamingService.name);
+
   constructor(
     @InjectRepository(AgentChatThreadEntity, 'core')
     private readonly threadRepository: Repository<AgentChatThreadEntity>,
@@ -65,7 +67,7 @@ export class AgentStreamingService {
 
       this.setupStreamingHeaders(res);
 
-      const { textStream } =
+      const { fullStream } =
         await this.agentExecutionService.streamChatResponse({
           agentId: thread.agent.id,
           userMessage,
@@ -74,9 +76,28 @@ export class AgentStreamingService {
 
       let aiResponse = '';
 
-      for await (const chunk of textStream) {
-        aiResponse += chunk;
-        res.write(chunk);
+      for await (const chunk of fullStream) {
+        switch (chunk.type) {
+          case 'text-delta':
+            aiResponse += chunk.textDelta;
+            this.sendStreamEvent(res, {
+              type: chunk.type,
+              message: chunk.textDelta,
+            });
+            break;
+          case 'tool-call':
+            this.sendStreamEvent(res, {
+              type: chunk.type,
+              message: chunk.args?.toolDescription,
+            });
+            break;
+          case 'error':
+            this.logger.error(`Stream error: ${JSON.stringify(chunk)}`);
+            break;
+          default:
+            this.logger.log(`Unknown chunk type: ${chunk.type}`);
+            break;
+        }
       }
 
       await this.agentChatService.addMessage({
@@ -90,8 +111,28 @@ export class AgentStreamingService {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error occurred';
 
-      return { success: false, error: errorMessage };
+      if (error instanceof AgentException) {
+        this.logger.error(`Agent Exception Code: ${error.code}`);
+      }
+
+      if (!res.headersSent) {
+        this.setupStreamingHeaders(res);
+      }
+
+      this.sendStreamEvent(res, {
+        type: 'error',
+        message: errorMessage,
+      });
+
+      res.end();
     }
+  }
+
+  private sendStreamEvent(
+    res: Response,
+    event: { type: string; message: string },
+  ): void {
+    res.write(JSON.stringify(event) + '\n');
   }
 
   private setupStreamingHeaders(res: Response): void {
