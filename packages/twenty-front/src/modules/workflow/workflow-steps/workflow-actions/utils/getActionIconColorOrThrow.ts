@@ -11,6 +11,7 @@ export const getActionIconColorOrThrow = ({
 }) => {
   switch (actionType) {
     case 'CODE':
+    case 'HTTP_REQUEST':
       return theme.color.orange;
     case 'CREATE_RECORD':
     case 'UPDATE_RECORD':
@@ -20,6 +21,13 @@ export const getActionIconColorOrThrow = ({
       return theme.font.color.tertiary;
     case 'SEND_EMAIL':
       return theme.color.blue;
+    case 'AI_AGENT':
+      return theme.color.pink;
+    case 'FILTER': {
+      throw new Error(
+        "The Filter action isn't meant to be displayed as a node.",
+      );
+    }
     default:
       assertUnreachable(actionType, `Unsupported action type: ${actionType}`);
   }

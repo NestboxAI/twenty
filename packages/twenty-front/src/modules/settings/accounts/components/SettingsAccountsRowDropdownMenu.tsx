@@ -1,11 +1,12 @@
 import { ConnectedAccount } from '@/accounts/types/ConnectedAccount';
 import { CoreObjectNameSingular } from '@/object-metadata/types/CoreObjectNameSingular';
 import { useDestroyOneRecord } from '@/object-record/hooks/useDestroyOneRecord';
-import { useTriggerApisOAuth } from '@/settings/accounts/hooks/useTriggerApiOAuth';
+import { useTriggerProviderReconnect } from '@/settings/accounts/hooks/useTriggerProviderReconnect';
 import { SettingsPath } from '@/types/SettingsPath';
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { ConfirmationModal } from '@/ui/layout/modal/components/ConfirmationModal';
 import { useModal } from '@/ui/layout/modal/hooks/useModal';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -34,12 +35,12 @@ export const SettingsAccountsRowDropdownMenu = ({
   const { openModal } = useModal();
 
   const navigate = useNavigateSettings();
-  const { closeDropdown } = useDropdown(dropdownId);
+  const { closeDropdown } = useCloseDropdown();
 
   const { destroyOneRecord } = useDestroyOneRecord({
     objectNameSingular: CoreObjectNameSingular.ConnectedAccount,
   });
-  const { triggerApisOAuth } = useTriggerApisOAuth();
+  const { triggerProviderReconnect } = useTriggerProviderReconnect();
 
   const deleteAccount = async () => {
     await destroyOneRecord(account.id);
@@ -50,49 +51,49 @@ export const SettingsAccountsRowDropdownMenu = ({
       <Dropdown
         dropdownId={dropdownId}
         dropdownPlacement="right-start"
-        dropdownHotkeyScope={{ scope: dropdownId }}
         clickableComponent={
           <LightIconButton Icon={IconDotsVertical} accent="tertiary" />
         }
-        dropdownWidth={160}
         dropdownComponents={
-          <DropdownMenuItemsContainer>
-            <MenuItem
-              LeftIcon={IconMail}
-              text={t`Emails settings`}
-              onClick={() => {
-                navigate(SettingsPath.AccountsEmails);
-                closeDropdown();
-              }}
-            />
-            <MenuItem
-              LeftIcon={IconCalendarEvent}
-              text={t`Calendar settings`}
-              onClick={() => {
-                navigate(SettingsPath.AccountsCalendars);
-                closeDropdown();
-              }}
-            />
-            {account.authFailedAt && (
+          <DropdownContent>
+            <DropdownMenuItemsContainer>
               <MenuItem
-                LeftIcon={IconRefresh}
-                text={t`Reconnect`}
+                LeftIcon={IconMail}
+                text={t`Emails settings`}
                 onClick={() => {
-                  triggerApisOAuth(account.provider);
-                  closeDropdown();
+                  navigate(SettingsPath.AccountsEmails);
+                  closeDropdown(dropdownId);
                 }}
               />
-            )}
-            <MenuItem
-              accent="danger"
-              LeftIcon={IconTrash}
-              text={t`Remove account`}
-              onClick={() => {
-                closeDropdown();
-                openModal(DELETE_ACCOUNT_MODAL_ID);
-              }}
-            />
-          </DropdownMenuItemsContainer>
+              <MenuItem
+                LeftIcon={IconCalendarEvent}
+                text={t`Calendar settings`}
+                onClick={() => {
+                  navigate(SettingsPath.AccountsCalendars);
+                  closeDropdown(dropdownId);
+                }}
+              />
+              {account.authFailedAt && (
+                <MenuItem
+                  LeftIcon={IconRefresh}
+                  text={t`Reconnect`}
+                  onClick={() => {
+                    triggerProviderReconnect(account.provider, account.id);
+                    closeDropdown(dropdownId);
+                  }}
+                />
+              )}
+              <MenuItem
+                accent="danger"
+                LeftIcon={IconTrash}
+                text={t`Remove account`}
+                onClick={() => {
+                  closeDropdown(dropdownId);
+                  openModal(DELETE_ACCOUNT_MODAL_ID);
+                }}
+              />
+            </DropdownMenuItemsContainer>
+          </DropdownContent>
         }
       />
       <ConfirmationModal

@@ -1,0 +1,243 @@
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3172,13): error TS1139: Type parameter declaration expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3172,19): error TS1434: Unexpected keyword or identifier.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3172,20): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3172,26): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3172,30): error TS1011: An element access expression should take an argument.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3172,40): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3179,6): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3179,7): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3179,11): error TS1011: An element access expression should take an argument.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3195,13): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3195,20): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3195,26): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3195,54): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3201,24): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3202,6): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3202,7): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3202,11): error TS1011: An element access expression should take an argument.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3219,13): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3219,20): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3219,26): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3219,30): error TS1011: An element access expression should take an argument.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3219,41): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3225,26): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3226,6): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3226,7): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3226,11): error TS1011: An element access expression should take an argument.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3249,17): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3249,24): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3249,32): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3249,70): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3249,72): error TS1434: Unexpected keyword or identifier.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3249,78): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3249,79): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3249,83): error TS1011: An element access expression should take an argument.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3266,18): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3266,44): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3266,104): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3283,11): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3283,24): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3283,34): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3283,59): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3289,29): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3290,6): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3290,7): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3305,15): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3305,23): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3305,37): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3305,44): error TS1005: '>' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3305,62): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3305,64): error TS1434: Unexpected keyword or identifier.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3305,65): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3305,66): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3305,68): error TS1434: Unexpected keyword or identifier.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,17): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,25): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,39): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,46): error TS1005: '>' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,64): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,66): error TS1434: Unexpected keyword or identifier.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,67): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,68): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,78): error TS1005: ']' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3320,79): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,17): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,25): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,39): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,46): error TS1005: '>' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,64): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,66): error TS1434: Unexpected keyword or identifier.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,67): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,68): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,77): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,88): error TS1005: ']' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3335,90): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3350,18): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3350,25): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3350,32): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3350,50): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3350,51): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3370,26): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3370,33): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3370,40): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3379,7): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3379,8): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3397,19): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3397,26): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3397,33): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3397,59): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3401,20): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3405,20): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3406,6): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3406,7): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3406,11): error TS1011: An element access expression should take an argument.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3428,65): error TS1005: '?' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3428,77): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3428,81): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3428,91): error TS1005: ']' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3428,92): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3442,32): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3446,20): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3450,20): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3451,7): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3469,14): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3469,27): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3469,35): error TS1005: ')' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3469,85): error TS1109: Expression expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3479,24): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3483,24): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3484,10): error TS1005: ',' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3485,6): error TS1005: ';' expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3485,7): error TS1128: Declaration or statement expected.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3485,17): error TS1011: An element access expression should take an argument.
+../../node_modules/@faker-js/faker/dist/airline-BUL6NtOJ.d.ts(3486,1): error TS1128: Declaration or statement expected.
+../../node_modules/@nestjs/terminus/dist/health-indicator/health-indicator.service.d.ts(7,11): error TS1139: Type parameter declaration expected.
+../../node_modules/@nestjs/terminus/dist/health-indicator/health-indicator.service.d.ts(7,17): error TS1434: Unexpected keyword or identifier.
+../../node_modules/@nestjs/terminus/dist/health-indicator/health-indicator.service.d.ts(7,21): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+../../node_modules/@nestjs/terminus/dist/health-indicator/health-indicator.service.d.ts(7,29): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+../../node_modules/@nestjs/terminus/dist/health-indicator/health-indicator.service.d.ts(7,40): error TS1005: ')' expected.
+../../node_modules/@nestjs/terminus/dist/health-indicator/health-indicator.service.d.ts(7,42): error TS1434: Unexpected keyword or identifier.
+../../node_modules/@nestjs/terminus/dist/health-indicator/health-indicator.service.d.ts(7,45): error TS1128: Declaration or statement expected.
+../../node_modules/@nestjs/terminus/dist/health-indicator/health-indicator.service.d.ts(7,46): error TS1128: Declaration or statement expected.
+../../node_modules/@nestjs/terminus/dist/health-indicator/health-indicator.service.d.ts(8,1): error TS1128: Declaration or statement expected.
+src/engine/api/__mocks__/object-metadata-item.mock.ts(337,3): error TS1005: ',' expected.
+src/engine/api/__mocks__/object-metadata-item.mock.ts(337,13): error TS1005: ',' expected.
+src/engine/api/graphql/workspace-query-runner/factories/query-result-getters/handlers/__tests__/activity-query-result-getter.handler.spec.ts(31,3): error TS1005: ',' expected.
+src/engine/api/graphql/workspace-query-runner/factories/query-result-getters/handlers/__tests__/activity-query-result-getter.handler.spec.ts(31,13): error TS1005: ',' expected.
+src/engine/api/graphql/workspace-query-runner/factories/query-runner-args.factory.ts(68,11): error TS1005: ';' expected.
+src/engine/api/graphql/workspace-query-runner/factories/query-runner-args.factory.ts(80,11): error TS1005: ';' expected.
+src/engine/api/graphql/workspace-query-runner/factories/query-runner-args.factory.ts(93,11): error TS1005: ';' expected.
+src/engine/api/graphql/workspace-query-runner/factories/query-runner-args.factory.ts(109,11): error TS1005: ';' expected.
+src/engine/api/graphql/workspace-query-runner/factories/query-runner-args.factory.ts(147,11): error TS1005: ';' expected.
+src/engine/api/rest/core/query-builder/utils/__tests__/mocks/opportunity-field-maps.mock.ts(463,12): error TS1005: ',' expected.
+src/engine/api/rest/core/query-builder/utils/__tests__/mocks/opportunity-field-maps.mock.ts(463,22): error TS1005: ',' expected.
+src/engine/api/utils/__tests__/compute-cursor-arg-filter.utils.spec.ts(67,5): error TS1005: ',' expected.
+src/engine/api/utils/__tests__/compute-cursor-arg-filter.utils.spec.ts(67,15): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(84,18): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(84,28): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(112,18): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(112,28): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(120,18): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(120,28): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(120,35): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(120,67): error TS1109: Expression expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(151,18): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(151,28): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(174,18): error TS1005: ',' expected.
+src/engine/core-modules/actor/services/__tests__/created-by-from-auth-context.service.spec.ts(174,28): error TS1005: ',' expected.
+src/engine/core-modules/message-queue/message-queue.module-factory.ts(44,9): error TS1005: ';' expected.
+src/engine/core-modules/user/services/workspace-member-transpiler.service.ts(87,7): error TS1005: ';' expected.
+src/engine/core-modules/user/services/workspace-member-transpiler.service.ts(125,7): error TS1005: ';' expected.
+src/engine/dataloaders/dataloader.service.ts(159,26): error TS1005: ',' expected.
+src/engine/dataloaders/dataloader.service.ts(159,36): error TS1005: ',' expected.
+src/engine/dataloaders/dataloader.service.ts(159,43): error TS1005: ')' expected.
+src/engine/dataloaders/dataloader.service.ts(159,65): error TS1128: Declaration or statement expected.
+src/engine/dataloaders/dataloader.service.ts(159,67): error TS1011: An element access expression should take an argument.
+src/engine/dataloaders/dataloader.service.ts(159,68): error TS1005: ')' expected.
+src/engine/dataloaders/dataloader.service.ts(186,9): error TS1109: Expression expected.
+src/engine/dataloaders/dataloader.service.ts(189,8): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+src/engine/dataloaders/dataloader.service.ts(190,5): error TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+src/engine/dataloaders/dataloader.service.ts(193,3): error TS1128: Declaration or statement expected.
+src/engine/dataloaders/dataloader.service.ts(193,44): error TS1005: ';' expected.
+src/engine/dataloaders/dataloader.service.ts(237,1): error TS1128: Declaration or statement expected.
+src/engine/metadata-modules/field-metadata/composite-types/actor.composite-type.ts(38,14): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/composite-types/actor.composite-type.ts(38,24): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata-enum-validation.service.ts(145,16): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata-enum-validation.service.ts(145,26): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata-enum-validation.service.ts(145,33): error TS1005: ')' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata-enum-validation.service.ts(145,61): error TS1005: ';' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(235,15): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(235,25): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(381,19): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(381,29): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(383,15): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(383,25): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(413,19): error TS1005: ';' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(415,15): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(415,25): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(432,19): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(432,29): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(434,15): error TS1005: ',' expected.
+src/engine/metadata-modules/field-metadata/services/field-metadata.service.ts(434,25): error TS1005: ',' expected.
+src/engine/metadata-modules/index-metadata/index-metadata.service.ts(257,7): error TS1005: ',' expected.
+src/engine/metadata-modules/index-metadata/index-metadata.service.ts(257,17): error TS1005: ',' expected.
+src/engine/metadata-modules/index-metadata/index-metadata.service.ts(302,13): error TS1005: ',' expected.
+src/engine/metadata-modules/index-metadata/index-metadata.service.ts(302,23): error TS1005: ',' expected.
+src/engine/metadata-modules/index-metadata/index-metadata.service.ts(310,13): error TS1005: ',' expected.
+src/engine/metadata-modules/index-metadata/index-metadata.service.ts(310,23): error TS1005: ',' expected.
+src/engine/metadata-modules/index-metadata/index-metadata.service.ts(312,9): error TS1005: ',' expected.
+src/engine/metadata-modules/index-metadata/index-metadata.service.ts(312,19): error TS1005: ',' expected.
+src/engine/metadata-modules/object-metadata/services/object-metadata-migration.service.ts(48,11): error TS1005: ',' expected.
+src/engine/metadata-modules/object-metadata/services/object-metadata-migration.service.ts(48,21): error TS1005: ',' expected.
+src/engine/metadata-modules/object-metadata/services/object-metadata-migration.service.ts(291,17): error TS1005: ',' expected.
+src/engine/metadata-modules/object-metadata/services/object-metadata-migration.service.ts(291,27): error TS1005: ',' expected.
+src/engine/metadata-modules/object-metadata/utils/build-migrations-for-custom-object-relations.util.ts(39,13): error TS1005: ',' expected.
+src/engine/metadata-modules/object-metadata/utils/build-migrations-for-custom-object-relations.util.ts(39,23): error TS1005: ',' expected.
+src/engine/metadata-modules/permissions/permissions.service.ts(115,17): error TS1005: ';' expected.
+src/engine/metadata-modules/remote-server/remote-table/foreign-table/foreign-table.service.ts(84,22): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/foreign-table/foreign-table.service.ts(84,32): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/foreign-table/foreign-table.service.ts(88,15): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/foreign-table/foreign-table.service.ts(88,25): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/remote-table-relations/utils/build-migrations-to-create-remote-table-relations.util.ts(28,9): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/remote-table-relations/utils/build-migrations-to-create-remote-table-relations.util.ts(28,19): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/remote-table-relations/utils/build-migrations-to-remove-remote-table-relations.util.ts(24,9): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/remote-table-relations/utils/build-migrations-to-remove-remote-table-relations.util.ts(24,19): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/remote-table.service.ts(473,7): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/remote-table.service.ts(473,17): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/remote-table.service.ts(614,7): error TS1005: ',' expected.
+src/engine/metadata-modules/remote-server/remote-table/remote-table.service.ts(614,17): error TS1005: ',' expected.
+src/engine/twenty-orm/factories/entity-schema-relation.factory.ts(60,9): error TS1005: ';' expected.
+src/engine/workspace-manager/dev-seeder/core/utils/seed-workspaces.util.ts(28,12): error TS1005: ',' expected.
+src/engine/workspace-manager/dev-seeder/core/utils/seed-workspaces.util.ts(28,22): error TS1005: ',' expected.
+src/engine/workspace-manager/dev-seeder/core/utils/seed-workspaces.util.ts(28,29): error TS1005: ')' expected.
+src/engine/workspace-manager/dev-seeder/core/utils/seed-workspaces.util.ts(28,38): error TS1128: Declaration or statement expected.
+src/engine/workspace-manager/workspace-migration-builder/factories/workspace-migration-object.factory.ts(156,13): error TS1005: ',' expected.
+src/engine/workspace-manager/workspace-migration-builder/factories/workspace-migration-object.factory.ts(156,23): error TS1005: ',' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-field-input.ts(21,12): error TS1005: ',' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-field-input.ts(21,22): error TS1005: ',' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-field-input.ts(21,29): error TS1005: ')' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-field-input.ts(21,48): error TS1128: Declaration or statement expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-field-input.ts(35,12): error TS1005: ',' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-field-input.ts(35,22): error TS1005: ',' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-field-input.ts(35,59): error TS1005: ',' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-object-input.ts(14,12): error TS1005: ',' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-object-input.ts(14,22): error TS1005: ',' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-object-input.ts(14,29): error TS1005: ')' expected.
+src/engine/workspace-manager/workspace-migration-v2/types/workspace-migration-object-input.ts(14,49): error TS1128: Declaration or statement expected.
+src/engine/workspace-manager/workspace-sync-metadata/factories/standard-field-relation.factory.ts(105,11): error TS1005: ';' expected.
+src/engine/workspace-manager/workspace-sync-metadata/factories/standard-field-relation.factory.ts(225,15): error TS1005: ';' expected.
+src/engine/workspace-manager/workspace-sync-metadata/factories/standard-field-relation.factory.ts(298,11): error TS1005: ';' expected.
+src/modules/calendar/calendar-event-import-manager/services/calendar-save-events.service.ts(92,20): error TS1005: ',' expected.
+src/modules/calendar/calendar-event-import-manager/services/calendar-save-events.service.ts(92,30): error TS1005: ',' expected.
+src/modules/calendar/calendar-event-import-manager/services/calendar-save-events.service.ts(152,17): error TS1005: ';' expected.
+src/modules/timeline/services/timeline-activity.service.ts(88,11): error TS1005: ';' expected.
+src/modules/timeline/services/timeline-activity.service.ts(88,38): error TS1011: An element access expression should take an argument.
+src/modules/timeline/services/timeline-activity.service.ts(103,44): error TS1005: ';' expected.
+src/modules/timeline/services/timeline-activity.service.ts(103,71): error TS1011: An element access expression should take an argument.
+src/modules/timeline/services/timeline-activity.service.ts(210,11): error TS1005: ';' expected.
+src/modules/timeline/services/timeline-activity.service.ts(285,9): error TS1005: ',' expected.
+src/modules/timeline/services/timeline-activity.service.ts(285,19): error TS1005: ',' expected.
+src/modules/workflow/workflow-executor/workflow-actions/mail-sender/send-email.workflow-action.ts(137,33): error TS1005: ',' expected.
+src/modules/workflow/workflow-executor/workflow-actions/mail-sender/send-email.workflow-action.ts(137,43): error TS1005: ',' expected.
+src/modules/workflow/workflow-trigger/automated-trigger/listeners/__tests__/database-event-trigger.listener.spec.ts(77,17): error TS1005: ',' expected.
+src/modules/workflow/workflow-trigger/automated-trigger/listeners/__tests__/database-event-trigger.listener.spec.ts(77,27): error TS1005: ',' expected.

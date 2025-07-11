@@ -11,9 +11,18 @@ export const getActionHeaderTypeOrThrow = (actionType: WorkflowActionType) => {
     case 'DELETE_RECORD':
     case 'FIND_RECORDS':
     case 'FORM':
-      return msg`Action`;
     case 'SEND_EMAIL':
-      return msg`Email`;
+      return msg`Action`;
+    case 'HTTP_REQUEST':
+      return msg`HTTP Request`;
+    case 'AI_AGENT':
+      return msg`AI Agent`;
+    case 'FILTER': {
+      throw new Error(
+        "The Filter action isn't meant to be displayed as a node.",
+      );
+    }
+
     default:
       assertUnreachable(actionType, `Unsupported action type: ${actionType}`);
   }

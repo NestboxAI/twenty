@@ -1,5 +1,6 @@
 import {
-  workflowActionSchema,
+  workflowAiAgentActionSchema,
+  workflowAiAgentActionSettingsSchema,
   workflowCodeActionSchema,
   workflowCodeActionSettingsSchema,
   workflowCreateRecordActionSchema,
@@ -9,10 +10,13 @@ import {
   workflowDeleteRecordActionSchema,
   workflowDeleteRecordActionSettingsSchema,
   workflowExecutorOutputSchema,
+  workflowFilterActionSchema,
+  workflowFilterActionSettingsSchema,
   workflowFindRecordsActionSchema,
   workflowFindRecordsActionSettingsSchema,
   workflowFormActionSchema,
   workflowFormActionSettingsSchema,
+  workflowHttpRequestActionSchema,
   workflowManualTriggerSchema,
   workflowRunContextSchema,
   workflowRunOutputSchema,
@@ -46,6 +50,9 @@ export type WorkflowDeleteRecordActionSettings = z.infer<
 export type WorkflowFindRecordsActionSettings = z.infer<
   typeof workflowFindRecordsActionSettingsSchema
 >;
+export type WorkflowFilterActionSettings = z.infer<
+  typeof workflowFilterActionSettingsSchema
+>;
 export type WorkflowFormActionSettings = z.infer<
   typeof workflowFormActionSettingsSchema
 >;
@@ -66,9 +73,30 @@ export type WorkflowDeleteRecordAction = z.infer<
 export type WorkflowFindRecordsAction = z.infer<
   typeof workflowFindRecordsActionSchema
 >;
+export type WorkflowFilterAction = z.infer<typeof workflowFilterActionSchema>;
 export type WorkflowFormAction = z.infer<typeof workflowFormActionSchema>;
+export type WorkflowHttpRequestAction = z.infer<
+  typeof workflowHttpRequestActionSchema
+>;
 
-export type WorkflowAction = z.infer<typeof workflowActionSchema>;
+export type WorkflowAiAgentActionSettings = z.infer<
+  typeof workflowAiAgentActionSettingsSchema
+>;
+
+export type WorkflowAiAgentAction = z.infer<typeof workflowAiAgentActionSchema>;
+
+export type WorkflowAction =
+  | WorkflowCodeAction
+  | WorkflowSendEmailAction
+  | WorkflowCreateRecordAction
+  | WorkflowUpdateRecordAction
+  | WorkflowDeleteRecordAction
+  | WorkflowFindRecordsAction
+  | WorkflowFilterAction
+  | WorkflowFormAction
+  | WorkflowHttpRequestAction
+  | WorkflowAiAgentAction;
+
 export type WorkflowActionType = WorkflowAction['type'];
 export type WorkflowStep = WorkflowAction;
 export type WorkflowStepType = WorkflowStep['type'];
@@ -108,6 +136,10 @@ export type WorkflowVersion = {
   steps: Array<WorkflowStep> | null;
   status: WorkflowVersionStatus;
   __typename: 'WorkflowVersion';
+};
+
+export type ManualTriggerWorkflowVersion = WorkflowVersion & {
+  trigger: WorkflowManualTrigger | null;
 };
 
 export type WorkflowRunOutput = z.infer<typeof workflowRunOutputSchema>;

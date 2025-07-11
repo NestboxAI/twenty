@@ -42,6 +42,7 @@ const StyledLeftContainer = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing(1)};
   overflow: hidden;
+  z-index: 1000;
 `;
 
 const StyledRightContainer = styled.div`
@@ -122,7 +123,7 @@ export const RecordBoardColumnHeader = () => {
                   ? columnDefinition.color
                   : 'transparent'
               }
-              text={columnDefinition.title}
+              text={`${columnDefinition.title}`}
               weight={
                 columnDefinition.type === RecordGroupDefinitionType.Value
                   ? 'regular'
@@ -136,7 +137,7 @@ export const RecordBoardColumnHeader = () => {
               aggregateLabel={aggregateLabel}
             />
             {/* nesboxai: add AI workflow indicator */}
-            <AIWorkflowIndicator 
+            <AIWorkflowIndicator
               recordGroupId={columnDefinition.id}
               context="board"
             />
@@ -144,10 +145,12 @@ export const RecordBoardColumnHeader = () => {
           <StyledRightContainer>
             {isHeaderHovered && (
               <StyledHeaderActions>
-                <LightIconButton
-                  accent="tertiary"
-                  Icon={IconDotsVertical}
-                  onClick={handleBoardColumnMenuOpen}
+                 <RecordBoardColumnDropdownMenu
+                  dropdownId={`record-board-column-dropdown-menu-${columnDefinition.id}`}
+                  objectMetadataItem={objectMetadataItem}
+                  aggregateValue={aggregateValue}
+                  aggregateLabel={aggregateLabel}
+                  handleBoardColumnMenuOpen={handleBoardColumnMenuOpen}
                 />
                 {!hasObjectReadOnlyPermission && (
                   <LightIconButton
@@ -166,12 +169,6 @@ export const RecordBoardColumnHeader = () => {
           </StyledRightContainer>
         </StyledHeaderContainer>
       </StyledHeader>
-      {isBoardColumnMenuOpen && (
-        <RecordBoardColumnDropdownMenu
-          onClose={handleBoardColumnMenuClose}
-          stageId={columnDefinition.id}
-        />
-      )}
     </StyledColumn>
   );
 };

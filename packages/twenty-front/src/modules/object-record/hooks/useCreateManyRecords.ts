@@ -1,9 +1,9 @@
-import { useApolloClient } from '@apollo/client';
 import { v4 } from 'uuid';
 
 import { triggerCreateRecordsOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerCreateRecordsOptimisticEffect';
 import { triggerDestroyRecordsOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerDestroyRecordsOptimisticEffect';
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { hasObjectMetadataItemFieldCreatedBy } from '@/object-metadata/utils/hasObjectMetadataItemFieldCreatedBy';
@@ -14,6 +14,7 @@ import { getRecordNodeFromRecord } from '@/object-record/cache/utils/getRecordNo
 import { RecordGqlOperationGqlRecordFields } from '@/object-record/graphql/types/RecordGqlOperationGqlRecordFields';
 import { generateDepthOneRecordGqlFields } from '@/object-record/graphql/utils/generateDepthOneRecordGqlFields';
 import { useCreateManyRecordsMutation } from '@/object-record/hooks/useCreateManyRecordsMutation';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { useRefetchAggregateQueries } from '@/object-record/hooks/useRefetchAggregateQueries';
 import { FieldActorForInputValue } from '@/object-record/record-field/types/FieldMetadata';
 import { ObjectRecord } from '@/object-record/types/ObjectRecord';
@@ -31,11 +32,12 @@ type PartialObjectRecordWithOptionalId = Partial<ObjectRecord> & {
   id?: string;
 };
 
-type useCreateManyRecordsProps = {
+export type useCreateManyRecordsProps = {
   objectNameSingular: string;
   recordGqlFields?: RecordGqlOperationGqlRecordFields;
   skipPostOptimisticEffect?: boolean;
   shouldMatchRootQueryFilter?: boolean;
+  shouldRefetchAggregateQueries?: boolean;
 };
 
 export const useCreateManyRecords = <
@@ -45,8 +47,9 @@ export const useCreateManyRecords = <
   recordGqlFields,
   skipPostOptimisticEffect = false,
   shouldMatchRootQueryFilter,
+  shouldRefetchAggregateQueries = true,
 }: useCreateManyRecordsProps) => {
-  const apolloClient = useApolloClient();
+  const apolloCoreClient = useApolloCoreClient();
 
   const { objectMetadataItem } = useObjectMetadataItem({
     objectNameSingular,
@@ -70,15 +73,22 @@ export const useCreateManyRecords = <
   const currentWorkspaceMember = useRecoilValue(currentWorkspaceMemberState);
 
   const { objectMetadataItems } = useObjectMetadataItems();
-
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
   const { refetchAggregateQueries } = useRefetchAggregateQueries({
     objectMetadataNamePlural: objectMetadataItem.namePlural,
   });
 
-  const createManyRecords = async (
-    recordsToCreate: Partial<CreatedObjectRecord>[],
-    upsert?: boolean,
-  ) => {
+  type createManyRecordsProps = {
+    recordsToCreate: Partial<CreatedObjectRecord>[];
+    upsert?: boolean;
+    abortController?: AbortController;
+  };
+
+  const createManyRecords = async ({
+    recordsToCreate,
+    upsert,
+    abortController,
+  }: createManyRecordsProps) => {
     const sanitizedCreateManyRecordsInput: PartialObjectRecordWithOptionalId[] =
       [];
     const recordOptimisticRecordsInput: PartialObjectRecordWithId[] = [];
@@ -110,7 +120,7 @@ export const useCreateManyRecords = <
       if (shouldDoOptimisticEffect) {
         const optimisticRecordInput = {
           ...computeOptimisticRecordFromInput({
-            cache: apolloClient.cache,
+            cache: apolloCoreClient.cache,
             objectMetadataItem,
             objectMetadataItems,
             currentWorkspaceMember: currentWorkspaceMember,
@@ -118,6 +128,7 @@ export const useCreateManyRecords = <
               ...baseOptimisticRecordInputCreatedBy,
               ...recordToCreate,
             },
+            objectPermissionsByObjectMetadataId,
           }),
           id: idForCreation as string,
         };
@@ -147,11 +158,12 @@ export const useCreateManyRecords = <
         .filter(isDefined);
 
       triggerCreateRecordsOptimisticEffect({
-        cache: apolloClient.cache,
+        cache: apolloCoreClient.cache,
         objectMetadataItem,
         recordsToCreate: recordNodeCreatedInCache,
         objectMetadataItems,
         shouldMatchRootQueryFilter,
+        objectPermissionsByObjectMetadataId,
       });
     }
 
@@ -159,12 +171,17 @@ export const useCreateManyRecords = <
       objectMetadataItem.namePlural,
     );
 
-    const createdObjects = await apolloClient
+    const createdObjects = await apolloCoreClient
       .mutate({
         mutation: createManyRecordsMutation,
         variables: {
           data: sanitizedCreateManyRecordsInput,
           upsert: upsert,
+        },
+        context: {
+          fetchOptions: {
+            signal: abortController?.signal,
+          },
         },
         update: (cache, { data }) => {
           const records = data?.[mutationResponseField];
@@ -178,6 +195,7 @@ export const useCreateManyRecords = <
             objectMetadataItems,
             shouldMatchRootQueryFilter,
             checkForRecordInCache: true,
+            objectPermissionsByObjectMetadataId,
           });
         },
       })
@@ -186,13 +204,13 @@ export const useCreateManyRecords = <
           deleteRecordFromCache({
             objectMetadataItems,
             objectMetadataItem,
-            cache: apolloClient.cache,
+            cache: apolloCoreClient.cache,
             recordToDestroy,
           });
         });
 
         triggerDestroyRecordsOptimisticEffect({
-          cache: apolloClient.cache,
+          cache: apolloCoreClient.cache,
           objectMetadataItem,
           recordsToDestroy: recordsCreatedInCache,
           objectMetadataItems,
@@ -201,7 +219,8 @@ export const useCreateManyRecords = <
         throw error;
       });
 
-    await refetchAggregateQueries();
+    if (shouldRefetchAggregateQueries) await refetchAggregateQueries();
+
     return createdObjects.data?.[mutationResponseField] ?? [];
   };
 

@@ -18,7 +18,7 @@ setup_and_migrate_db() {
     PGPASS=$(echo $PG_DATABASE_URL | awk -F ':' '{print $3}' | awk -F '@' '{print $1}')
     PGHOST=$(echo $PG_DATABASE_URL | awk -F '@' '{print $2}' | awk -F ':' '{print $1}')
     PGPORT=$(echo $PG_DATABASE_URL | awk -F ':' '{print $4}' | awk -F '/' '{print $1}')
-    PGDATABASE=$(echo $PG_DATABASE_URL | awk -F ':' '{print $4}' | awk -F '/' '{print $2}')
+    PGDATABASE=$(echo $PG_DATABASE_URL | awk -F '/' '{print $NF}' | cut -d'?' -f1)
 
     # Creating the database if it doesn't exist
     db_count=$(PGPASSWORD=${PGPASS} psql -h ${PGHOST} -p ${PGPORT} -U ${PGUSER} -d postgres -tAc "SELECT COUNT(*) FROM pg_database WHERE datname = '${PGDATABASE}'")
@@ -34,7 +34,23 @@ setup_and_migrate_db() {
     yarn command:prod upgrade
     echo "Successfully migrated DB!"
 }
+
+register_background_jobs() {
+    if [ "${DISABLE_CRON_JOBS_REGISTRATION}" = "true" ]; then
+        echo "Cron job registration is disabled, skipping..."
+        return
+    fi
+  
+    echo "Registering background sync jobs..."
+    if yarn command:prod cron:register:all; then
+        echo "Successfully registered all background sync jobs!"
+    else
+        echo "Warning: Failed to register background jobs, but continuing startup..."
+    fi
+}
+
 setup_and_migrate_db
+register_background_jobs
 
 # Run automated workspace setup (only on first time)
 automated_workspace_setup

@@ -1,4 +1,5 @@
 import { useGetStandardObjectIcon } from '@/object-metadata/hooks/useGetStandardObjectIcon';
+import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { CoreObjectNameSingular } from '@/object-metadata/types/CoreObjectNameSingular';
 import { FieldContext } from '@/object-record/record-field/contexts/FieldContext';
 import { useIsRecordReadOnly } from '@/object-record/record-field/hooks/useIsRecordReadOnly';
@@ -12,7 +13,7 @@ import { ShowPageSummaryCard } from '@/ui/layout/show-page/components/ShowPageSu
 import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { useRecoilValue } from 'recoil';
 import { isDefined } from 'twenty-shared/utils';
-import { FieldMetadataType } from '~/generated/graphql';
+import { FieldMetadataType } from '~/generated-metadata/graphql';
 
 type SummaryCardProps = {
   objectNameSingular: string;
@@ -55,8 +56,13 @@ export const SummaryCard = ({
     }),
   );
 
+  const { objectMetadataItem } = useObjectMetadataItem({
+    objectNameSingular,
+  });
+
   const isRecordReadOnly = useIsRecordReadOnly({
     recordId: objectRecordId,
+    objectMetadataId: objectMetadataItem.id,
   });
 
   return (

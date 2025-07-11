@@ -5,7 +5,6 @@ import { useSetRecoilState } from 'recoil';
 
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
-import { useSetHotkeyScope } from '@/ui/utilities/hotkey/hooks/useSetHotkeyScope';
 import { ComponentWithRecoilScopeDecorator } from '~/testing/decorators/ComponentWithRecoilScopeDecorator';
 import { ObjectMetadataItemsDecorator } from '~/testing/decorators/ObjectMetadataItemsDecorator';
 import { SnackBarDecorator } from '~/testing/decorators/SnackBarDecorator';
@@ -19,7 +18,9 @@ import { CoreObjectNameSingular } from '@/object-metadata/types/CoreObjectNameSi
 import { FieldContext } from '@/object-record/record-field/contexts/FieldContext';
 import { RecordFieldComponentInstanceContext } from '@/object-record/record-field/states/contexts/RecordFieldComponentInstanceContext';
 import { recordFieldInputLayoutDirectionLoadingComponentState } from '@/object-record/record-field/states/recordFieldInputLayoutDirectionLoadingComponentState';
-import { SingleRecordPickerHotkeyScope } from '@/object-record/record-picker/single-record-picker/types/SingleRecordPickerHotkeyScope';
+import { DEFAULT_CELL_SCOPE } from '@/object-record/record-table/record-table-cell/hooks/useOpenRecordTableCellV2';
+import { usePushFocusItemToFocusStack } from '@/ui/utilities/focus/hooks/usePushFocusItemToFocusStack';
+import { FocusComponentType } from '@/ui/utilities/focus/types/FocusComponentType';
 import { useSetRecoilComponentStateV2 } from '@/ui/utilities/state/component-state/hooks/useSetRecoilComponentStateV2';
 import { FieldMetadataType } from 'twenty-shared/types';
 import { getCanvasElementForDropdownTesting } from 'twenty-ui/testing';
@@ -62,11 +63,19 @@ const RelationToOneFieldInputWithContext = ({
   onSubmit,
   onCancel,
 }: RelationToOneFieldInputWithContextProps) => {
-  const setHotKeyScope = useSetHotkeyScope();
+  const { pushFocusItemToFocusStack } = usePushFocusItemToFocusStack();
 
   useEffect(() => {
-    setHotKeyScope(SingleRecordPickerHotkeyScope.SingleRecordPicker);
-  }, [setHotKeyScope]);
+    pushFocusItemToFocusStack({
+      focusId: 'relation-to-one-field-input',
+      component: {
+        type: FocusComponentType.DROPDOWN,
+        instanceId: 'relation-to-one-field-input',
+      },
+      hotkeyScope: DEFAULT_CELL_SCOPE,
+      memoizeKey: 'relation-to-one-field-input',
+    });
+  }, [pushFocusItemToFocusStack]);
 
   return (
     <div>
@@ -82,6 +91,7 @@ const RelationToOneFieldInputWithContext = ({
               relationObjectMetadataNamePlural: 'companies',
               relationObjectMetadataNameSingular:
                 CoreObjectNameSingular.Company,
+              relationObjectMetadataId: '20202020-8c37-4163-ba06-1dada334ce3e',
               objectMetadataNameSingular: 'person',
               relationFieldMetadataId: '20202020-8c37-4163-ba06-1dada334ce3e',
             },

@@ -9,22 +9,24 @@ import { NestjsQueryTypeOrmModule } from '@ptc-org/nestjs-query-typeorm';
 
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
 import { ActorModule } from 'src/engine/core-modules/actor/actor.module';
+import { FeatureFlagModule } from 'src/engine/core-modules/feature-flag/feature-flag.module';
 import { WorkspaceAuthGuard } from 'src/engine/guards/workspace-auth.guard';
 import { DataSourceModule } from 'src/engine/metadata-modules/data-source/data-source.module';
 import { FieldMetadataDTO } from 'src/engine/metadata-modules/field-metadata/dtos/field-metadata.dto';
-import { FieldMetadataValidationService } from 'src/engine/metadata-modules/field-metadata/field-metadata-validation.service';
 import { FieldMetadataResolver } from 'src/engine/metadata-modules/field-metadata/field-metadata.resolver';
 import { BeforeUpdateOneField } from 'src/engine/metadata-modules/field-metadata/hooks/before-update-one-field.hook';
 import { FieldMetadataGraphqlApiExceptionInterceptor } from 'src/engine/metadata-modules/field-metadata/interceptors/field-metadata-graphql-api-exception.interceptor';
-import { FieldMetadataRelationService } from 'src/engine/metadata-modules/field-metadata/relation/field-metadata-relation.service';
 import { FieldMetadataEnumValidationService } from 'src/engine/metadata-modules/field-metadata/services/field-metadata-enum-validation.service';
+import { FieldMetadataMorphRelationService } from 'src/engine/metadata-modules/field-metadata/services/field-metadata-morph-relation.service';
 import { FieldMetadataRelatedRecordsService } from 'src/engine/metadata-modules/field-metadata/services/field-metadata-related-records.service';
+import { FieldMetadataRelationService } from 'src/engine/metadata-modules/field-metadata/services/field-metadata-relation.service';
+import { FieldMetadataValidationService } from 'src/engine/metadata-modules/field-metadata/services/field-metadata-validation.service';
 import { IsFieldMetadataDefaultValue } from 'src/engine/metadata-modules/field-metadata/validators/is-field-metadata-default-value.validator';
 import { IsFieldMetadataOptions } from 'src/engine/metadata-modules/field-metadata/validators/is-field-metadata-options.validator';
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { ObjectMetadataModule } from 'src/engine/metadata-modules/object-metadata/object-metadata.module';
 import { PermissionsModule } from 'src/engine/metadata-modules/permissions/permissions.module';
-import { RelationMetadataEntity } from 'src/engine/metadata-modules/relation-metadata/relation-metadata.entity';
+import { WorkspaceMetadataCacheModule } from 'src/engine/metadata-modules/workspace-metadata-cache/workspace-metadata-cache.module';
 import { WorkspaceMetadataVersionModule } from 'src/engine/metadata-modules/workspace-metadata-version/workspace-metadata-version.module';
 import { WorkspaceMigrationModule } from 'src/engine/metadata-modules/workspace-migration/workspace-migration.module';
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
@@ -32,18 +34,18 @@ import { WorkspaceMigrationRunnerModule } from 'src/engine/workspace-manager/wor
 import { ViewModule } from 'src/modules/view/view.module';
 
 import { FieldMetadataEntity } from './field-metadata.entity';
-import { FieldMetadataService } from './field-metadata.service';
 
 import { CreateFieldInput } from './dtos/create-field.input';
 import { UpdateFieldInput } from './dtos/update-field.input';
+import { FieldMetadataService } from './services/field-metadata.service';
 
 @Module({
   imports: [
     NestjsQueryGraphQLModule.forFeature({
       imports: [
         NestjsQueryTypeOrmModule.forFeature(
-          [FieldMetadataEntity, ObjectMetadataEntity, RelationMetadataEntity],
-          'metadata',
+          [FieldMetadataEntity, ObjectMetadataEntity],
+          'core',
         ),
         WorkspaceMigrationModule,
         WorkspaceMigrationRunnerModule,
@@ -53,13 +55,17 @@ import { UpdateFieldInput } from './dtos/update-field.input';
         DataSourceModule,
         TypeORMModule,
         ActorModule,
+        FeatureFlagModule,
         ViewModule,
         PermissionsModule,
+        WorkspaceMetadataCacheModule,
       ],
       services: [
         IsFieldMetadataDefaultValue,
         FieldMetadataService,
         FieldMetadataRelatedRecordsService,
+        FieldMetadataMorphRelationService,
+        FieldMetadataRelationService,
         FieldMetadataValidationService,
         FieldMetadataEnumValidationService,
       ],
@@ -97,6 +103,7 @@ import { UpdateFieldInput } from './dtos/update-field.input';
     FieldMetadataService,
     FieldMetadataRelationService,
     FieldMetadataRelatedRecordsService,
+    FieldMetadataMorphRelationService,
     FieldMetadataValidationService,
     FieldMetadataEnumValidationService,
     FieldMetadataResolver,

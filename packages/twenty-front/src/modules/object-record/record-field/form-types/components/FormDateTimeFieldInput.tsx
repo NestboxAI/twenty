@@ -11,23 +11,14 @@ import {
 } from '@/ui/input/components/internal/date/components/InternalDatePicker';
 import { MAX_DATE } from '@/ui/input/components/internal/date/constants/MaxDate';
 import { MIN_DATE } from '@/ui/input/components/internal/date/constants/MinDate';
-import { parseDateToString } from '@/ui/input/components/internal/date/utils/parseDateToString';
-import { parseStringToDate } from '@/ui/input/components/internal/date/utils/parseStringToDate';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { useDateParser } from '@/ui/input/components/internal/hooks/useDateParser';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { OverlayContainer } from '@/ui/layout/overlay/components/OverlayContainer';
 import { useListenClickOutside } from '@/ui/utilities/pointer-event/hooks/useListenClickOutside';
-import { UserContext } from '@/users/contexts/UserContext';
 import { isStandaloneVariableString } from '@/workflow/utils/isStandaloneVariableString';
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  useContext,
-  useId,
-  useRef,
-  useState,
-} from 'react';
+import { ChangeEvent, KeyboardEvent, useId, useRef, useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 import { TEXT_INPUT_STYLE } from 'twenty-ui/theme';
 import { Nullable } from 'twenty-ui/utilities';
@@ -35,13 +26,14 @@ import { Nullable } from 'twenty-ui/utilities';
 const StyledInputContainer = styled(FormFieldInputInnerContainer)`
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr 0px;
+  grid-template-rows: 1fr 0;
   overflow: visible;
   position: relative;
 `;
 
 const StyledDateInputAbsoluteContainer = styled.div`
   position: absolute;
+  top: ${({ theme }) => theme.spacing(1)};
 `;
 
 const StyledDateInput = styled.input<{ hasError?: boolean }>`
@@ -93,9 +85,11 @@ export const FormDateTimeFieldInput = ({
   readonly,
   placeholder,
 }: FormDateTimeFieldInputProps) => {
-  const { timeZone } = useContext(UserContext);
+  const { parseToString, parseToDate } = useDateParser({
+    isDateTimeInput: !dateOnly,
+  });
 
-  const inputId = useId();
+  const instanceId = useId();
 
   const [draftValue, setDraftValue] = useState<DraftValue>(
     isStandaloneVariableString(defaultValue)
@@ -121,11 +115,7 @@ export const FormDateTimeFieldInput = ({
 
   const [inputDateTime, setInputDateTime] = useState(
     isDefined(draftValueAsDate) && !isStandaloneVariableString(defaultValue)
-      ? parseDateToString({
-          date: draftValueAsDate,
-          isDateTimeInput: !dateOnly,
-          userTimezone: timeZone,
-        })
+      ? parseToString(draftValueAsDate)
       : '',
   );
 
@@ -139,12 +129,8 @@ export const FormDateTimeFieldInput = ({
     }
   };
 
-  const { closeDropdown: closeDropdownMonthSelect } = useDropdown(
-    MONTH_AND_YEAR_DROPDOWN_MONTH_SELECT_ID,
-  );
-  const { closeDropdown: closeDropdownYearSelect } = useDropdown(
-    MONTH_AND_YEAR_DROPDOWN_YEAR_SELECT_ID,
-  );
+  const { closeDropdown: closeDropdownMonthSelect } = useCloseDropdown();
+  const { closeDropdown: closeDropdownYearSelect } = useCloseDropdown();
 
   const displayDatePicker =
     draftValue.type === 'static' && draftValue.mode === 'edit';
@@ -158,11 +144,15 @@ export const FormDateTimeFieldInput = ({
     callback: (event) => {
       event.stopImmediatePropagation();
 
-      closeDropdownYearSelect();
-      closeDropdownMonthSelect();
+      closeDropdownYearSelect(MONTH_AND_YEAR_DROPDOWN_YEAR_SELECT_ID);
+      closeDropdownMonthSelect(MONTH_AND_YEAR_DROPDOWN_MONTH_SELECT_ID);
       handlePickerClickOutside();
     },
     enabled: displayDatePicker,
+    excludedClickOutsideIds: [
+      MONTH_AND_YEAR_DROPDOWN_MONTH_SELECT_ID,
+      MONTH_AND_YEAR_DROPDOWN_YEAR_SELECT_ID,
+    ],
   });
 
   const handlePickerChange = (newDate: Nullable<Date>) => {
@@ -172,15 +162,7 @@ export const FormDateTimeFieldInput = ({
       value: newDate?.toDateString() ?? null,
     });
 
-    setInputDateTime(
-      isDefined(newDate)
-        ? parseDateToString({
-            date: newDate,
-            isDateTimeInput: !dateOnly,
-            userTimezone: timeZone,
-          })
-        : '',
-    );
+    setInputDateTime(isDefined(newDate) ? parseToString(newDate) : '');
 
     setPickerDate(newDate);
 
@@ -230,15 +212,7 @@ export const FormDateTimeFieldInput = ({
 
     setPickerDate(newDate);
 
-    setInputDateTime(
-      isDefined(newDate)
-        ? parseDateToString({
-            date: newDate,
-            isDateTimeInput: !dateOnly,
-            userTimezone: timeZone,
-          })
-        : '',
-    );
+    setInputDateTime(isDefined(newDate) ? parseToString(newDate) : '');
 
     persistDate(newDate);
   };
@@ -264,15 +238,10 @@ export const FormDateTimeFieldInput = ({
 
     if (inputDateTimeTrimmed === '') {
       handlePickerClear();
-
       return;
     }
 
-    const parsedInputDateTime = parseStringToDate({
-      dateAsString: inputDateTimeTrimmed,
-      isDateTimeInput: !dateOnly,
-      userTimezone: timeZone,
-    });
+    const parsedInputDateTime = parseToDate(inputDateTimeTrimmed);
 
     if (!isDefined(parsedInputDateTime)) {
       return;
@@ -293,13 +262,7 @@ export const FormDateTimeFieldInput = ({
 
     setPickerDate(validatedDate);
 
-    setInputDateTime(
-      parseDateToString({
-        date: validatedDate,
-        isDateTimeInput: !dateOnly,
-        userTimezone: timeZone,
-      }),
-    );
+    setInputDateTime(parseToString(validatedDate));
 
     persistDate(validatedDate);
   };
@@ -333,6 +296,7 @@ export const FormDateTimeFieldInput = ({
 
       <FormFieldInputRowContainer>
         <StyledInputContainer
+          formFieldInputInstanceId={instanceId}
           ref={datePickerWrapperRef}
           hasRightElement={isDefined(VariablePicker) && !readonly}
         >
@@ -377,7 +341,7 @@ export const FormDateTimeFieldInput = ({
 
         {VariablePicker && !readonly ? (
           <VariablePicker
-            inputId={inputId}
+            instanceId={instanceId}
             onVariableSelect={handleVariableTagInsert}
           />
         ) : null}

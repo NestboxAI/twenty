@@ -1,9 +1,11 @@
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuHeader } from '@/ui/layout/dropdown/components/DropdownMenuHeader/DropdownMenuHeader';
 import { DropdownMenuHeaderLeftComponent } from '@/ui/layout/dropdown/components/DropdownMenuHeader/internal/DropdownMenuHeaderLeftComponent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { DropdownMenuSearchInput } from '@/ui/layout/dropdown/components/DropdownMenuSearchInput';
 import { DropdownMenuSeparator } from '@/ui/layout/dropdown/components/DropdownMenuSeparator';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { StepOutputSchema } from '@/workflow/workflow-variables/types/StepOutputSchema';
 import { useState } from 'react';
 import { IconX, OverflowingTextWithTooltip, useIcons } from 'twenty-ui/display';
@@ -23,7 +25,7 @@ export const WorkflowVariablesDropdownWorkflowStepItems = ({
   const { getIcon } = useIcons();
   const [searchInputValue, setSearchInputValue] = useState('');
 
-  const { closeDropdown } = useDropdown(dropdownId);
+  const { closeDropdown } = useCloseDropdown();
 
   const availableSteps = steps.filter((step) =>
     searchInputValue
@@ -32,11 +34,11 @@ export const WorkflowVariablesDropdownWorkflowStepItems = ({
   );
 
   return (
-    <>
+    <DropdownContent widthInPixels={GenericDropdownContentWidth.ExtraLarge}>
       <DropdownMenuHeader
         StartComponent={
           <DropdownMenuHeaderLeftComponent
-            onClick={closeDropdown}
+            onClick={() => closeDropdown(dropdownId)}
             Icon={IconX}
           />
         }
@@ -72,6 +74,6 @@ export const WorkflowVariablesDropdownWorkflowStepItems = ({
           />
         )}
       </DropdownMenuItemsContainer>
-    </>
+    </DropdownContent>
   );
 };

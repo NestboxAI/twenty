@@ -33,5 +33,5 @@
     "files": true,
     "require": ["tsconfig-paths/register"]
   },
-  "exclude": ["dist"]
+  "exclude": ["dist", "node_modules"]
 }

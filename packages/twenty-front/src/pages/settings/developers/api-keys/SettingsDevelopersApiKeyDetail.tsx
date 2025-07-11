@@ -17,7 +17,6 @@ import { ApiKey } from '@/settings/developers/types/api-key/ApiKey';
 import { computeNewExpirationDate } from '@/settings/developers/utils/computeNewExpirationDate';
 import { formatExpiration } from '@/settings/developers/utils/formatExpiration';
 import { SettingsPath } from '@/types/SettingsPath';
-import { SnackBarVariant } from '@/ui/feedback/snack-bar-manager/components/SnackBar';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { TextInput } from '@/ui/input/components/TextInput';
 import { ConfirmationModal } from '@/ui/layout/modal/components/ConfirmationModal';
@@ -27,7 +26,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import { H2Title, IconRepeat, IconTrash } from 'twenty-ui/display';
 import { Button } from 'twenty-ui/input';
 import { Section } from 'twenty-ui/layout';
-import { useGenerateApiKeyTokenMutation } from '~/generated/graphql';
+import { useGenerateApiKeyTokenMutation } from '~/generated-metadata/graphql';
 import { useNavigateSettings } from '~/hooks/useNavigateSettings';
 import { getSettingsPath } from '~/utils/navigation/getSettingsPath';
 
@@ -50,7 +49,7 @@ const REGENERATE_API_KEY_MODAL_ID = 'regenerate-api-key-modal';
 
 export const SettingsDevelopersApiKeyDetail = () => {
   const { t } = useLingui();
-  const { enqueueSnackBar } = useSnackBar();
+  const { enqueueErrorSnackBar } = useSnackBar();
   const { openModal } = useModal();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -97,9 +96,7 @@ export const SettingsDevelopersApiKeyDetail = () => {
         navigate(SettingsPath.APIs);
       }
     } catch (err) {
-      enqueueSnackBar(t`Error deleting api key: ${err}`, {
-        variant: SnackBarVariant.Error,
-      });
+      enqueueErrorSnackBar({ message: t`Error deleting api key.` });
     } finally {
       setIsLoading(false);
     }
@@ -143,14 +140,14 @@ export const SettingsDevelopersApiKeyDetail = () => {
 
         if (isNonEmptyString(apiKey?.token)) {
           setApiKeyTokenCallback(apiKey.id, apiKey.token);
-          navigate(SettingsPath.DevelopersApiKeyDetail, {
+          navigate(SettingsPath.ApiKeyDetail, {
             apiKeyId: apiKey.id,
           });
         }
       }
     } catch (err) {
-      enqueueSnackBar(t`Error regenerating api key: ${err}`, {
-        variant: SnackBarVariant.Error,
+      enqueueErrorSnackBar({
+        message: t`Error regenerating api key.`,
       });
     } finally {
       setIsLoading(false);
@@ -173,7 +170,7 @@ export const SettingsDevelopersApiKeyDetail = () => {
               children: t`APIs`,
               href: getSettingsPath(SettingsPath.APIs),
             },
-            { children: t`${apiKeyName} API Key` },
+            { children: t`${apiKeyName}` },
           ]}
         >
           <SettingsPageContainer>
@@ -224,6 +221,7 @@ export const SettingsDevelopersApiKeyDetail = () => {
                 description={t`When the key will be disabled`}
               />
               <TextInput
+                instanceId={`api-key-expiration-${apiKeyData?.id}`}
                 placeholder={t`E.g. backoffice integration`}
                 value={formatExpiration(
                   apiKeyData?.expiresAt || '',

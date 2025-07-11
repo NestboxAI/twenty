@@ -8,7 +8,7 @@ import { TextArea } from '@/ui/input/components/TextArea';
 import { TextInputV2 } from '@/ui/input/components/TextInputV2';
 import { RootStackingContextZIndices } from '@/ui/layout/constants/RootStackingContextZIndices';
 import { RightDrawerFooter } from '@/ui/layout/right-drawer/components/RightDrawerFooter';
-import { useListenRightDrawerClose } from '@/ui/layout/right-drawer/hooks/useListenRightDrawerClose';
+import { useListenToSidePanelClosing } from '@/ui/layout/right-drawer/hooks/useListenToSidePanelClosing';
 import { useListenClickOutside } from '@/ui/utilities/pointer-event/hooks/useListenClickOutside';
 import { H1Title, H1TitleFontColor } from 'twenty-ui/display';
 import { Button, Toggle } from 'twenty-ui/input';
@@ -325,7 +325,7 @@ export const AIWorkflowSetupDrawer = ({
     }
   };
 
-  useListenRightDrawerClose(onClose);
+  useListenToSidePanelClosing(onClose);
 
   useListenClickOutside({
     refs: [drawerRef],
@@ -418,6 +418,7 @@ export const AIWorkflowSetupDrawer = ({
             <StyledFormField>
               <StyledLabel>{`Instructions`}</StyledLabel>
               <TextArea
+                textAreaId="ai-workflow-instructions"
                 value={additionalInput}
                 onChange={handleAdditionalInputChange}
                 placeholder={`Provide instructions for the agent...`}

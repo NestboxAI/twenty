@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 
 import { FieldDisplay } from '@/object-record/record-field/components/FieldDisplay';
 import { FieldInput } from '@/object-record/record-field/components/FieldInput';
@@ -13,10 +13,13 @@ import {
 import { useIsFieldInputOnly } from '@/object-record/record-field/hooks/useIsFieldInputOnly';
 import { useOpenFieldInputEditMode } from '@/object-record/record-field/hooks/useOpenFieldInputEditMode';
 
-import { useInlineCell } from '@/object-record/record-inline-cell/hooks/useInlineCell';
+import { RecordFieldComponentInstanceContext } from '@/object-record/record-field/states/contexts/RecordFieldComponentInstanceContext';
+import { isInlineCellInEditModeScopedState } from '@/object-record/record-inline-cell/states/isInlineCellInEditModeScopedState';
 import { DEFAULT_CELL_SCOPE } from '@/object-record/record-table/record-table-cell/hooks/useOpenRecordTableCellV2';
+import { useGoBackToPreviousDropdownFocusId } from '@/ui/layout/dropdown/hooks/useGoBackToPreviousDropdownFocusId';
 import { currentHotkeyScopeState } from '@/ui/utilities/hotkey/states/internal/currentHotkeyScopeState';
-import { useRecoilCallback } from 'recoil';
+import { useAvailableComponentInstanceIdOrThrow } from '@/ui/utilities/state/component-state/hooks/useAvailableComponentInstanceIdOrThrow';
+import { useRecoilCallback, useSetRecoilState } from 'recoil';
 import { useIcons } from 'twenty-ui/display';
 import { RecordInlineCellContainer } from './RecordInlineCellContainer';
 import {
@@ -25,26 +28,75 @@ import {
 } from './RecordInlineCellContext';
 
 type RecordInlineCellProps = {
-  readonly?: boolean;
   loading?: boolean;
+  instanceIdPrefix?: string;
 };
 
-export const RecordInlineCell = ({ loading }: RecordInlineCellProps) => {
+export const RecordInlineCell = ({
+  loading,
+  instanceIdPrefix,
+}: RecordInlineCellProps) => {
   const {
     fieldDefinition,
     recordId,
     isCentered,
     isDisplayModeFixHeight,
-    onOpenEditMode,
-    onCloseEditMode,
+    onOpenEditMode: onOpenEditModeFromContext,
+    onCloseEditMode: onCloseEditModeFromContext,
     isReadOnly,
   } = useContext(FieldContext);
+
+  const { openFieldInput, closeFieldInput } = useOpenFieldInputEditMode();
+
+  const onOpenEditMode = onOpenEditModeFromContext
+    ? onOpenEditModeFromContext
+    : () =>
+        openFieldInput({
+          fieldDefinition,
+          recordId,
+          prefix: instanceIdPrefix,
+        });
+
+  const onCloseEditMode = useCallback(() => {
+    onCloseEditModeFromContext
+      ? onCloseEditModeFromContext()
+      : closeFieldInput({
+          fieldDefinition,
+          recordId,
+          prefix: instanceIdPrefix,
+        });
+  }, [
+    onCloseEditModeFromContext,
+    closeFieldInput,
+    fieldDefinition,
+    recordId,
+    instanceIdPrefix,
+  ]);
 
   const buttonIcon = useGetButtonIcon();
 
   const isFieldInputOnly = useIsFieldInputOnly();
 
-  const { closeInlineCell } = useInlineCell();
+  const { goBackToPreviousDropdownFocusId } =
+    useGoBackToPreviousDropdownFocusId();
+
+  const recordFieldComponentInstanceId = useAvailableComponentInstanceIdOrThrow(
+    RecordFieldComponentInstanceContext,
+  );
+
+  const setIsInlineCellInEditMode = useSetRecoilState(
+    isInlineCellInEditModeScopedState(recordFieldComponentInstanceId),
+  );
+
+  const closeInlineCell = useCallback(() => {
+    onCloseEditMode();
+    setIsInlineCellInEditMode(false);
+    goBackToPreviousDropdownFocusId();
+  }, [
+    onCloseEditMode,
+    setIsInlineCellInEditMode,
+    goBackToPreviousDropdownFocusId,
+  ]);
 
   const handleEnter: FieldInputEvent = (persistField) => {
     persistField();
@@ -84,7 +136,7 @@ export const RecordInlineCell = ({ loading }: RecordInlineCellProps) => {
         if (hotkeyScope.scope !== DEFAULT_CELL_SCOPE.scope) {
           return;
         }
-
+        event.preventDefault();
         event.stopImmediatePropagation();
 
         persistField();
@@ -94,7 +146,6 @@ export const RecordInlineCell = ({ loading }: RecordInlineCellProps) => {
   );
 
   const { getIcon } = useIcons();
-  const { openFieldInput, closeFieldInput } = useOpenFieldInputEditMode();
 
   const RecordInlineCellContextValue: RecordInlineCellContextProps = {
     readonly: isReadOnly,
@@ -122,9 +173,8 @@ export const RecordInlineCell = ({ loading }: RecordInlineCellProps) => {
     isDisplayModeFixHeight: isDisplayModeFixHeight,
     editModeContentOnly: isFieldInputOnly,
     loading: loading,
-    onOpenEditMode:
-      onOpenEditMode ?? (() => openFieldInput({ fieldDefinition, recordId })),
-    onCloseEditMode: onCloseEditMode ?? (() => closeFieldInput()),
+    onOpenEditMode,
+    onCloseEditMode,
   };
 
   return (

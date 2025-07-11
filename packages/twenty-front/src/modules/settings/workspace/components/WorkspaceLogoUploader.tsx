@@ -5,8 +5,9 @@ import { ImageInput } from '@/ui/input/components/ImageInput';
 import {
   useUpdateWorkspaceMutation,
   useUploadWorkspaceLogoMutation,
-} from '~/generated/graphql';
+} from '~/generated-metadata/graphql';
 import { isUndefinedOrNull } from '~/utils/isUndefinedOrNull';
+import { buildSignedPath } from 'twenty-shared/utils';
 
 export const WorkspaceLogoUploader = () => {
   const [uploadLogo] = useUploadWorkspaceLogoMutation();
@@ -29,7 +30,7 @@ export const WorkspaceLogoUploader = () => {
       onCompleted: (data) => {
         setCurrentWorkspace({
           ...currentWorkspace,
-          logo: data.uploadWorkspaceLogo,
+          logo: buildSignedPath(data.uploadWorkspaceLogo),
         });
       },
     });

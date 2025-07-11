@@ -1,4 +1,3 @@
-import { SnackBarVariant } from '@/ui/feedback/snack-bar-manager/components/SnackBar';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { useMutation } from '@apollo/client';
 import {
@@ -8,7 +7,7 @@ import {
 } from '../services/aiAgentWorkflowService';
 
 export const useCreateAiAgentConfig = () => {
-  const { enqueueSnackBar } = useSnackBar();
+  const { enqueueSuccessSnackBar, enqueueErrorSnackBar } = useSnackBar();
 
   const [createAiAgentConfigMutation, { loading, error, data }] = useMutation<
     { createAiAgentConfig: CreateAiAgentConfigResponse },
@@ -16,16 +15,16 @@ export const useCreateAiAgentConfig = () => {
   >(CREATE_AI_AGENT_CONFIG, {
     onCompleted: (data) => {
       if (data?.createAiAgentConfig?.id) {
-        enqueueSnackBar('AI workflow configuration saved successfully!', {
-          variant: SnackBarVariant.Success,
-          duration: 3000,
+        enqueueSuccessSnackBar({
+          message: 'AI workflow configuration saved successfully!',
+          options: { duration: 3000 },
         });
       }
     },
     onError: (error) => {
-      enqueueSnackBar(`Failed to save AI workflow configuration: ${error.message}`, {
-        variant: SnackBarVariant.Error,
-        duration: 5000,
+      enqueueErrorSnackBar({
+        message: `Failed to save AI workflow configuration: ${error.message}`,
+        options: { duration: 5000 },
       });
     },
   });

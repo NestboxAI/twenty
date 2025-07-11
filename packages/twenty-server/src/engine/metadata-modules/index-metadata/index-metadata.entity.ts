@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -12,15 +13,15 @@ import {
 } from 'typeorm';
 
 import { IndexFieldMetadataEntity } from 'src/engine/metadata-modules/index-metadata/index-field-metadata.entity';
+import { IndexType } from 'src/engine/metadata-modules/index-metadata/types/indexType.types';
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 
-export enum IndexType {
-  BTREE = 'BTREE',
-  GIN = 'GIN',
-}
-
-@Unique('IndexOnNameAndWorkspaceIdAndObjectMetadataUnique', [
+@Unique('IDX_INDEX_METADATA_NAME_WORKSPACE_ID_OBJECT_METADATA_ID_UNIQUE', [
   'name',
+  'workspaceId',
+  'objectMetadataId',
+])
+@Index('IDX_INDEX_METADATA_WORKSPACE_ID_OBJECT_METADATA_ID', [
   'workspaceId',
   'objectMetadataId',
 ])
@@ -75,5 +76,5 @@ export class IndexMetadataEntity {
     default: IndexType.BTREE,
     nullable: false,
   })
-  indexType?: IndexType;
+  indexType: IndexType;
 }

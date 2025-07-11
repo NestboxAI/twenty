@@ -1,15 +1,17 @@
 import { useAuth } from '@/auth/hooks/useAuth';
 import { AppPath } from '@/types/AppPath';
-import { SnackBarVariant } from '@/ui/feedback/snack-bar-manager/components/SnackBar';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { ApolloError } from '@apollo/client';
 
+import { verifyEmailNextPathState } from '@/app/states/verifyEmailNextPathState';
 import { useVerifyLogin } from '@/auth/hooks/useVerifyLogin';
 import { useRedirectToWorkspaceDomain } from '@/domain-manager/hooks/useRedirectToWorkspaceDomain';
 import { Modal } from '@/ui/layout/modal/components/Modal';
 import { useLingui } from '@lingui/react/macro';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import { isDefined } from 'twenty-shared/utils';
 import { useNavigateApp } from '~/hooks/useNavigateApp';
 import { getWorkspaceUrl } from '~/utils/getWorkspaceUrl';
 import { EmailVerificationSent } from '../sign-in-up/components/EmailVerificationSent';
@@ -17,13 +19,16 @@ import { EmailVerificationSent } from '../sign-in-up/components/EmailVerificatio
 export const VerifyEmailEffect = () => {
   const { getLoginTokenFromEmailVerificationToken } = useAuth();
 
-  const { enqueueSnackBar } = useSnackBar();
+  const { enqueueErrorSnackBar, enqueueSuccessSnackBar } = useSnackBar();
 
   const [searchParams] = useSearchParams();
   const [isError, setIsError] = useState(false);
 
+  const setVerifyEmailNextPath = useSetRecoilState(verifyEmailNextPathState);
+
   const email = searchParams.get('email');
   const emailVerificationToken = searchParams.get('emailVerificationToken');
+  const verifyEmailNextPath = searchParams.get('nextPath');
 
   const navigate = useNavigateApp();
   const { redirectToWorkspaceDomain } = useRedirectToWorkspaceDomain();
@@ -33,9 +38,11 @@ export const VerifyEmailEffect = () => {
   useEffect(() => {
     const verifyEmailToken = async () => {
       if (!email || !emailVerificationToken) {
-        enqueueSnackBar(t`Invalid email verification link.`, {
-          dedupeKey: 'email-verification-link-dedupe-key',
-          variant: SnackBarVariant.Error,
+        enqueueErrorSnackBar({
+          message: t`Invalid email verification link.`,
+          options: {
+            dedupeKey: 'email-verification-link-dedupe-key',
+          },
         });
         return navigate(AppPath.SignInUp);
       }
@@ -47,9 +54,11 @@ export const VerifyEmailEffect = () => {
             email,
           );
 
-        enqueueSnackBar(t`Email verified.`, {
-          dedupeKey: 'email-verification-dedupe-key',
-          variant: SnackBarVariant.Success,
+        enqueueSuccessSnackBar({
+          message: t`Email verified.`,
+          options: {
+            dedupeKey: 'email-verification-dedupe-key',
+          },
         });
 
         const workspaceUrl = getWorkspaceUrl(workspaceUrls);
@@ -58,16 +67,20 @@ export const VerifyEmailEffect = () => {
             loginToken: loginToken.token,
           });
         }
+
+        if (isDefined(verifyEmailNextPath)) {
+          setVerifyEmailNextPath(verifyEmailNextPath);
+        }
+
         verifyLoginToken(loginToken.token);
       } catch (error) {
-        const message: string =
-          error instanceof ApolloError
-            ? error.message
-            : 'Email verification failed';
-
-        enqueueSnackBar(t`${message}`, {
-          dedupeKey: 'email-verification-error-dedupe-key',
-          variant: SnackBarVariant.Error,
+        enqueueErrorSnackBar({
+          ...(error instanceof ApolloError
+            ? { apolloError: error }
+            : { message: t`Email verification failed` }),
+          options: {
+            dedupeKey: 'email-verification-error-dedupe-key',
+          },
         });
         if (
           error instanceof ApolloError &&

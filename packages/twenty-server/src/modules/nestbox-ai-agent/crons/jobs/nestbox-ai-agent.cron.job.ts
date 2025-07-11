@@ -24,9 +24,9 @@ export class NestboxAiAgentCronJob {
     private readonly workspaceRepository: Repository<Workspace>,
     @InjectRepository(AiAgentConfig, 'core')
     private readonly aiAgentConfigRepository: Repository<AiAgentConfig>,
-    @InjectRepository(DataSourceEntity, 'metadata')
+    @InjectRepository(DataSourceEntity, 'core')
     private readonly dataSourceRepository: Repository<DataSourceEntity>,
-    @InjectRepository(ObjectMetadataEntity, 'metadata')
+    @InjectRepository(ObjectMetadataEntity, 'core')
     private readonly objectMetadataRepository: Repository<ObjectMetadataEntity>,
     private readonly twentyORMGlobalManager: TwentyORMGlobalManager,
     private readonly exceptionHandlerService: ExceptionHandlerService,
@@ -98,7 +98,6 @@ export class NestboxAiAgentCronJob {
         // Step 3: Query the actual table using schema and tableName
         const workspaceDataSource = await this.twentyORMGlobalManager.getDataSourceForWorkspace({
           workspaceId: aiAgentConfig.workspaceId,
-          shouldFailIfMetadataNotFound: false,
         });
 
         if (!workspaceDataSource) {

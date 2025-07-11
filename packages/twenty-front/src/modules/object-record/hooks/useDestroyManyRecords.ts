@@ -1,19 +1,19 @@
-import { useApolloClient } from '@apollo/client';
-
 import { triggerCreateRecordsOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerCreateRecordsOptimisticEffect';
 import { triggerDestroyRecordsOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerDestroyRecordsOptimisticEffect';
 import { apiConfigState } from '@/client-config/states/apiConfigState';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { useGetRecordFromCache } from '@/object-record/cache/hooks/useGetRecordFromCache';
 import { DEFAULT_MUTATION_BATCH_SIZE } from '@/object-record/constants/DefaultMutationBatchSize';
 import { useDestroyManyRecordsMutation } from '@/object-record/hooks/useDestroyManyRecordsMutation';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { useRefetchAggregateQueries } from '@/object-record/hooks/useRefetchAggregateQueries';
 import { ObjectRecord } from '@/object-record/types/ObjectRecord';
 import { getDestroyManyRecordsMutationResponseField } from '@/object-record/utils/getDestroyManyRecordsMutationResponseField';
 import { useRecoilValue } from 'recoil';
-import { sleep } from '~/utils/sleep';
 import { capitalize, isDefined } from 'twenty-shared/utils';
+import { sleep } from '~/utils/sleep';
 
 type useDestroyManyRecordProps = {
   objectNameSingular: string;
@@ -34,7 +34,7 @@ export const useDestroyManyRecords = ({
   const mutationPageSize =
     apiConfig?.mutationMaximumAffectedRecords ?? DEFAULT_MUTATION_BATCH_SIZE;
 
-  const apolloClient = useApolloClient();
+  const apolloCoreClient = useApolloCoreClient();
 
   const { objectMetadataItem } = useObjectMetadataItem({
     objectNameSingular,
@@ -47,7 +47,7 @@ export const useDestroyManyRecords = ({
   });
 
   const { objectMetadataItems } = useObjectMetadataItems();
-
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
   const { refetchAggregateQueries } = useRefetchAggregateQueries({
     objectMetadataNamePlural: objectMetadataItem.namePlural,
   });
@@ -74,10 +74,10 @@ export const useDestroyManyRecords = ({
       );
 
       const cachedRecords = batchedIdToDestroy
-        .map((recordId) => getRecordFromCache(recordId, apolloClient.cache))
+        .map((recordId) => getRecordFromCache(recordId, apolloCoreClient.cache))
         .filter(isDefined);
 
-      const destroyedRecordsResponse = await apolloClient
+      const destroyedRecordsResponse = await apolloCoreClient
         .mutate<Record<string, ObjectRecord[]>>({
           mutation: destroyManyRecordsMutation,
           variables: {
@@ -116,10 +116,11 @@ export const useDestroyManyRecords = ({
         .catch((error: Error) => {
           if (cachedRecords.length > 0 && !skipOptimisticEffect) {
             triggerCreateRecordsOptimisticEffect({
-              cache: apolloClient.cache,
+              cache: apolloCoreClient.cache,
               objectMetadataItem,
               recordsToCreate: cachedRecords,
               objectMetadataItems,
+              objectPermissionsByObjectMetadataId,
             });
           }
           throw error;

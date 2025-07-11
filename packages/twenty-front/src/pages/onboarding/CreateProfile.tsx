@@ -2,24 +2,26 @@ import styled from '@emotion/styled';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { Key } from 'ts-key-enum';
 import { z } from 'zod';
 
 import { SubTitle } from '@/auth/components/SubTitle';
 import { Title } from '@/auth/components/Title';
+import { currentUserState } from '@/auth/states/currentUserState';
 import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { CoreObjectNameSingular } from '@/object-metadata/types/CoreObjectNameSingular';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { useSetNextOnboardingStatus } from '@/onboarding/hooks/useSetNextOnboardingStatus';
 import { ProfilePictureUploader } from '@/settings/profile/components/ProfilePictureUploader';
+import { PageFocusId } from '@/types/PageFocusId';
 import { PageHotkeyScope } from '@/types/PageHotkeyScope';
-import { SnackBarVariant } from '@/ui/feedback/snack-bar-manager/components/SnackBar';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { TextInputV2 } from '@/ui/input/components/TextInputV2';
 import { Modal } from '@/ui/layout/modal/components/Modal';
-import { useScopedHotkeys } from '@/ui/utilities/hotkey/hooks/useScopedHotkeys';
+import { useHotkeysOnFocusedElement } from '@/ui/utilities/hotkey/hooks/useHotkeysOnFocusedElement';
 import { WorkspaceMember } from '@/workspace-member/types/WorkspaceMember';
+import { ApolloError } from '@apollo/client';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { isDefined } from 'twenty-shared/utils';
 import { H2Title } from 'twenty-ui/display';
@@ -58,10 +60,11 @@ type Form = z.infer<typeof validationSchema>;
 export const CreateProfile = () => {
   const { t } = useLingui();
   const setNextOnboardingStatus = useSetNextOnboardingStatus();
-  const { enqueueSnackBar } = useSnackBar();
+  const { enqueueErrorSnackBar } = useSnackBar();
   const [currentWorkspaceMember, setCurrentWorkspaceMember] = useRecoilState(
     currentWorkspaceMemberState,
   );
+  const setCurrentUser = useSetRecoilState(currentUserState);
   const { updateOneRecord } = useUpdateOneRecord<WorkspaceMember>({
     objectNameSingular: CoreObjectNameSingular.WorkspaceMember,
   });
@@ -115,33 +118,54 @@ export const CreateProfile = () => {
           }
           return current;
         });
+
+        setCurrentUser((current) => {
+          if (isDefined(current)) {
+            return {
+              ...current,
+              firstName: data.firstName,
+              lastName: data.lastName,
+            };
+          }
+          return current;
+        });
+
         setNextOnboardingStatus();
       } catch (error: any) {
-        enqueueSnackBar(error?.message, {
-          variant: SnackBarVariant.Error,
+        enqueueErrorSnackBar({
+          apolloError: error instanceof ApolloError ? error : undefined,
         });
       }
     },
     [
       currentWorkspaceMember?.id,
       setNextOnboardingStatus,
-      enqueueSnackBar,
+      enqueueErrorSnackBar,
       setCurrentWorkspaceMember,
+      setCurrentUser,
       updateOneRecord,
     ],
   );
 
   const [isEditingMode, setIsEditingMode] = useState(false);
 
-  useScopedHotkeys(
-    Key.Enter,
-    () => {
+  const handleEnter = () => {
+    if (isEditingMode) {
+      onSubmit(getValues());
+    }
+  };
+
+  useHotkeysOnFocusedElement({
+    keys: Key.Enter,
+    callback: () => {
       if (isEditingMode) {
         onSubmit(getValues());
       }
     },
-    PageHotkeyScope.CreateProfile,
-  );
+    focusId: PageFocusId.CreateProfile,
+    scope: PageHotkeyScope.CreateProfile,
+    dependencies: [handleEnter],
+  });
 
   return (
     <Modal.Content isVerticalCentered isHorizontalCentered>

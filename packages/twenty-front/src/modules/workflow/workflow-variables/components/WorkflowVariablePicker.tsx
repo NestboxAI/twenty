@@ -37,7 +37,7 @@ export const StyledSearchVariablesDropdownContainer = styled.div<{
 `;
 
 export const WorkflowVariablePicker: VariablePickerComponent = ({
-  inputId,
+  instanceId,
   disabled,
   multiline,
   onVariableSelect,
@@ -49,10 +49,11 @@ export const WorkflowVariablePicker: VariablePickerComponent = ({
       readonly={disabled}
     >
       <WorkflowVariablesDropdown
-        inputId={inputId}
+        instanceId={instanceId}
         onVariableSelect={onVariableSelect}
         disabled={disabled}
         objectNameSingularToSelect={objectNameSingularToSelect}
+        multiline={multiline}
       />
     </StyledSearchVariablesDropdownContainer>
   );

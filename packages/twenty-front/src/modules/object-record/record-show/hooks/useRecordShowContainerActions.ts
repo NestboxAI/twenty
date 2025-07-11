@@ -3,8 +3,10 @@ import {
   RecordUpdateHook,
   RecordUpdateHookParams,
 } from '@/object-record/record-field/contexts/FieldContext';
-import { FileFolder } from '~/generated-metadata/graphql';
-import { useUploadImageMutation } from '~/generated/graphql';
+import {
+  FileFolder,
+  useUploadImageMutation,
+} from '~/generated-metadata/graphql';
 import { isUndefinedOrNull } from '~/utils/isUndefinedOrNull';
 
 interface UseRecordShowContainerActionsProps {
@@ -42,16 +44,16 @@ export const useRecordShowContainerActions = ({
       },
     });
 
-    const avatarUrl = result?.data?.uploadImage;
+    const avatarSignedFile = result?.data?.uploadImage;
 
-    if (!avatarUrl || isUndefinedOrNull(updateOneRecord)) {
+    if (!avatarSignedFile || isUndefinedOrNull(updateOneRecord)) {
       return;
     }
 
     await updateOneRecord({
       idToUpdate: objectRecordId,
       updateOneRecordInput: {
-        avatarUrl,
+        avatarUrl: avatarSignedFile.path,
       },
     });
   };

@@ -1,20 +1,20 @@
-import { useApolloClient } from '@apollo/client';
-
 import { findActivitiesOperationSignatureFactory } from '@/activities/graphql/operation-signatures/factories/findActivitiesOperationSignatureFactory';
 import { ActivityTargetableObject } from '@/activities/types/ActivityTargetableEntity';
 import { Note } from '@/activities/types/Note';
 import { NoteTarget } from '@/activities/types/NoteTarget';
 import { Task } from '@/activities/types/Task';
 import { TaskTarget } from '@/activities/types/TaskTarget';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { CoreObjectNameSingular } from '@/object-metadata/types/CoreObjectNameSingular';
 import { useGetRecordFromCache } from '@/object-record/cache/hooks/useGetRecordFromCache';
 import { useUpsertFindManyRecordsQueryInCache } from '@/object-record/cache/hooks/useUpsertFindManyRecordsQueryInCache';
 import { getRecordFromCache } from '@/object-record/cache/utils/getRecordFromCache';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { ObjectRecord } from '@/object-record/types/ObjectRecord';
-import { sortByAscString } from '~/utils/array/sortByAscString';
 import { isDefined } from 'twenty-shared/utils';
+import { sortByAscString } from '~/utils/array/sortByAscString';
 
 export const usePrepareFindManyActivitiesQuery = ({
   activityObjectNameSingular,
@@ -30,8 +30,9 @@ export const usePrepareFindManyActivitiesQuery = ({
     objectNameSingular: activityObjectNameSingular,
   });
 
-  const cache = useApolloClient().cache;
+  const cache = useApolloCoreClient().cache;
   const { objectMetadataItems } = useObjectMetadataItems();
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
 
   const { upsertFindManyRecordsQueryInCache: upsertFindManyActivitiesInCache } =
     useUpsertFindManyRecordsQueryInCache({
@@ -64,6 +65,7 @@ export const usePrepareFindManyActivitiesQuery = ({
       objectMetadataItem: targetableObjectMetadataItem,
       objectMetadataItems,
       cache,
+      objectPermissionsByObjectMetadataId,
     });
 
     const activityTargets: (TaskTarget | NoteTarget)[] =

@@ -9,9 +9,11 @@ import { usePhonesField } from '@/object-record/record-field/meta-types/hooks/us
 import { RecordFieldComponentInstanceContext } from '@/object-record/record-field/states/contexts/RecordFieldComponentInstanceContext';
 import { FieldInputClickOutsideEvent } from '@/object-record/record-field/types/FieldInputEvent';
 import { FieldPhonesValue } from '@/object-record/record-field/types/FieldMetadata';
+import { RECORD_TABLE_CELL_INPUT_ID_PREFIX } from '@/object-record/record-table/constants/RecordTableCellInputIdPrefix';
 import { DEFAULT_CELL_SCOPE } from '@/object-record/record-table/record-table-cell/hooks/useOpenRecordTableCellV2';
-import { getRecordFieldInputId } from '@/object-record/utils/getRecordFieldInputId';
-import { useSetHotkeyScope } from '@/ui/utilities/hotkey/hooks/useSetHotkeyScope';
+import { getRecordFieldInputInstanceId } from '@/object-record/utils/getRecordFieldInputId';
+import { usePushFocusItemToFocusStack } from '@/ui/utilities/focus/hooks/usePushFocusItemToFocusStack';
+import { FocusComponentType } from '@/ui/utilities/focus/types/FocusComponentType';
 import { FieldMetadataType } from '~/generated-metadata/graphql';
 import { PhonesFieldInput } from '../PhonesFieldInput';
 
@@ -58,20 +60,28 @@ const PhoneInputWithContext = ({
   onCancel,
   onClickOutside,
 }: PhoneInputWithContextProps) => {
-  const setHotkeyScope = useSetHotkeyScope();
+  const { pushFocusItemToFocusStack } = usePushFocusItemToFocusStack();
+  const instanceId = getRecordFieldInputInstanceId({
+    recordId,
+    fieldName: 'phones',
+    prefix: RECORD_TABLE_CELL_INPUT_ID_PREFIX,
+  });
 
   useEffect(() => {
-    setHotkeyScope(DEFAULT_CELL_SCOPE.scope);
-  }, [setHotkeyScope]);
+    pushFocusItemToFocusStack({
+      focusId: instanceId,
+      component: {
+        type: FocusComponentType.OPENED_FIELD_INPUT,
+        instanceId: instanceId,
+      },
+      hotkeyScope: DEFAULT_CELL_SCOPE,
+    });
+  }, [pushFocusItemToFocusStack, instanceId]);
 
   return (
     <RecordFieldComponentInstanceContext.Provider
       value={{
-        instanceId: getRecordFieldInputId(
-          recordId,
-          'phones',
-          'record-table-cell',
-        ),
+        instanceId: instanceId,
       }}
     >
       <FieldContext.Provider
@@ -140,8 +150,65 @@ export const Default: Story = {
   },
 };
 
-// FIXME: We will have to fix that behavior, we should only be able to set an additional phone as the primary phone
-export const CanSetPrimaryLinkAsPrimaryLink: Story = {
+export const TrimInput: Story = {
+  args: {
+    value: {
+      primaryPhoneCountryCode: 'FR',
+      primaryPhoneNumber: '642646272',
+      primaryPhoneCallingCode: '+33',
+      additionalPhones: [
+        {
+          countryCode: 'FR',
+          number: '642646273',
+          callingCode: '+33',
+        },
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const addButton = await canvas.findByText('Add Phone');
+    await userEvent.click(addButton);
+
+    const input = await canvas.findByPlaceholderText('Phone');
+    await userEvent.type(input, '+33642646274  {enter}');
+
+    const newPhoneElement = await canvas.findByText('+33 6 42 64 62 74');
+    expect(newPhoneElement).toBeVisible();
+
+    // Verify the update was called with swapped phones
+    await waitFor(() => {
+      expect(updateRecord).toHaveBeenCalledWith({
+        variables: {
+          where: { id: 'record-id' },
+          updateOneRecordInput: {
+            phones: {
+              primaryPhoneCallingCode: '+33',
+              primaryPhoneCountryCode: 'FR',
+              primaryPhoneNumber: '642646272',
+              additionalPhones: [
+                {
+                  countryCode: 'FR',
+                  number: '642646273',
+                  callingCode: '+33',
+                },
+                {
+                  countryCode: 'FR',
+                  number: '642646274',
+                  callingCode: '+33',
+                },
+              ],
+            },
+          },
+        },
+      });
+    });
+    expect(updateRecord).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const CanNotSetPrimaryLinkAsPrimaryLink: Story = {
   args: {
     value: {
       primaryPhoneCountryCode: 'FR',
@@ -163,30 +230,16 @@ export const CanSetPrimaryLinkAsPrimaryLink: Story = {
     });
     await userEvent.click(openDropdownButtons[0]);
 
-    const setPrimaryOption = await within(
+    const editOption = await within(
       getCanvasElementForDropdownTesting(),
-    ).findByText('Set as Primary');
+    ).findByText('Edit');
 
-    expect(setPrimaryOption).toBeVisible();
+    expect(editOption).toBeVisible();
 
-    await userEvent.click(setPrimaryOption);
+    const setPrimaryOption = within(
+      getCanvasElementForDropdownTesting(),
+    ).queryByText('Set as Primary');
 
-    // Verify the update was called with swapped phones
-    await waitFor(() => {
-      expect(updateRecord).toHaveBeenCalledWith({
-        variables: {
-          where: { id: 'record-id' },
-          updateOneRecordInput: {
-            phones: {
-              primaryPhoneCallingCode: '+33',
-              primaryPhoneCountryCode: 'FR',
-              primaryPhoneNumber: '642646272',
-              additionalPhones: [],
-            },
-          },
-        },
-      });
-    });
-    expect(updateRecord).toHaveBeenCalledTimes(1);
+    expect(setPrimaryOption).not.toBeInTheDocument();
   },
 };

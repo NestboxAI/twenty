@@ -2,8 +2,12 @@ import { CustomException } from 'src/utils/custom-exception';
 
 export class AuthException extends CustomException {
   declare code: AuthExceptionCode;
-  constructor(message: string, code: AuthExceptionCode) {
-    super(message, code);
+  constructor(
+    message: string,
+    code: AuthExceptionCode,
+    { userFriendlyMessage }: { userFriendlyMessage?: string } = {},
+  ) {
+    super(message, code, userFriendlyMessage);
   }
 }
 
@@ -26,4 +30,5 @@ export enum AuthExceptionCode {
   GOOGLE_API_AUTH_DISABLED = 'GOOGLE_API_AUTH_DISABLED',
   MICROSOFT_API_AUTH_DISABLED = 'MICROSOFT_API_AUTH_DISABLED',
   MISSING_ENVIRONMENT_VARIABLE = 'MISSING_ENVIRONMENT_VARIABLE',
+  INVALID_JWT_TOKEN_TYPE = 'INVALID_JWT_TOKEN_TYPE',
 }

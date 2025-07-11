@@ -24,16 +24,17 @@ import { CoreObjectNamePlural } from '@/object-metadata/types/CoreObjectNamePlur
 import { useActiveRecordBoardCard } from '@/object-record/record-board/hooks/useActiveRecordBoardCard';
 import { useFocusedRecordBoardCard } from '@/object-record/record-board/hooks/useFocusedRecordBoardCard';
 import { useRecordBoardSelection } from '@/object-record/record-board/hooks/useRecordBoardSelection';
-import { RecordIndexHotkeyScope } from '@/object-record/record-index/types/RecordIndexHotkeyScope';
+import { useResetFocusStackToRecordIndex } from '@/object-record/record-index/hooks/useResetFocusStackToRecordIndex';
 import { useResetTableRowSelection } from '@/object-record/record-table/hooks/internal/useResetTableRowSelection';
 import { useActiveRecordTableRow } from '@/object-record/record-table/hooks/useActiveRecordTableRow';
 import { useFocusedRecordTableRow } from '@/object-record/record-table/hooks/useFocusedRecordTableRow';
 import { getRecordIndexIdFromObjectNamePluralAndViewId } from '@/object-record/utils/getRecordIndexIdFromObjectNamePluralAndViewId';
 import { AppBasePath } from '@/types/AppBasePath';
 import { AppPath } from '@/types/AppPath';
+import { PageFocusId } from '@/types/PageFocusId';
 import { PageHotkeyScope } from '@/types/PageHotkeyScope';
-import { SettingsPath } from '@/types/SettingsPath';
-import { useSetHotkeyScope } from '@/ui/utilities/hotkey/hooks/useSetHotkeyScope';
+import { useResetFocusStackToFocusItem } from '@/ui/utilities/focus/hooks/useResetFocusStackToFocusItem';
+import { FocusComponentType } from '@/ui/utilities/focus/types/FocusComponentType';
 import { useRecoilComponentValueV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValueV2';
 import { isDefined } from 'twenty-shared/utils';
 import { AnalyticsType } from '~/generated/graphql';
@@ -41,14 +42,13 @@ import { usePageChangeEffectNavigateLocation } from '~/hooks/usePageChangeEffect
 import { useInitializeQueryParamState } from '~/modules/app/hooks/useInitializeQueryParamState';
 import { isMatchingLocation } from '~/utils/isMatchingLocation';
 import { getPageTitleFromPath } from '~/utils/title-utils';
+
 // TODO: break down into smaller functions and / or hooks
 //  - moved usePageChangeEffectNavigateLocation into dedicated hook
 export const PageChangeEffect = () => {
   const navigate = useNavigate();
 
   const [previousLocation, setPreviousLocation] = useState('');
-
-  const setHotkeyScope = useSetHotkeyScope();
 
   const location = useLocation();
 
@@ -92,6 +92,10 @@ export const PageChangeEffect = () => {
 
   const { closeCommandMenu } = useCommandMenu();
 
+  const { resetFocusStackToFocusItem } = useResetFocusStackToFocusItem();
+
+  const { resetFocusStackToRecordIndex } = useResetFocusStackToRecordIndex();
+
   useEffect(() => {
     closeCommandMenu();
   }, [location.pathname, closeCommandMenu]);
@@ -131,122 +135,218 @@ export const PageChangeEffect = () => {
         unfocusBoardCard();
       }
     }
-  }, [
-    previousLocation,
-    resetTableSelections,
-    unfocusRecordTableRow,
-    deactivateRecordTableRow,
-    contextStoreCurrentViewType,
-    resetRecordSelection,
-    deactivateBoardCard,
-    unfocusBoardCard,
-  ]);
 
-  useEffect(() => {
     switch (true) {
       case isMatchingLocation(location, AppPath.RecordIndexPage): {
-        setHotkeyScope(RecordIndexHotkeyScope.RecordIndex, {
-          goto: true,
-          keyboardShortcutMenu: true,
-        });
+        resetFocusStackToRecordIndex();
         break;
       }
       case isMatchingLocation(location, AppPath.RecordShowPage): {
-        setHotkeyScope(PageHotkeyScope.CompanyShowPage, {
-          goto: true,
-          keyboardShortcutMenu: true,
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.RecordShowPage,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.RecordShowPage,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: true,
+              enableGlobalHotkeysConflictingWithKeyboard: true,
+            },
+            memoizeKey: 'global',
+          },
+          hotkeyScope: {
+            scope: PageHotkeyScope.RecordShowPage,
+            customScopes: {
+              goto: true,
+              keyboardShortcutMenu: true,
+              searchRecords: true,
+            },
+          },
         });
         break;
       }
-      case isMatchingLocation(location, AppPath.OpportunitiesPage): {
-        setHotkeyScope(PageHotkeyScope.OpportunitiesPage, {
-          goto: true,
-          keyboardShortcutMenu: true,
-        });
-        break;
-      }
-      case isMatchingLocation(location, AppPath.TasksPage): {
-        setHotkeyScope(PageHotkeyScope.TaskPage, {
-          goto: true,
-          keyboardShortcutMenu: true,
-        });
-        break;
-      }
-
       case isMatchingLocation(location, AppPath.SignInUp): {
-        setHotkeyScope(PageHotkeyScope.SignInUp);
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.SignInUp,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.SignInUp,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: false,
+              enableGlobalHotkeysConflictingWithKeyboard: false,
+            },
+            memoizeKey: 'global',
+          },
+          hotkeyScope: {
+            scope: PageHotkeyScope.SignInUp,
+          },
+        });
         break;
       }
       case isMatchingLocation(location, AppPath.Invite): {
-        setHotkeyScope(PageHotkeyScope.SignInUp);
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.InviteTeam,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.InviteTeam,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: false,
+              enableGlobalHotkeysConflictingWithKeyboard: false,
+            },
+            memoizeKey: 'global',
+          },
+          hotkeyScope: {
+            scope: PageHotkeyScope.InviteTeam,
+          },
+        });
         break;
       }
       case isMatchingLocation(location, AppPath.CreateProfile): {
-        setHotkeyScope(PageHotkeyScope.CreateProfile);
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.CreateProfile,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.CreateProfile,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: false,
+              enableGlobalHotkeysConflictingWithKeyboard: false,
+            },
+            memoizeKey: 'global',
+          },
+          hotkeyScope: {
+            scope: PageHotkeyScope.CreateProfile,
+          },
+        });
         break;
       }
       case isMatchingLocation(location, AppPath.CreateWorkspace): {
-        setHotkeyScope(PageHotkeyScope.CreateWorkspace);
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.CreateWorkspace,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.CreateWorkspace,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: false,
+              enableGlobalHotkeysConflictingWithKeyboard: false,
+            },
+            memoizeKey: 'global',
+          },
+          hotkeyScope: {
+            scope: PageHotkeyScope.CreateWorkspace,
+          },
+        });
         break;
       }
       case isMatchingLocation(location, AppPath.SyncEmails): {
-        setHotkeyScope(PageHotkeyScope.SyncEmail);
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.SyncEmail,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.SyncEmail,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: false,
+              enableGlobalHotkeysConflictingWithKeyboard: false,
+            },
+            memoizeKey: 'global',
+          },
+          hotkeyScope: {
+            scope: PageHotkeyScope.SyncEmail,
+          },
+        });
         break;
       }
       case isMatchingLocation(location, AppPath.InviteTeam): {
-        setHotkeyScope(PageHotkeyScope.InviteTeam);
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.InviteTeam,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.InviteTeam,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: false,
+              enableGlobalHotkeysConflictingWithKeyboard: false,
+            },
+            memoizeKey: 'global',
+          },
+          hotkeyScope: {
+            scope: PageHotkeyScope.InviteTeam,
+          },
+        });
         break;
       }
       case isMatchingLocation(location, AppPath.PlanRequired): {
-        setHotkeyScope(PageHotkeyScope.PlanRequired);
-        break;
-      }
-      case isMatchingLocation(
-        location,
-        SettingsPath.ProfilePage,
-        AppBasePath.Settings,
-      ): {
-        setHotkeyScope(PageHotkeyScope.ProfilePage, {
-          goto: true,
-          keyboardShortcutMenu: true,
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.PlanRequired,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.PlanRequired,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: false,
+              enableGlobalHotkeysConflictingWithKeyboard: false,
+            },
+            memoizeKey: 'global',
+          },
+          hotkeyScope: {
+            scope: PageHotkeyScope.PlanRequired,
+          },
         });
         break;
       }
-      case isMatchingLocation(
-        location,
-        SettingsPath.Domain,
-        AppBasePath.Settings,
-      ): {
-        setHotkeyScope(PageHotkeyScope.Settings, {
-          goto: false,
-          keyboardShortcutMenu: true,
-        });
-        break;
-      }
-      case isMatchingLocation(
-        location,
-        SettingsPath.RestPlayground,
-        AppBasePath.Settings,
-      ): {
-        setHotkeyScope(PageHotkeyScope.Settings, {
-          goto: false,
-          keyboardShortcutMenu: true,
-        });
-        break;
-      }
-      case isMatchingLocation(
-        location,
-        SettingsPath.WorkspaceMembersPage,
-        AppBasePath.Settings,
-      ): {
-        setHotkeyScope(PageHotkeyScope.WorkspaceMemberPage, {
-          goto: true,
-          keyboardShortcutMenu: true,
+      case location.pathname.startsWith(AppBasePath.Settings): {
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.Settings,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.Settings,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: false,
+              enableGlobalHotkeysConflictingWithKeyboard: false,
+            },
+            memoizeKey: 'global',
+          },
+          hotkeyScope: {
+            scope: PageHotkeyScope.Settings,
+            customScopes: {
+              goto: false,
+              keyboardShortcutMenu: false,
+              commandMenu: false,
+              commandMenuOpen: false,
+              searchRecords: false,
+            },
+          },
         });
         break;
       }
     }
-  }, [location, setHotkeyScope]);
+  }, [
+    location,
+    previousLocation,
+    contextStoreCurrentViewType,
+    resetTableSelections,
+    unfocusRecordTableRow,
+    deactivateRecordTableRow,
+    resetRecordSelection,
+    deactivateBoardCard,
+    unfocusBoardCard,
+    resetFocusStackToRecordIndex,
+    resetFocusStackToFocusItem,
+  ]);
 
   useEffect(() => {
     setTimeout(() => {

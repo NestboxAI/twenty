@@ -10,8 +10,16 @@ export const recordTransformerGraphqlApiExceptionHandler = (
   error: RecordTransformerException,
 ) => {
   switch (error.code) {
+    case RecordTransformerExceptionCode.INVALID_PHONE_NUMBER:
+    case RecordTransformerExceptionCode.INVALID_PHONE_COUNTRY_CODE:
+    case RecordTransformerExceptionCode.CONFLICTING_PHONE_COUNTRY_CODE:
+    case RecordTransformerExceptionCode.CONFLICTING_PHONE_CALLING_CODE:
+    case RecordTransformerExceptionCode.CONFLICTING_PHONE_CALLING_CODE_AND_COUNTRY_CODE:
+    case RecordTransformerExceptionCode.INVALID_PHONE_CALLING_CODE:
     case RecordTransformerExceptionCode.INVALID_URL:
-      throw new UserInputError(error.message);
+      throw new UserInputError(error.message, {
+        userFriendlyMessage: error.userFriendlyMessage,
+      });
     default: {
       assertUnreachable(error.code);
     }
