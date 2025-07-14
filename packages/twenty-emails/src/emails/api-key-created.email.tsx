@@ -15,6 +15,8 @@ type ApiKeyCreatedEmailProps = {
   serverUrl: string;
   adminEmail: string;
   adminPassword: string;
+  domainName?: string;
+  publicIp?: string;
   locale: keyof typeof APP_LOCALES;
 };
 
@@ -26,6 +28,8 @@ export const ApiKeyCreatedEmail = ({
   adminEmail,
   adminPassword,
   locale,
+  domainName,
+  publicIp,
 }: ApiKeyCreatedEmailProps) => {
   return (
     <BaseEmail width={400} locale={locale}>
@@ -57,6 +61,16 @@ export const ApiKeyCreatedEmail = ({
 
         <MainText>API Key Token</MainText>
         <ShadowText>{apiKeyToken}</ShadowText>
+
+        {domainName ? (
+          <MainText>
+            {publicIp
+              ? `Create an A record for ${domainName} pointing to ${publicIp} to enable HTTPS.`
+              : `Create an A record for ${domainName} pointing to your server's public IP to enable HTTPS.`}
+          </MainText>
+        ) : (
+          ''
+        )}
 
         <CallToAction href={serverUrl} value={i18n._('Access Your Workspace')} />
       </HighlightedContainer>

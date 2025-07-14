@@ -120,6 +120,17 @@ services:
     restart: always
     command: ["--maxmemory-policy", "noeviction"]
 
+  caddy:
+    image: caddy:2
+    container_name: twenty-caddy
+    depends_on:
+      server:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+
 volumes:
   db-data:
   server-local-data:

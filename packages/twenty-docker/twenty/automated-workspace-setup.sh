@@ -48,7 +48,9 @@ automated_workspace_setup() {
         
         if yarn command:prod apikeys:create-token \
             --workspace="${WORKSPACE_NAME}" \
-            --name="${API_KEY_NAME:-Initial API Key}"; then
+            --name="${API_KEY_NAME:-Initial API Key}" \
+            --domain="${DOMAIN_NAME}" \
+            --ip="${PUBLIC_IP}"; then
             
             echo "✅ API key generated successfully!"
             
