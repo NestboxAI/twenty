@@ -1,3 +1,0 @@
-http://lvh.me {
-    reverse_proxy server:3000
-}
