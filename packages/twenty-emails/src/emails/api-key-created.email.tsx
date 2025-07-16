@@ -17,6 +17,8 @@ type ApiKeyCreatedEmailProps = {
   adminPassword: string;
   domainName?: string;
   publicIp?: string;
+  isGmailEnabled?: boolean;
+  isGoogleCalendarEnabled?: boolean;
   locale: keyof typeof APP_LOCALES;
 };
 
@@ -30,6 +32,8 @@ export const ApiKeyCreatedEmail = ({
   locale,
   domainName,
   publicIp,
+  isGmailEnabled,
+  isGoogleCalendarEnabled,
 }: ApiKeyCreatedEmailProps) => {
   return (
     <BaseEmail width={400} locale={locale}>
@@ -62,12 +66,46 @@ export const ApiKeyCreatedEmail = ({
         <MainText>API Key Token</MainText>
         <ShadowText>{apiKeyToken}</ShadowText>
 
-        {domainName ? (
-          <MainText>
-            {publicIp
-              ? `Create an A record for ${domainName} pointing to ${publicIp} to enable HTTPS.`
-              : `Create an A record for ${domainName} pointing to your server's public IP to enable HTTPS.`}
-          </MainText>
+        {domainName && publicIp ? (
+          <>
+            <MainText>DNS Configuration</MainText>
+            <ShadowText>
+              {`Create an A record for ${domainName} → ${publicIp}.`}
+            </ShadowText>
+          </>
+        ) : (
+          ''
+        )}
+
+        {isGmailEnabled || isGoogleCalendarEnabled ? (
+          <>
+            <MainText>Google OAuth Redirect URI</MainText>
+            <ShadowText>
+              <>
+                {`Add these Redirect URI to your Google OAuth client:`}
+                <br />
+                {`- ${serverUrl}/auth/google/redirect`}
+                <br />
+                {`- ${serverUrl}/auth/google-apis/get-access-token`}
+              </>
+            </ShadowText>
+          </>
+        ) : (
+          ''
+        )}
+
+        {isGmailEnabled || isGoogleCalendarEnabled ? (
+          <>
+            <MainText>Enable Required Google APIs</MainText>
+            <ShadowText>
+              <>
+                In your Google Cloud project, make sure to enable the following APIs:
+                <br />- Gmail API
+                <br />- Google Calendar API
+                <br />- People API
+              </>
+            </ShadowText>
+          </>
         ) : (
           ''
         )}
@@ -94,6 +132,10 @@ ApiKeyCreatedEmail.PreviewProps = {
   serverUrl: 'https://app.twenty.com',
   adminEmail: 'admin@company.com',
   adminPassword: 'securepassword123',
+  domainName: 'example.com',
+  publicIp: '12.34.56.78',
+  isGmailEnabled: true,
+  isGoogleCalendarEnabled: true,
   locale: 'en',
 } as ApiKeyCreatedEmailProps;
 

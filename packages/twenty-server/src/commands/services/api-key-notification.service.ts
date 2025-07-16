@@ -14,6 +14,8 @@ interface ApiKeyNotificationData {
   adminPassword: string;
   domainName?: string;
   publicIp?: string;
+  isGmailEnabled?: boolean;
+  isGoogleCalendarEnabled?: boolean;
 }
 
 @Injectable()
@@ -39,6 +41,8 @@ export class ApiKeyNotificationService {
         adminPassword: data.adminPassword,
         domainName: data.domainName,
         publicIp: data.publicIp,
+        isGmailEnabled: data.isGmailEnabled,
+        isGoogleCalendarEnabled: data.isGoogleCalendarEnabled,
         locale,
       };
 
