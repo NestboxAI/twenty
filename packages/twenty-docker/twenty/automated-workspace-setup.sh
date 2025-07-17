@@ -48,7 +48,11 @@ automated_workspace_setup() {
         
         if yarn command:prod apikeys:create-token \
             --workspace="${WORKSPACE_NAME}" \
-            --name="${API_KEY_NAME:-Initial API Key}"; then
+            --name="${API_KEY_NAME:-Initial API Key}" \
+            --domain="${DOMAIN_NAME:-}" \
+            --ip="${PUBLIC_IP:-}" \
+            --gmail-enabled="${MESSAGING_PROVIDER_GMAIL_ENABLED:-}" \
+            --google-calendar-enabled="${CALENDAR_PROVIDER_GOOGLE_ENABLED:-}"; then
             
             echo "✅ API key generated successfully!"
             
