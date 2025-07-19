@@ -1,18 +1,21 @@
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { useMutation } from '@apollo/client';
 import {
   CREATE_AI_AGENT_CONFIG,
   CreateAiAgentConfigInput,
-  CreateAiAgentConfigResponse
+  CreateAiAgentConfigResponse,
 } from '../services/aiAgentWorkflowService';
 
 export const useCreateAiAgentConfig = () => {
   const { enqueueSuccessSnackBar, enqueueErrorSnackBar } = useSnackBar();
+  const apolloCoreClient = useApolloCoreClient();
 
   const [createAiAgentConfigMutation, { loading, error, data }] = useMutation<
     { createAiAgentConfig: CreateAiAgentConfigResponse },
     { input: CreateAiAgentConfigInput }
   >(CREATE_AI_AGENT_CONFIG, {
+    client: apolloCoreClient,
     onCompleted: (data) => {
       if (data?.createAiAgentConfig?.id) {
         enqueueSuccessSnackBar({
@@ -47,4 +50,4 @@ export const useCreateAiAgentConfig = () => {
     error,
     data,
   };
-}; 
+};

@@ -11,6 +11,7 @@ import { useCallback } from 'react';
 import { MenuItem } from 'twenty-ui/navigation';
 import { LightIconButton} from 'twenty-ui/input';
 import { IconDotsVertical } from 'twenty-ui/display';
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 
 const StyledContainer = styled.div`
   overflow: hidden;
@@ -31,98 +32,36 @@ const StyledAIWorkflowMenuItem = styled(MenuItem)`
   }
 `;
 
-type RecordBoardColumnDropdownMenuProps = {
-  aggregateValue?: string | number;
-  aggregateLabel?: string;
-  objectMetadataItem: ObjectMetadataItem;
-  dropdownId: string;
-  handleBoardColumnMenuOpen: () => void;
-  handleBoardColumnMenuClose?: () => void;
-};
 
-const MenuButton = ({
-  dropdownId,
-  aggregateLabel,
-  handleBoardColumnMenuOpen
-}: {
-  dropdownId: string;
-  aggregateLabel?: string;
-  handleBoardColumnMenuOpen: () => void;
-}) => (
-  // <button
-  //   type="button"
-  //   data-testid="menu-button"
-  //   aria-label={aggregateLabel || 'Open menu'}
-  // >
-      <LightIconButton
-        accent="tertiary"
-        Icon={IconDotsVertical}
-        onClick={handleBoardColumnMenuOpen}
-      />
-  // </button>
-);
 
-export const RecordBoardColumnDropdownMenu = ({
-  objectMetadataItem,
-  aggregateValue,
-  aggregateLabel,
-  dropdownId,
-  handleBoardColumnMenuOpen
-}: RecordBoardColumnDropdownMenuProps) => {
-  const {
-    currentContentId,
-    handleContentChange,
-    handleResetContent,
-    previousContentId,
-  } = useDropdownContextCurrentContentId();
+export const RecordBoardColumnDropdownMenu = () => {
+
 
   const recordGroupActions = useRecordGroupActions({
     viewType: ViewType.Kanban,
   });
 
-  const closeMenu = useCallback(() => {
-    handleResetContent();
-  }, [handleResetContent]);
-
   return (
-    <RecordBoardColumnHeaderAggregateDropdownComponentInstanceContext.Provider
-      value={{ instanceId: dropdownId }}
-    >
-      <StyledContainer>
-        <Dropdown
-          onClose={closeMenu}
-          dropdownId={dropdownId}
-          dropdownOffset={{ y: DROPDOWN_OFFSET_Y }}
-          clickableComponent={
-            <MenuButton
-              dropdownId={dropdownId}
-              aggregateLabel={aggregateLabel}
-              handleBoardColumnMenuOpen={handleBoardColumnMenuOpen}
-            />
-          }
-          dropdownComponents={
-            <DropdownMenuItemsContainer>
-              {recordGroupActions.map((action) => {
-                const MenuItemComponent =
-                  action.id === 'aiWorkflowSetup'
-                    ? StyledAIWorkflowMenuItem
-                    : MenuItem;
-                return (
-                  <MenuItemComponent
-                    key={action.id}
-                    onClick={() => {
-                      action.callback();
-                      closeMenu();
-                    }}
-                    LeftIcon={action.icon}
-                    text={action.label}
-                  />
-                );
-              })}
-            </DropdownMenuItemsContainer>
-          }
-        />
-      </StyledContainer>
-    </RecordBoardColumnHeaderAggregateDropdownComponentInstanceContext.Provider>
+        <DropdownContent >
+          <DropdownMenuItemsContainer>
+                  {recordGroupActions.map((action) => {
+                    const MenuItemComponent =
+                      action.id === 'aiWorkflowSetup'
+                        ? StyledAIWorkflowMenuItem
+                        : MenuItem;
+                    return (
+                      <MenuItemComponent
+                        key={action.id}
+                        onClick={() => {
+                          action.callback();
+                          // closeMenu();
+                        }}
+                        LeftIcon={action.icon}
+                        text={action.label}
+                      />
+                    );
+                  })}
+          </DropdownMenuItemsContainer>
+        </DropdownContent>
   );
 };

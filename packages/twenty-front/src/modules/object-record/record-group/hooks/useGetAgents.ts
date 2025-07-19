@@ -1,3 +1,4 @@
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { IconRobot } from 'twenty-ui/display';
@@ -20,7 +21,10 @@ export interface AgentSelectOption {
 }
 
 export const useGetAgents = () => {
-  const { data, loading, error } = useQuery<{ agents: Agent[] }>(GET_AGENTS);
+  const apolloCoreClient = useApolloCoreClient();
+  const { data, loading, error } = useQuery<{ agents: Agent[] }>(GET_AGENTS, {
+    client: apolloCoreClient,
+  });
 
   const agents = data?.agents || [];
 
@@ -34,7 +38,6 @@ export const useGetAgents = () => {
         },
       ];
     }
-    
     return agents.map((agent) => ({
       value: agent.id,
       label: agent.name,
@@ -48,4 +51,4 @@ export const useGetAgents = () => {
     loading,
     error: error?.message || null,
   };
-}; 
+};

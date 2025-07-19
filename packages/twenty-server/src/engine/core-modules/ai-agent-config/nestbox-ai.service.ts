@@ -1,5 +1,5 @@
 import { AgentsApi, Configuration } from '@nestbox-ai/instances';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
@@ -19,6 +19,8 @@ export interface Agent {
 
 @Injectable()
 export class NestboxAiService {
+  private readonly logger = new Logger(NestboxAiService.name);
+
   constructor(
     private readonly twentyConfigService: TwentyConfigService,
   ) {}
@@ -47,11 +49,12 @@ export class NestboxAiService {
     try {
       const agentsApi = this.getAgentsApi();
       const response = await agentsApi.agentManagementControllerGetAllAgents();
-      
-      return (response as any).data || [];
+      const agents = (response as any).data || [];
+      this.logger.log(`Successfully fetched ${agents.length} agents from Nestbox AI`);
+      return agents;
     } catch (error) {
-      console.error('Failed to fetch agents from nestbox-ai:', error);
-      throw new Error('Failed to fetch agents');
+      this.logger.error('Failed to fetch agents from nestbox-ai:', error);
+      return [];
     }
   }
 } 

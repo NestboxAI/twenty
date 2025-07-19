@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { makeExecutableSchema } from '@graphql-tools/schema';
+import { makeExecutableSchema, mergeSchemas } from '@graphql-tools/schema';
+import { GraphQLSchemaFactory } from '@nestjs/graphql';
 import { GraphQLSchema, printSchema } from 'graphql';
 import { gql } from 'graphql-tag';
 import { isDefined } from 'twenty-shared/utils';
@@ -9,6 +10,9 @@ import { ScalarsExplorerService } from 'src/engine/api/graphql/services/scalars-
 import { workspaceResolverBuilderMethodNames } from 'src/engine/api/graphql/workspace-resolver-builder/factories/factories';
 import { WorkspaceResolverFactory } from 'src/engine/api/graphql/workspace-resolver-builder/workspace-resolver.factory';
 import { WorkspaceGraphQLSchemaFactory } from 'src/engine/api/graphql/workspace-schema-builder/workspace-graphql-schema.factory';
+import { AiAgentConfigResolver } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.resolver';
+import { NestboxAiResolver } from 'src/engine/core-modules/ai-agent-config/nestbox-ai.resolver';
+import { NestboxAiService } from 'src/engine/core-modules/ai-agent-config/nestbox-ai.service';
 import {
   AuthException,
   AuthExceptionCode,
@@ -28,6 +32,8 @@ import { isGatedAndNotEnabled } from 'src/engine/workspace-manager/workspace-syn
 
 @Injectable()
 export class WorkspaceSchemaFactory {
+  private static codeFirstSchema: GraphQLSchema | null = null;
+
   constructor(
     private readonly dataSourceService: DataSourceService,
     private readonly scalarsExplorerService: ScalarsExplorerService,
@@ -36,9 +42,28 @@ export class WorkspaceSchemaFactory {
     private readonly workspaceCacheStorageService: WorkspaceCacheStorageService,
     private readonly workspaceMetadataCacheService: WorkspaceMetadataCacheService,
     private readonly featureFlagService: FeatureFlagService,
+    private readonly nestboxAiService: NestboxAiService,
+    private readonly gqlSchemaFactory: GraphQLSchemaFactory, // <-- Injected
   ) {}
 
+  static async initializeCodeFirstSchema(gqlSchemaFactory: GraphQLSchemaFactory) {
+    if (!WorkspaceSchemaFactory.codeFirstSchema) {
+      WorkspaceSchemaFactory.codeFirstSchema = await gqlSchemaFactory.create([
+        NestboxAiResolver,
+        AiAgentConfigResolver,
+      ]);
+    }
+  }
+
   async createGraphQLSchema(authContext: AuthContext): Promise<GraphQLSchema> {
+    if (!WorkspaceSchemaFactory.codeFirstSchema) {
+      // Defensive: should be initialized at bootstrap
+      WorkspaceSchemaFactory.codeFirstSchema = await this.gqlSchemaFactory.create([
+        NestboxAiResolver,
+        AiAgentConfigResolver,
+      ]);
+    }
+
     if (!authContext.workspace?.id) {
       return new GraphQLSchema({});
     }
@@ -115,6 +140,8 @@ export class WorkspaceSchemaFactory {
       authContext.workspace.id,
       metadataVersion,
     );
+
+    console.log('typeDefs', typeDefs);
     let usedScalarNames =
       await this.workspaceCacheStorageService.getGraphQLUsedScalarNames(
         authContext.workspace.id,
@@ -163,6 +190,11 @@ export class WorkspaceSchemaFactory {
       },
     });
 
-    return executableSchema;
+    // Merge code-first schema with dynamic schema
+    const mergedSchema = mergeSchemas({
+      schemas: [WorkspaceSchemaFactory.codeFirstSchema, executableSchema],
+    });
+
+    return mergedSchema;
   }
 }
