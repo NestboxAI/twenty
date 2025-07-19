@@ -54,7 +54,7 @@ export class NestboxAiService {
       return agents;
     } catch (error) {
       this.logger.error('Failed to fetch agents from nestbox-ai:', error);
-      return [];
+      throw new Error('Failed to fetch agents from Nestbox AI');
     }
   }
 } 
