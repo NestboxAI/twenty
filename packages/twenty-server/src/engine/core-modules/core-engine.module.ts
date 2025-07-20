@@ -117,6 +117,7 @@ import { FileModule } from './file/file.module';
     SearchModule,
     ApiKeyModule,
     WebhookModule,
+    AiAgentConfigModule,
   ],
   exports: [
     AuditModule,

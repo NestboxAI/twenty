@@ -50,7 +50,7 @@ export class NestboxAiService {
       const agentsApi = this.getAgentsApi();
       const response = await agentsApi.agentManagementControllerGetAllAgents();
       const agents = (response as any).data || [];
-      this.logger.log(`Successfully fetched ${agents.length} agents from Nestbox AI`);
+      // this.logger.log(`Successfully fetched ${agents.length} agents from Nestbox AI`);
       return agents;
     } catch (error) {
       this.logger.error('Failed to fetch agents from nestbox-ai:', error);
