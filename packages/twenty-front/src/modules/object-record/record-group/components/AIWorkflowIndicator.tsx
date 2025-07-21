@@ -83,7 +83,7 @@ export const AIWorkflowIndicator = ({
         $isEnabled={aiAgentConfig.status === 'ENABLED'}
         onClick={handleClick}
       >
-        <StyledIcon />dcevfbrtnuyjthyg
+        <StyledIcon />
       </StyledAIIndicator>
       <AppTooltip
         anchorSelect={`#${indicatorId}`}
