@@ -173,24 +173,50 @@ export class NestboxAiAgentCronJob {
         }));
 
         // Step 7: Query records that match current fieldValue with related notes, tasks, and attachments
+        let notesJoin = '';
+        let notesSelect = '';
+
+        if (objectMetadata.nameSingular !== 'task') {
+          notesJoin = `
+            LEFT JOIN "${dataSource.schema}"."noteTarget" 
+              ON "noteTarget"."${objectMetadata.nameSingular}Id" = main.id
+            LEFT JOIN "${dataSource.schema}"."note" note 
+              ON note.id = "noteTarget"."noteId"`;
+
+          notesSelect = `,
+            COALESCE(
+              json_agg(DISTINCT note.*) FILTER (WHERE note.id IS NOT NULL),
+              '[]'::json
+            ) as notes`;
+        }
+
         const queryResult = await workspaceDataSource.query(
           `SELECT 
-              main.*,
-              COALESCE(json_agg(DISTINCT task.*) FILTER (WHERE task.id IS NOT NULL), '[]'::json) as tasks,
-              COALESCE(json_agg(DISTINCT attachment.*) FILTER (WHERE attachment.id IS NOT NULL), '[]'::json) as attachments
+              main.*${notesSelect},
+              COALESCE(
+                json_agg(DISTINCT task.*) FILTER (WHERE task.id IS NOT NULL),
+                '[]'::json
+              ) as tasks,
+              COALESCE(
+                json_agg(DISTINCT attachment.*) FILTER (WHERE attachment.id IS NOT NULL),
+                '[]'::json
+              ) as attachments
             FROM "${dataSource.schema}"."${tableName}" main
-            LEFT JOIN "${dataSource.schema}"."taskTarget" ON "taskTarget"."${objectMetadata.nameSingular}Id" = main.id
-            LEFT JOIN "${dataSource.schema}"."task" task ON task.id = "taskTarget"."taskId"
-            LEFT JOIN "${dataSource.schema}"."attachment" ON "attachment"."${objectMetadata.nameSingular}Id" = main.id
-            WHERE main."${fieldName}" = $1 AND main."deletedAt" IS NULL
+            LEFT JOIN "${dataSource.schema}"."taskTarget" 
+              ON "taskTarget"."${objectMetadata.nameSingular}Id" = main.id
+            LEFT JOIN "${dataSource.schema}"."task" task 
+              ON task.id = "taskTarget"."taskId"
+            LEFT JOIN "${dataSource.schema}"."attachment" 
+              ON "attachment"."${objectMetadata.nameSingular}Id" = main.id
+            ${notesJoin}
+            WHERE main."${fieldName}" = $1
+              AND main."deletedAt" IS NULL
             GROUP BY main.id
             LIMIT ${aiAgentConfig.wipLimit}`,
           [currentFieldValue],
           undefined,
           { shouldBypassPermissionChecks: true }
         );
-
-
 
         console.log(`📊 Found ${queryResult.length} records to potentially update from ${currentFieldValue} to ${nextFieldValue}`);
 
