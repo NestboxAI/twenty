@@ -108,7 +108,9 @@ export class NestboxAiAgentCronJob {
         // Step 4: Get field name from fieldMetadata using fieldMetadataId
         const fieldMetadataResult = await workspaceDataSource.query(
           `SELECT name FROM "core"."fieldMetadata" WHERE id = $1`,
-          [aiAgentConfig.fieldMetadataId]
+          [aiAgentConfig.fieldMetadataId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         if (!fieldMetadataResult || fieldMetadataResult.length === 0) {
@@ -122,7 +124,9 @@ export class NestboxAiAgentCronJob {
         // Step 5: Get current viewGroup record with position and fieldValue
         const currentViewGroupResult = await workspaceDataSource.query(
           `SELECT "fieldValue", "position" FROM "${dataSource.schema}"."viewGroup" WHERE id = $1 AND "deletedAt" IS NULL`,
-          [aiAgentConfig.viewGroupId]
+          [aiAgentConfig.viewGroupId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         if (!currentViewGroupResult || currentViewGroupResult.length === 0) {
@@ -139,7 +143,9 @@ export class NestboxAiAgentCronJob {
           `SELECT "fieldValue", "position" FROM "${dataSource.schema}"."viewGroup" 
            WHERE "position" > $1 AND "deletedAt" IS NULL AND "fieldMetadataId" = $2
            ORDER BY "position" ASC LIMIT 1`,
-          [currentPosition, aiAgentConfig.fieldMetadataId]
+          [currentPosition, aiAgentConfig.fieldMetadataId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         if (!nextViewGroupResult || nextViewGroupResult.length === 0) {
@@ -156,7 +162,9 @@ export class NestboxAiAgentCronJob {
           `SELECT "fieldValue", "position" FROM "${dataSource.schema}"."viewGroup" 
            WHERE "deletedAt" IS NULL AND "fieldMetadataId" = $1 AND "isVisible" = true
            ORDER BY "position" ASC`,
-          [aiAgentConfig.fieldMetadataId]
+          [aiAgentConfig.fieldMetadataId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         const availableViewGroups = allViewGroupsResult.map((vg: any) => ({
@@ -180,7 +188,9 @@ export class NestboxAiAgentCronJob {
            WHERE main."${fieldName}" = $1 AND main."deletedAt" IS NULL
            GROUP BY main.id
            LIMIT ${aiAgentConfig.wipLimit}`,
-          [currentFieldValue]
+          [currentFieldValue],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         console.log(`📊 Found ${queryResult.length} records to potentially update from ${currentFieldValue} to ${nextFieldValue}`);
@@ -232,7 +242,9 @@ export class NestboxAiAgentCronJob {
                 `UPDATE "${dataSource.schema}"."${tableName}" 
                  SET "${fieldName}" = $1, "updatedAt" = NOW()
                  WHERE id = $2 AND "deletedAt" IS NULL`,
-                [nextFieldValue, record.id]
+                [nextFieldValue, record.id],
+                undefined,
+                { shouldBypassPermissionChecks: true }
               );
 
               console.log(`✅ Updated record ${record.id} from '${currentFieldValue}' to '${nextFieldValue}' in ${dataSource.schema}.${tableName}`);
