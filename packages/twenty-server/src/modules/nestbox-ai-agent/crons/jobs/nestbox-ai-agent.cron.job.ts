@@ -180,11 +180,18 @@ export class NestboxAiAgentCronJob {
             COALESCE(json_agg(DISTINCT task.*) FILTER (WHERE task.id IS NOT NULL), '[]'::json) as tasks,
             COALESCE(json_agg(DISTINCT attachment.*) FILTER (WHERE attachment.id IS NOT NULL), '[]'::json) as attachments
            FROM "${dataSource.schema}"."${tableName}" main
-           LEFT JOIN "${dataSource.schema}"."noteTarget" ON "${dataSource.schema}"."noteTarget"."${objectMetadata.nameSingular}Id" = main.id
-           LEFT JOIN "${dataSource.schema}"."note" ON "${dataSource.schema}"."note".id = "${dataSource.schema}"."noteTarget"."noteId"
-           LEFT JOIN "${dataSource.schema}"."taskTarget" ON "${dataSource.schema}"."taskTarget"."${objectMetadata.nameSingular}Id" = main.id  
-           LEFT JOIN "${dataSource.schema}"."task" ON "${dataSource.schema}"."task".id = "${dataSource.schema}"."taskTarget"."taskId"
+           LEFT JOIN "${dataSource.schema}"."taskTarget" ON "${dataSource.schema}"."taskTarget"."taskId" = main.id  
+           LEFT JOIN "${dataSource.schema}"."task" task ON task.id = "${dataSource.schema}"."taskTarget"."taskId"
            LEFT JOIN "${dataSource.schema}"."attachment" ON "${dataSource.schema}"."attachment"."${objectMetadata.nameSingular}Id" = main.id
+           LEFT JOIN "${dataSource.schema}"."noteTarget" ON (
+             "${dataSource.schema}"."noteTarget"."companyId" = main.id OR
+             "${dataSource.schema}"."noteTarget"."opportunityId" = main.id OR
+             "${dataSource.schema}"."noteTarget"."personId" = main.id OR
+             "${dataSource.schema}"."noteTarget"."rocketId" = main.id OR
+             "${dataSource.schema}"."noteTarget"."surveyResultId" = main.id OR
+             "${dataSource.schema}"."noteTarget"."petId" = main.id
+           )
+           LEFT JOIN "${dataSource.schema}"."note" note ON note.id = "${dataSource.schema}"."noteTarget"."noteId"
            WHERE main."${fieldName}" = $1 AND main."deletedAt" IS NULL
            GROUP BY main.id
            LIMIT ${aiAgentConfig.wipLimit}`,
