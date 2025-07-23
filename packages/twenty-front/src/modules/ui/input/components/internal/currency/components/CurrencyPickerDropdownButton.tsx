@@ -3,12 +3,10 @@ import styled from '@emotion/styled';
 
 import { CurrencyCode } from '@/object-record/record-field/types/CurrencyCode';
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
-
-import { CurrencyPickerHotkeyScope } from '../types/CurrencyPickerHotkeyScope';
 
 import { CURRENCIES } from '@/settings/data-model/constants/Currencies';
 import { Currency } from '@/ui/input/components/internal/types/Currency';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { IconChevronDown } from 'twenty-ui/display';
 import { CurrencyPickerDropdownSelect } from './CurrencyPickerDropdownSelect';
 
@@ -52,13 +50,13 @@ export const CurrencyPickerDropdownButton = ({
 }) => {
   const theme = useTheme();
 
-  const { closeDropdown } = useDropdown(
-    CurrencyPickerHotkeyScope.CurrencyPicker,
-  );
+  const dropdownId = 'currency-picker-dropdown-id';
+
+  const { closeDropdown } = useCloseDropdown();
 
   const handleChange = (currency: Currency) => {
     onChange(currency);
-    closeDropdown();
+    closeDropdown(dropdownId);
   };
 
   const currency = CURRENCIES.find(
@@ -69,8 +67,7 @@ export const CurrencyPickerDropdownButton = ({
 
   return (
     <Dropdown
-      dropdownId="currency-picker-dropdown-id"
-      dropdownHotkeyScope={{ scope: CurrencyPickerHotkeyScope.CurrencyPicker }}
+      dropdownId={dropdownId}
       clickableComponent={
         <StyledDropdownButtonContainer>
           <StyledIconContainer>

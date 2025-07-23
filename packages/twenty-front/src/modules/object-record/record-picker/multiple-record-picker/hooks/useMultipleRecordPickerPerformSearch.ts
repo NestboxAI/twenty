@@ -1,5 +1,7 @@
 import { SEARCH_QUERY } from '@/command-menu/graphql/queries/search';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { ObjectMetadataItem } from '@/object-metadata/types/ObjectMetadataItem';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { usePerformCombinedFindManyRecords } from '@/object-record/multiple-objects/hooks/usePerformCombinedFindManyRecords';
 import { multipleRecordPickerIsLoadingComponentState } from '@/object-record/record-picker/multiple-record-picker/states/multipleRecordPickerIsLoadingComponentState';
 import { multipleRecordPickerPaginationState } from '@/object-record/record-picker/multiple-record-picker/states/multipleRecordPickerPaginationState';
@@ -8,7 +10,7 @@ import { multipleRecordPickerSearchFilterComponentState } from '@/object-record/
 import { multipleRecordPickerSearchableObjectMetadataItemsComponentState } from '@/object-record/record-picker/multiple-record-picker/states/multipleRecordPickerSearchableObjectMetadataItemsComponentState';
 import { searchRecordStoreComponentFamilyState } from '@/object-record/record-picker/multiple-record-picker/states/searchRecordStoreComponentFamilyState';
 import { RecordPickerPickableMorphItem } from '@/object-record/record-picker/types/RecordPickerPickableMorphItem';
-import { ApolloClient, useApolloClient } from '@apollo/client';
+import { ApolloClient } from '@apollo/client';
 import { isNonEmptyArray } from '@sniptt/guards';
 import { useRecoilCallback } from 'recoil';
 import { capitalize, isDefined } from 'twenty-shared/utils';
@@ -18,10 +20,12 @@ import { SearchResultEdge } from '~/generated/graphql';
 const MULTIPLE_RECORD_PICKER_PAGE_SIZE = 30;
 
 export const useMultipleRecordPickerPerformSearch = () => {
-  const client = useApolloClient();
+  const apolloCoreClient = useApolloCoreClient();
 
   const { performCombinedFindManyRecords } =
     usePerformCombinedFindManyRecords();
+
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
 
   const performSearch = useRecoilCallback(
     ({ snapshot, set }) =>
@@ -97,14 +101,21 @@ export const useMultipleRecordPickerPerformSearch = () => {
           ({ isSelected }) => isSelected,
         );
 
+        const filteredSearchableObjectMetadataItems =
+          searchableObjectMetadataItems.filter(
+            (objectMetadataItem) =>
+              objectPermissionsByObjectMetadataId[objectMetadataItem.id]
+                .canReadObjectRecords === true,
+          );
+
         const [
           searchRecordsFilteredOnPickedRecords,
           searchRecordsExcludingPickedRecords,
           pageInfo,
         ] = await performSearchQueries({
-          client,
+          client: apolloCoreClient,
           searchFilter,
-          searchableObjectMetadataItems,
+          searchableObjectMetadataItems: filteredSearchableObjectMetadataItems,
           pickedRecordIds: selectedPickableMorphItems.map(
             ({ recordId }) => recordId,
           ),
@@ -357,7 +368,11 @@ export const useMultipleRecordPickerPerformSearch = () => {
           false,
         );
       },
-    [client, performCombinedFindManyRecords],
+    [
+      apolloCoreClient,
+      performCombinedFindManyRecords,
+      objectPermissionsByObjectMetadataId,
+    ],
   );
 
   return { performSearch };

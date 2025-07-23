@@ -1,8 +1,7 @@
 import { useLingui } from '@lingui/react/macro';
 
-import { GET_CLIENT_CONFIG } from '@/client-config/graphql/queries/getClientConfig';
+import { useClientConfig } from '@/client-config/hooks/useClientConfig';
 import { GET_DATABASE_CONFIG_VARIABLE } from '@/settings/admin-panel/config-variables/graphql/queries/getDatabaseConfigVariable';
-import { SnackBarVariant } from '@/ui/feedback/snack-bar-manager/components/SnackBar';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { ConfigVariableValue } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
@@ -10,11 +9,12 @@ import {
   useCreateDatabaseConfigVariableMutation,
   useDeleteDatabaseConfigVariableMutation,
   useUpdateDatabaseConfigVariableMutation,
-} from '~/generated/graphql';
+} from '~/generated-metadata/graphql';
 
 export const useConfigVariableActions = (variableName: string) => {
   const { t } = useLingui();
-  const { enqueueSnackBar } = useSnackBar();
+  const { enqueueSuccessSnackBar, enqueueErrorSnackBar } = useSnackBar();
+  const { refetch: refetchClientConfig } = useClientConfig();
 
   const [updateDatabaseConfigVariable] =
     useUpdateDatabaseConfigVariableMutation();
@@ -48,9 +48,6 @@ export const useConfigVariableActions = (variableName: string) => {
               query: GET_DATABASE_CONFIG_VARIABLE,
               variables: { key: variableName },
             },
-            {
-              query: GET_CLIENT_CONFIG,
-            },
           ],
         });
       } else {
@@ -64,19 +61,18 @@ export const useConfigVariableActions = (variableName: string) => {
               query: GET_DATABASE_CONFIG_VARIABLE,
               variables: { key: variableName },
             },
-            {
-              query: GET_CLIENT_CONFIG,
-            },
           ],
         });
       }
 
-      enqueueSnackBar(t`Variable updated successfully`, {
-        variant: SnackBarVariant.Success,
+      await refetchClientConfig();
+
+      enqueueSuccessSnackBar({
+        message: t`Variable updated successfully.`,
       });
     } catch (error) {
-      enqueueSnackBar(t`Failed to update variable`, {
-        variant: SnackBarVariant.Error,
+      enqueueErrorSnackBar({
+        message: t`Failed to update variable`,
       });
     }
   };
@@ -96,14 +92,17 @@ export const useConfigVariableActions = (variableName: string) => {
             query: GET_DATABASE_CONFIG_VARIABLE,
             variables: { key: variableName },
           },
-          {
-            query: GET_CLIENT_CONFIG,
-          },
         ],
       });
+
+      await refetchClientConfig();
+
+      enqueueSuccessSnackBar({
+        message: t`Variable deleted successfully.`,
+      });
     } catch (error) {
-      enqueueSnackBar(t`Failed to remove  override`, {
-        variant: SnackBarVariant.Error,
+      enqueueErrorSnackBar({
+        message: t`Failed to remove override`,
       });
     }
   };

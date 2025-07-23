@@ -9,12 +9,12 @@ import { RecoilRoot, useRecoilValue } from 'recoil';
 const renderHooks = () => {
   const { result } = renderHook(
     () => {
-      const pushFocusItem = usePushFocusItemToFocusStack();
+      const { pushFocusItemToFocusStack } = usePushFocusItemToFocusStack();
       const focusStack = useRecoilValue(focusStackState);
       const currentFocusId = useRecoilValue(currentFocusIdSelector);
 
       return {
-        pushFocusItem,
+        pushFocusItemToFocusStack,
         focusStack,
         currentFocusId,
       };
@@ -46,14 +46,12 @@ describe('usePushFocusItemToFocusStack', () => {
     };
 
     await act(async () => {
-      result.current.pushFocusItem({
+      result.current.pushFocusItemToFocusStack({
         focusId: focusItem.focusId,
         component: {
           type: focusItem.componentInstance.componentType,
           instanceId: focusItem.componentInstance.componentInstanceId,
         },
-        hotkeyScope: { scope: 'test-scope' },
-        memoizeKey: 'global',
       });
     });
 
@@ -73,14 +71,12 @@ describe('usePushFocusItemToFocusStack', () => {
     };
 
     await act(async () => {
-      result.current.pushFocusItem({
+      result.current.pushFocusItemToFocusStack({
         focusId: anotherFocusItem.focusId,
         component: {
           type: anotherFocusItem.componentInstance.componentType,
           instanceId: anotherFocusItem.componentInstance.componentInstanceId,
         },
-        hotkeyScope: { scope: 'test-scope' },
-        memoizeKey: 'global',
       });
     });
 

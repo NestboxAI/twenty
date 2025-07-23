@@ -1,3 +1,5 @@
+import { t } from '@lingui/core/macro';
+
 import {
   InvalidMetadataException,
   InvalidMetadataExceptionCode,
@@ -60,6 +62,8 @@ const reservedKeywords = [
   'index',
   'relation',
   'relations',
+  'position',
+  'positions',
 ];
 
 export const validateMetadataNameIsNotReservedKeywordOrThrow = (
@@ -69,6 +73,9 @@ export const validateMetadataNameIsNotReservedKeywordOrThrow = (
     throw new InvalidMetadataException(
       `The name "${name}" is not available`,
       InvalidMetadataExceptionCode.RESERVED_KEYWORD,
+      {
+        userFriendlyMessage: t`This name is not available.`,
+      },
     );
   }
 };

@@ -1,21 +1,21 @@
-import styled from '@emotion/styled';
-import { useCallback, useRef } from 'react';
-
+import { useDropdownContextCurrentContentId } from '@/dropdown-context-state-management/hooks/useDropdownContextCurrentContentId';
+import { ObjectMetadataItem } from '@/object-metadata/types/ObjectMetadataItem';
+import { RecordBoardColumnHeaderAggregateDropdownComponentInstanceContext } from '@/object-record/record-board/contexts/RecordBoardColumnHeaderAggregateDropdownComponentInstanceContext';
 import { useRecordGroupActions } from '@/object-record/record-group/hooks/useRecordGroupActionsNestboxAI';
-import { DropdownMenu } from '@/ui/layout/dropdown/components/DropdownMenu';
+import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
-import { OverlayContainer } from '@/ui/layout/overlay/components/OverlayContainer';
-import { useListenClickOutside } from '@/ui/utilities/pointer-event/hooks/useListenClickOutside';
+import { DROPDOWN_OFFSET_Y } from '@/ui/layout/dropdown/constants/DropdownOffsetY';
 import { ViewType } from '@/views/types/ViewType';
+import styled from '@emotion/styled';
+import { useCallback } from 'react';
 import { MenuItem } from 'twenty-ui/navigation';
+import { LightIconButton} from 'twenty-ui/input';
+import { IconDotsVertical } from 'twenty-ui/display';
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 
-const StyledMenuContainer = styled.div`
-  position: absolute;
-  top: ${({ theme }) => theme.spacing(10)};
-  width: 200px;
-  z-index: 1;
+const StyledContainer = styled.div`
+  overflow: hidden;
 `;
-
 const StyledAIWorkflowMenuItem = styled(MenuItem)`
   div[data-testid="tooltip"] {
     font-weight: 500;
@@ -32,55 +32,36 @@ const StyledAIWorkflowMenuItem = styled(MenuItem)`
   }
 `;
 
-type RecordBoardColumnDropdownMenuProps = {
-  onClose: () => void;
-  onDelete?: (id: string) => void;
-  stageId: string;
-};
 
-// TODO: unify and use Dropdown component
-export const RecordBoardColumnDropdownMenu = ({
-  onClose,
-}: RecordBoardColumnDropdownMenuProps) => {
-  const boardColumnMenuRef = useRef<HTMLDivElement>(null);
+
+export const RecordBoardColumnDropdownMenu = () => {
+
 
   const recordGroupActions = useRecordGroupActions({
     viewType: ViewType.Kanban,
   });
 
-  const closeMenu = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
-  useListenClickOutside({
-    refs: [boardColumnMenuRef],
-    callback: closeMenu,
-    listenerId: 'record-board-column-dropdown-menu',
-  });
-
   return (
-    <StyledMenuContainer ref={boardColumnMenuRef}>
-      <OverlayContainer>
-        <DropdownMenu data-select-disable>
+        <DropdownContent >
           <DropdownMenuItemsContainer>
-            {recordGroupActions.map((action) => {
-              const MenuItemComponent = action.id === 'aiWorkflowSetup' ? StyledAIWorkflowMenuItem : MenuItem;
-              
-              return (
-                <MenuItemComponent
-                  key={action.id}
-                  onClick={() => {
-                    action.callback();
-                    closeMenu();
-                  }}
-                  LeftIcon={action.icon}
-                  text={action.label}
-                />
-              );
-            })}
+                  {recordGroupActions.map((action) => {
+                    const MenuItemComponent =
+                      action.id === 'aiWorkflowSetup'
+                        ? StyledAIWorkflowMenuItem
+                        : MenuItem;
+                    return (
+                      <MenuItemComponent
+                        key={action.id}
+                        onClick={() => {
+                          action.callback();
+                          // closeMenu();
+                        }}
+                        LeftIcon={action.icon}
+                        text={action.label}
+                      />
+                    );
+                  })}
           </DropdownMenuItemsContainer>
-        </DropdownMenu>
-      </OverlayContainer>
-    </StyledMenuContainer>
+        </DropdownContent>
   );
 };

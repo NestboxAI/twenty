@@ -2,41 +2,45 @@ import { useCallback } from 'react';
 
 import { RecordFilter } from '@/object-record/record-filter/types/RecordFilter';
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
-import { HotkeyScope } from '@/ui/utilities/hotkey/types/HotkeyScope';
 import { EditableFilterChip } from '@/views/components/EditableFilterChip';
 
-import { ObjectFilterOperandSelectAndInput } from '@/object-record/object-filter-dropdown/components/ObjectFilterOperandSelectAndInput';
 import { useRemoveRecordFilter } from '@/object-record/record-filter/hooks/useRemoveRecordFilter';
 import { isRecordFilterConsideredEmpty } from '@/object-record/record-filter/utils/isRecordFilterConsideredEmpty';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
+import { EditableFilterChipDropdownContent } from '@/views/components/EditableFilterChipDropdownContent';
+import { useClearVectorSearchInput } from '@/views/hooks/useClearVectorSearchInput';
 import { useSetEditableFilterChipDropdownStates } from '@/views/hooks/useSetEditableFilterChipDropdownStates';
 
 type EditableFilterDropdownButtonProps = {
   recordFilter: RecordFilter;
-  hotkeyScope: HotkeyScope;
 };
 
 export const EditableFilterDropdownButton = ({
   recordFilter,
-  hotkeyScope,
 }: EditableFilterDropdownButtonProps) => {
-  const { closeDropdown } = useDropdown(recordFilter.id);
+  const dropdownId = recordFilter.id;
+
+  const { closeDropdown } = useCloseDropdown();
 
   const { removeRecordFilter } = useRemoveRecordFilter();
 
   const handleRemove = () => {
-    closeDropdown();
+    closeDropdown(dropdownId);
 
     removeRecordFilter({ recordFilterId: recordFilter.id });
   };
 
-  const handleDropdownClickOutside = useCallback(() => {
+  const { clearVectorSearchInput } = useClearVectorSearchInput();
+
+  const onFilterDropdownClose = useCallback(() => {
     const recordFilterIsEmpty = isRecordFilterConsideredEmpty(recordFilter);
 
     if (recordFilterIsEmpty) {
       removeRecordFilter({ recordFilterId: recordFilter.id });
     }
-  }, [recordFilter, removeRecordFilter]);
+
+    clearVectorSearchInput();
+  }, [recordFilter, removeRecordFilter, clearVectorSearchInput]);
 
   const { setEditableFilterChipDropdownStates } =
     useSetEditableFilterChipDropdownStates();
@@ -57,15 +61,11 @@ export const EditableFilterDropdownButton = ({
           />
         }
         dropdownComponents={
-          <ObjectFilterOperandSelectAndInput
-            filterDropdownId={recordFilter.id}
-          />
+          <EditableFilterChipDropdownContent recordFilterId={recordFilter.id} />
         }
-        dropdownHotkeyScope={hotkeyScope}
         dropdownOffset={{ y: 8, x: 0 }}
         dropdownPlacement="bottom-start"
-        onClickOutside={handleDropdownClickOutside}
-        dropdownWidth={280}
+        onClose={onFilterDropdownClose}
       />
     </>
   );

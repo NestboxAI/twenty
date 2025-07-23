@@ -86,7 +86,9 @@ export const shouldCaptureException = (
   return true;
 };
 
-export const handleException = <T extends Error | CustomException>({
+export const handleException = <
+  T extends Error | CustomException | HttpException,
+>({
   exception,
   exceptionHandlerService,
   user,
@@ -137,7 +139,7 @@ const convertHttpExceptionToGraphql = (exception: HttpException) => {
   }
 
   // Only show the stack trace in development mode
-  if (process.env.NODE_ENV === NodeEnvironment.development) {
+  if (process.env.NODE_ENV === NodeEnvironment.DEVELOPMENT) {
     error.stack = exception.stack;
     error.extensions['response'] = exception.getResponse();
   }

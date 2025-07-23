@@ -1,6 +1,8 @@
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import {
   IconDotsVertical,
   IconDownload,
@@ -25,21 +27,21 @@ export const AttachmentDropdown = ({
 }: AttachmentDropdownProps) => {
   const dropdownId = `${scopeKey}-settings-field-active-action-dropdown`;
 
-  const { closeDropdown } = useDropdown(dropdownId);
+  const { closeDropdown } = useCloseDropdown();
 
   const handleDownload = () => {
     onDownload();
-    closeDropdown();
+    closeDropdown(dropdownId);
   };
 
   const handleDelete = () => {
     onDelete();
-    closeDropdown();
+    closeDropdown(dropdownId);
   };
 
   const handleRename = () => {
     onRename();
-    closeDropdown();
+    closeDropdown(dropdownId);
   };
 
   return (
@@ -48,28 +50,28 @@ export const AttachmentDropdown = ({
       clickableComponent={
         <LightIconButton Icon={IconDotsVertical} accent="tertiary" />
       }
-      dropdownWidth={160}
       dropdownComponents={
-        <DropdownMenuItemsContainer>
-          <MenuItem
-            text="Download"
-            LeftIcon={IconDownload}
-            onClick={handleDownload}
-          />
-          <MenuItem
-            text="Rename"
-            LeftIcon={IconPencil}
-            onClick={handleRename}
-          />
-          <MenuItem
-            text="Delete"
-            accent="danger"
-            LeftIcon={IconTrash}
-            onClick={handleDelete}
-          />
-        </DropdownMenuItemsContainer>
+        <DropdownContent widthInPixels={GenericDropdownContentWidth.Narrow}>
+          <DropdownMenuItemsContainer>
+            <MenuItem
+              text="Download"
+              LeftIcon={IconDownload}
+              onClick={handleDownload}
+            />
+            <MenuItem
+              text="Rename"
+              LeftIcon={IconPencil}
+              onClick={handleRename}
+            />
+            <MenuItem
+              text="Delete"
+              accent="danger"
+              LeftIcon={IconTrash}
+              onClick={handleDelete}
+            />
+          </DropdownMenuItemsContainer>
+        </DropdownContent>
       }
-      dropdownHotkeyScope={{ scope: dropdownId }}
     />
   );
 };

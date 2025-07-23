@@ -2,7 +2,6 @@ import { useEmailsField } from '@/object-record/record-field/meta-types/hooks/us
 import { EmailsFieldMenuItem } from '@/object-record/record-field/meta-types/input/components/EmailsFieldMenuItem';
 import { recordFieldInputIsFieldInErrorComponentState } from '@/object-record/record-field/states/recordFieldInputIsFieldInErrorComponentState';
 import { emailSchema } from '@/object-record/record-field/validation-schemas/emailSchema';
-import { DEFAULT_CELL_SCOPE } from '@/object-record/record-table/record-table-cell/hooks/useOpenRecordTableCellV2';
 import { useSetRecoilComponentStateV2 } from '@/ui/utilities/state/component-state/hooks/useSetRecoilComponentStateV2';
 import { useCallback, useMemo } from 'react';
 import { isDefined } from 'twenty-shared/utils';
@@ -45,7 +44,9 @@ export const EmailsFieldInput = ({
     [],
   );
 
-  const isPrimaryEmail = (index: number) => index === 0 && emails?.length > 1;
+  const getShowPrimaryIcon = (index: number) =>
+    index === 0 && emails.length > 1;
+  const getShowSetAsPrimaryButton = (index: number) => index > 0;
 
   const setIsFieldInError = useSetRecoilComponentStateV2(
     recordFieldInputIsFieldInErrorComponentState,
@@ -77,8 +78,8 @@ export const EmailsFieldInput = ({
         <EmailsFieldMenuItem
           key={index}
           dropdownId={`emails-${index}`}
-          showPrimaryIcon={isPrimaryEmail(index)}
-          showSetAsPrimaryButton={!isPrimaryEmail(index)}
+          showPrimaryIcon={getShowPrimaryIcon(index)}
+          showSetAsPrimaryButton={getShowSetAsPrimaryButton(index)}
           email={email}
           onEdit={handleEdit}
           onSetAsPrimary={handleSetPrimary}
@@ -86,7 +87,6 @@ export const EmailsFieldInput = ({
         />
       )}
       onError={handleError}
-      hotkeyScope={DEFAULT_CELL_SCOPE.scope}
     />
   );
 };

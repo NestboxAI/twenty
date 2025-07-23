@@ -27,7 +27,7 @@ import { RECORD_INDEX_REMOVE_SORTING_MODAL_ID } from '@/object-record/record-ind
 import { recordIndexRecordIdsByGroupComponentFamilyState } from '@/object-record/record-index/states/recordIndexRecordIdsByGroupComponentFamilyState';
 import { currentRecordSortsComponentState } from '@/object-record/record-sort/states/currentRecordSortsComponentState';
 import { recordStoreFamilyState } from '@/object-record/record-store/states/recordStoreFamilyState';
-import { useDropdownV2 } from '@/ui/layout/dropdown/hooks/useDropdownV2';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { MODAL_BACKDROP_CLICK_OUTSIDE_ID } from '@/ui/layout/modal/constants/ModalBackdropClickOutsideId';
 import { useModal } from '@/ui/layout/modal/hooks/useModal';
 import { PAGE_ACTION_CONTAINER_CLICK_OUTSIDE_ID } from '@/ui/layout/page/constants/PageActionContainerClickOutsideId';
@@ -77,7 +77,7 @@ export const RecordBoard = () => {
 
   const actionMenuId = getActionMenuIdFromRecordIndexId(recordBoardId);
 
-  const { closeDropdown } = useDropdownV2();
+  const { closeDropdown } = useCloseDropdown();
 
   const { deactivateBoardCard } = useActiveRecordBoardCard(recordBoardId);
   const { unfocusBoardCard } = useFocusedRecordBoardCard(recordBoardId);
@@ -236,7 +236,7 @@ export const RecordBoard = () => {
                 </DragDropContext>
               </StyledContainer>
               <DragSelect
-                dragSelectable={boardRef}
+                selectableItemsContainerRef={boardRef}
                 onDragSelectionEnd={handleDragSelectionEnd}
                 onDragSelectionChange={setRecordAsSelected}
                 onDragSelectionStart={handleDragSelectionStart}

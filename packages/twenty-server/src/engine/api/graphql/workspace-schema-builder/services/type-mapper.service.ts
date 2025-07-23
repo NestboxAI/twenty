@@ -15,7 +15,10 @@ import {
 } from 'graphql';
 import { FieldMetadataType } from 'twenty-shared/types';
 
-import { FieldMetadataSettings } from 'src/engine/metadata-modules/field-metadata/interfaces/field-metadata-settings.interface';
+import {
+  FieldMetadataSettings,
+  NumberDataType,
+} from 'src/engine/metadata-modules/field-metadata/interfaces/field-metadata-settings.interface';
 
 import { OrderByDirectionType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/enum';
 import {
@@ -30,9 +33,11 @@ import {
 import { MultiSelectFilterType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/input/multi-select-filter.input-type';
 import { RichTextV2FilterType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/input/rich-text.input-type';
 import { SelectFilterType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/input/select-filter.input-type';
+import { TSVectorFilterType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/input/ts-vector-filter.input-type';
 import { UUIDFilterType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/input/uuid-filter.input-type';
 import {
   BigFloatScalarType,
+  TSVectorScalarType,
   UUIDScalarType,
 } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/scalars';
 import { PositionScalarType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/scalars/position.scalar';
@@ -48,6 +53,7 @@ export interface TypeOptions<T = any> {
   defaultValue?: T;
   settings?: FieldMetadataSettings<FieldMetadataType>;
   isIdField?: boolean;
+  isRelationConnectField?: boolean;
 }
 
 const StringArrayScalarType = new GraphQLList(GraphQLString);
@@ -59,7 +65,11 @@ export class TypeMapperService {
     settings?: FieldMetadataSettings<FieldMetadataType>,
     isIdField?: boolean,
   ): GraphQLScalarType | undefined {
-    if (isIdField || fieldMetadataType === FieldMetadataType.RELATION) {
+    if (
+      isIdField ||
+      fieldMetadataType === FieldMetadataType.RELATION ||
+      fieldMetadataType === FieldMetadataType.MORPH_RELATION
+    ) {
       return GraphQLID;
     }
     const typeScalarMapping = new Map<FieldMetadataType, GraphQLScalarType>([
@@ -72,7 +82,7 @@ export class TypeMapperService {
         FieldMetadataType.NUMBER,
         getNumberScalarType(
           (settings as FieldMetadataSettings<FieldMetadataType.NUMBER>)
-            ?.dataType,
+            ?.dataType ?? NumberDataType.FLOAT,
         ),
       ],
       [FieldMetadataType.NUMERIC, BigFloatScalarType],
@@ -83,7 +93,7 @@ export class TypeMapperService {
         StringArrayScalarType as unknown as GraphQLScalarType,
       ],
       [FieldMetadataType.RICH_TEXT, GraphQLString],
-      [FieldMetadataType.TS_VECTOR, GraphQLString],
+      [FieldMetadataType.TS_VECTOR, TSVectorScalarType],
     ]);
 
     return typeScalarMapping.get(fieldMetadataType);
@@ -94,7 +104,11 @@ export class TypeMapperService {
     settings?: FieldMetadataSettings<FieldMetadataType>,
     isIdField?: boolean,
   ): GraphQLInputObjectType | GraphQLScalarType | undefined {
-    if (isIdField || fieldMetadataType === FieldMetadataType.RELATION) {
+    if (
+      isIdField ||
+      fieldMetadataType === FieldMetadataType.RELATION ||
+      fieldMetadataType === FieldMetadataType.MORPH_RELATION
+    ) {
       return UUIDFilterType;
     }
 
@@ -122,7 +136,7 @@ export class TypeMapperService {
       [FieldMetadataType.ARRAY, ArrayFilterType],
       [FieldMetadataType.MULTI_SELECT, MultiSelectFilterType],
       [FieldMetadataType.SELECT, SelectFilterType],
-      [FieldMetadataType.TS_VECTOR, StringFilterType], // TODO: Add TSVectorFilterType
+      [FieldMetadataType.TS_VECTOR, TSVectorFilterType],
     ]);
 
     return typeFilterMapping.get(fieldMetadataType);
@@ -134,6 +148,7 @@ export class TypeMapperService {
     const typeOrderByMapping = new Map<FieldMetadataType, GraphQLEnumType>([
       [FieldMetadataType.UUID, OrderByDirectionType],
       [FieldMetadataType.RELATION, OrderByDirectionType],
+      [FieldMetadataType.MORPH_RELATION, OrderByDirectionType],
       [FieldMetadataType.TEXT, OrderByDirectionType],
       [FieldMetadataType.DATE_TIME, OrderByDirectionType],
       [FieldMetadataType.DATE, OrderByDirectionType],

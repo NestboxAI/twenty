@@ -4,7 +4,6 @@ import { FormFieldInputRowContainer } from '@/object-record/record-field/form-ty
 import { VariableChipStandalone } from '@/object-record/record-field/form-types/components/VariableChipStandalone';
 import { VariablePickerComponent } from '@/object-record/record-field/form-types/types/VariablePickerComponent';
 import { TextInput } from '@/ui/field/input/components/TextInput';
-import { InputErrorHelper } from '@/ui/input/components/InputErrorHelper';
 import { InputHint } from '@/ui/input/components/InputHint';
 import { InputLabel } from '@/ui/input/components/InputLabel';
 import { isStandaloneVariableString } from '@/workflow/utils/isStandaloneVariableString';
@@ -46,7 +45,7 @@ export const FormNumberFieldInput = ({
   readonly,
   error: errorFromProps,
 }: FormNumberFieldInputProps) => {
-  const inputId = useId();
+  const instanceId = useId();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined,
   );
@@ -114,18 +113,21 @@ export const FormNumberFieldInput = ({
     onChange(variableName);
   };
 
+  const error = errorMessage ?? errorFromProps;
+
   return (
     <FormFieldInputContainer>
-      {label ? <InputLabel htmlFor={inputId}>{label}</InputLabel> : null}
+      {label ? <InputLabel htmlFor={instanceId}>{label}</InputLabel> : null}
 
       <FormFieldInputRowContainer>
         <FormFieldInputInnerContainer
+          formFieldInputInstanceId={instanceId}
           hasRightElement={isDefined(VariablePicker) && !readonly}
           onBlur={onBlur}
         >
           {draftValue.type === 'static' ? (
             <StyledInput
-              inputId={inputId}
+              instanceId={instanceId}
               placeholder={
                 isDefined(placeholder) && !isEmpty(placeholder)
                   ? placeholder
@@ -133,7 +135,6 @@ export const FormNumberFieldInput = ({
               }
               value={draftValue.value}
               copyButton={false}
-              hotkeyScope="record-create"
               onChange={handleChange}
               disabled={readonly}
             />
@@ -147,14 +148,14 @@ export const FormNumberFieldInput = ({
 
         {VariablePicker && !readonly ? (
           <VariablePicker
-            inputId={inputId}
+            instanceId={instanceId}
             onVariableSelect={handleVariableTagInsert}
           />
         ) : null}
       </FormFieldInputRowContainer>
 
       {hint ? <InputHint>{hint}</InputHint> : null}
-      <InputErrorHelper>{errorMessage ?? errorFromProps}</InputErrorHelper>
+      {error && <InputHint danger>{error}</InputHint>}
     </FormFieldInputContainer>
   );
 };

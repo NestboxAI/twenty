@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { OBJECT_OPTIONS_DROPDOWN_ID } from '@/object-record/object-options-dropdown/constants/ObjectOptionsDropdownId';
-import { useOptionsDropdown } from '@/object-record/object-options-dropdown/hooks/useOptionsDropdown';
+import { useObjectOptionsDropdown } from '@/object-record/object-options-dropdown/hooks/useObjectOptionsDropdown';
 import { RecordGroupsVisibilityDropdownSection } from '@/object-record/record-group/components/RecordGroupsVisibilityDropdownSection';
 import { useRecordGroupVisibility } from '@/object-record/record-group/hooks/useRecordGroupVisibility';
 import { recordGroupFieldMetadataComponentState } from '@/object-record/record-group/states/recordGroupFieldMetadataComponentState';
@@ -9,7 +9,7 @@ import { hiddenRecordGroupIdsComponentSelector } from '@/object-record/record-gr
 import { visibleRecordGroupIdsComponentFamilySelector } from '@/object-record/record-group/states/selectors/visibleRecordGroupIdsComponentFamilySelector';
 import { recordIndexRecordGroupHideComponentFamilyState } from '@/object-record/record-index/states/recordIndexRecordGroupHideComponentFamilyState';
 import { recordIndexRecordGroupSortComponentState } from '@/object-record/record-index/states/recordIndexRecordGroupSortComponentState';
-import { TableOptionsHotkeyScope } from '@/object-record/record-table/types/TableOptionsHotkeyScope';
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuHeader } from '@/ui/layout/dropdown/components/DropdownMenuHeader/DropdownMenuHeader';
 import { DropdownMenuHeaderLeftComponent } from '@/ui/layout/dropdown/components/DropdownMenuHeader/internal/DropdownMenuHeaderLeftComponent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
@@ -42,7 +42,7 @@ export const ObjectOptionsDropdownRecordGroupsContent = () => {
     onContentChange,
     resetContent,
     handleRecordGroupOrderChangeWithModal,
-  } = useOptionsDropdown();
+  } = useObjectOptionsDropdown();
 
   const { currentView } = useGetCurrentViewOnly();
 
@@ -93,8 +93,10 @@ export const ObjectOptionsDropdownRecordGroupsContent = () => {
     'HideEmptyGroups',
   ];
 
+  const hiddenGroupsSelectableListId = `${OBJECT_OPTIONS_DROPDOWN_ID}-hidden-groups`;
+
   return (
-    <>
+    <DropdownContent>
       <DropdownMenuHeader
         StartComponent={
           <DropdownMenuHeaderLeftComponent
@@ -108,7 +110,7 @@ export const ObjectOptionsDropdownRecordGroupsContent = () => {
       <DropdownMenuItemsContainer>
         <SelectableList
           selectableListInstanceId={OBJECT_OPTIONS_DROPDOWN_ID}
-          hotkeyScope={TableOptionsHotkeyScope.Dropdown}
+          focusId={OBJECT_OPTIONS_DROPDOWN_ID}
           selectableItemIdArray={selectableItemIdArray}
         >
           {currentView?.key !== 'INDEX' && (
@@ -174,8 +176,8 @@ export const ObjectOptionsDropdownRecordGroupsContent = () => {
           <DropdownMenuSeparator />
           <DropdownMenuItemsContainer scrollable={false}>
             <SelectableList
-              selectableListInstanceId={`${OBJECT_OPTIONS_DROPDOWN_ID}-hidden-groups`}
-              hotkeyScope={TableOptionsHotkeyScope.Dropdown}
+              selectableListInstanceId={hiddenGroupsSelectableListId}
+              focusId={hiddenGroupsSelectableListId}
               selectableItemIdArray={['HiddenGroups']}
             >
               <SelectableListItem
@@ -192,6 +194,6 @@ export const ObjectOptionsDropdownRecordGroupsContent = () => {
           </DropdownMenuItemsContainer>
         </>
       )}
-    </>
+    </DropdownContent>
   );
 };

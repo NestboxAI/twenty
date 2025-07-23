@@ -31,7 +31,7 @@ type AIWorkflowIndicatorProps = {
 export const AIWorkflowIndicator = ({ 
   recordGroupId, 
   viewId,
-  context = 'table' 
+  context = 'board' 
 }: AIWorkflowIndicatorProps) => {
   const { openModal } = useModal();
 

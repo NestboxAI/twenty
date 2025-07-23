@@ -1,31 +1,33 @@
-import { SnackBarVariant } from '@/ui/feedback/snack-bar-manager/components/SnackBar';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { useMutation } from '@apollo/client';
 import {
   CREATE_AI_AGENT_CONFIG,
   CreateAiAgentConfigInput,
-  CreateAiAgentConfigResponse
+  CreateAiAgentConfigResponse,
 } from '../services/aiAgentWorkflowService';
 
 export const useCreateAiAgentConfig = () => {
-  const { enqueueSnackBar } = useSnackBar();
+  const { enqueueSuccessSnackBar, enqueueErrorSnackBar } = useSnackBar();
+  const apolloCoreClient = useApolloCoreClient();
 
   const [createAiAgentConfigMutation, { loading, error, data }] = useMutation<
     { createAiAgentConfig: CreateAiAgentConfigResponse },
     { input: CreateAiAgentConfigInput }
   >(CREATE_AI_AGENT_CONFIG, {
+    client: apolloCoreClient,
     onCompleted: (data) => {
       if (data?.createAiAgentConfig?.id) {
-        enqueueSnackBar('AI workflow configuration saved successfully!', {
-          variant: SnackBarVariant.Success,
-          duration: 3000,
+        enqueueSuccessSnackBar({
+          message: 'AI workflow configuration saved successfully!',
+          options: { duration: 3000 },
         });
       }
     },
     onError: (error) => {
-      enqueueSnackBar(`Failed to save AI workflow configuration: ${error.message}`, {
-        variant: SnackBarVariant.Error,
-        duration: 5000,
+      enqueueErrorSnackBar({
+        message: `Failed to save AI workflow configuration: ${error.message}`,
+        options: { duration: 5000 },
       });
     },
   });
@@ -48,4 +50,4 @@ export const useCreateAiAgentConfig = () => {
     error,
     data,
   };
-}; 
+};

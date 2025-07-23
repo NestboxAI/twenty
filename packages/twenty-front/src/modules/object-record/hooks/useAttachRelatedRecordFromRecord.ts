@@ -1,10 +1,11 @@
-import { useApolloClient } from '@apollo/client';
-
+import { CustomError } from '@/error-handler/CustomError';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { useGetRecordFromCache } from '@/object-record/cache/hooks/useGetRecordFromCache';
 import { updateRecordFromCache } from '@/object-record/cache/utils/updateRecordFromCache';
 import { computeDepthOneRecordGqlFieldsFromRecord } from '@/object-record/graphql/utils/computeDepthOneRecordGqlFieldsFromRecord';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { ObjectRecord } from '@/object-record/types/ObjectRecord';
 import { isDefined } from 'twenty-shared/utils';
@@ -18,7 +19,7 @@ export const useAttachRelatedRecordFromRecord = ({
   recordObjectNameSingular,
   fieldNameOnRecordObject,
 }: useAttachRelatedRecordFromRecordProps) => {
-  const apolloClient = useApolloClient();
+  const apolloCoreClient = useApolloCoreClient();
 
   const { objectMetadataItem } = useObjectMetadataItem({
     objectNameSingular: recordObjectNameSingular,
@@ -29,11 +30,12 @@ export const useAttachRelatedRecordFromRecord = ({
   });
 
   const relatedRecordObjectNameSingular =
-    fieldOnObject?.relationDefinition?.targetObjectMetadata.nameSingular;
+    fieldOnObject?.relation?.targetObjectMetadata.nameSingular;
 
   if (!relatedRecordObjectNameSingular) {
-    throw new Error(
+    throw new CustomError(
       `Could not find record related to ${recordObjectNameSingular}`,
+      'RELATED_RECORD_NOT_FOUND',
     );
   }
   const { objectMetadataItem: relatedObjectMetadataItem } =
@@ -42,10 +44,13 @@ export const useAttachRelatedRecordFromRecord = ({
     });
 
   const fieldOnRelatedObject =
-    fieldOnObject?.relationDefinition?.targetFieldMetadata.name;
+    fieldOnObject?.relation?.targetFieldMetadata.name;
 
   if (!fieldOnRelatedObject) {
-    throw new Error(`Missing target field for ${fieldNameOnRecordObject}`);
+    throw new CustomError(
+      `Missing target field for ${fieldNameOnRecordObject}`,
+      'MISSING_TARGET_FIELD',
+    );
   }
 
   const { updateOneRecord } = useUpdateOneRecord({
@@ -61,7 +66,7 @@ export const useAttachRelatedRecordFromRecord = ({
   });
 
   const { objectMetadataItems } = useObjectMetadataItems();
-
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
   const updateOneRecordAndAttachRelations = async ({
     recordId,
     relatedRecordId,
@@ -92,12 +97,13 @@ export const useAttachRelatedRecordFromRecord = ({
       updateRecordFromCache({
         objectMetadataItems,
         objectMetadataItem: relatedObjectMetadataItem,
-        cache: apolloClient.cache,
+        cache: apolloCoreClient.cache,
         record: {
           ...cachedRelatedRecord,
           [fieldOnRelatedObject]: previousRecord,
         },
         recordGqlFields: gqlFields,
+        objectPermissionsByObjectMetadataId,
       });
     }
 

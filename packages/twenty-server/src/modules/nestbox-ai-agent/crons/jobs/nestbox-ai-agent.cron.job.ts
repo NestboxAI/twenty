@@ -24,9 +24,9 @@ export class NestboxAiAgentCronJob {
     private readonly workspaceRepository: Repository<Workspace>,
     @InjectRepository(AiAgentConfig, 'core')
     private readonly aiAgentConfigRepository: Repository<AiAgentConfig>,
-    @InjectRepository(DataSourceEntity, 'metadata')
+    @InjectRepository(DataSourceEntity, 'core')
     private readonly dataSourceRepository: Repository<DataSourceEntity>,
-    @InjectRepository(ObjectMetadataEntity, 'metadata')
+    @InjectRepository(ObjectMetadataEntity, 'core')
     private readonly objectMetadataRepository: Repository<ObjectMetadataEntity>,
     private readonly twentyORMGlobalManager: TwentyORMGlobalManager,
     private readonly exceptionHandlerService: ExceptionHandlerService,
@@ -98,7 +98,6 @@ export class NestboxAiAgentCronJob {
         // Step 3: Query the actual table using schema and tableName
         const workspaceDataSource = await this.twentyORMGlobalManager.getDataSourceForWorkspace({
           workspaceId: aiAgentConfig.workspaceId,
-          shouldFailIfMetadataNotFound: false,
         });
 
         if (!workspaceDataSource) {
@@ -109,7 +108,9 @@ export class NestboxAiAgentCronJob {
         // Step 4: Get field name from fieldMetadata using fieldMetadataId
         const fieldMetadataResult = await workspaceDataSource.query(
           `SELECT name FROM "core"."fieldMetadata" WHERE id = $1`,
-          [aiAgentConfig.fieldMetadataId]
+          [aiAgentConfig.fieldMetadataId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         if (!fieldMetadataResult || fieldMetadataResult.length === 0) {
@@ -123,7 +124,9 @@ export class NestboxAiAgentCronJob {
         // Step 5: Get current viewGroup record with position and fieldValue
         const currentViewGroupResult = await workspaceDataSource.query(
           `SELECT "fieldValue", "position" FROM "${dataSource.schema}"."viewGroup" WHERE id = $1 AND "deletedAt" IS NULL`,
-          [aiAgentConfig.viewGroupId]
+          [aiAgentConfig.viewGroupId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         if (!currentViewGroupResult || currentViewGroupResult.length === 0) {
@@ -140,7 +143,9 @@ export class NestboxAiAgentCronJob {
           `SELECT "fieldValue", "position" FROM "${dataSource.schema}"."viewGroup" 
            WHERE "position" > $1 AND "deletedAt" IS NULL AND "fieldMetadataId" = $2
            ORDER BY "position" ASC LIMIT 1`,
-          [currentPosition, aiAgentConfig.fieldMetadataId]
+          [currentPosition, aiAgentConfig.fieldMetadataId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         if (!nextViewGroupResult || nextViewGroupResult.length === 0) {
@@ -157,7 +162,9 @@ export class NestboxAiAgentCronJob {
           `SELECT "fieldValue", "position" FROM "${dataSource.schema}"."viewGroup" 
            WHERE "deletedAt" IS NULL AND "fieldMetadataId" = $1 AND "isVisible" = true
            ORDER BY "position" ASC`,
-          [aiAgentConfig.fieldMetadataId]
+          [aiAgentConfig.fieldMetadataId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         const availableViewGroups = allViewGroupsResult.map((vg: any) => ({
@@ -166,22 +173,49 @@ export class NestboxAiAgentCronJob {
         }));
 
         // Step 7: Query records that match current fieldValue with related notes, tasks, and attachments
+        let notesJoin = '';
+        let notesSelect = '';
+
+        if (objectMetadata.nameSingular !== 'task') {
+          notesJoin = `
+            LEFT JOIN "${dataSource.schema}"."noteTarget" 
+              ON "noteTarget"."${objectMetadata.nameSingular}Id" = main.id
+            LEFT JOIN "${dataSource.schema}"."note" note 
+              ON note.id = "noteTarget"."noteId"`;
+
+          notesSelect = `,
+            COALESCE(
+              json_agg(DISTINCT note.*) FILTER (WHERE note.id IS NOT NULL),
+              '[]'::json
+            ) as notes`;
+        }
+
         const queryResult = await workspaceDataSource.query(
           `SELECT 
-            main.*,
-            COALESCE(json_agg(DISTINCT note.*) FILTER (WHERE note.id IS NOT NULL), '[]'::json) as notes,
-            COALESCE(json_agg(DISTINCT task.*) FILTER (WHERE task.id IS NOT NULL), '[]'::json) as tasks,
-            COALESCE(json_agg(DISTINCT attachment.*) FILTER (WHERE attachment.id IS NOT NULL), '[]'::json) as attachments
-           FROM "${dataSource.schema}"."${tableName}" main
-           LEFT JOIN "${dataSource.schema}"."noteTarget" ON "${dataSource.schema}"."noteTarget"."${objectMetadata.nameSingular}Id" = main.id
-           LEFT JOIN "${dataSource.schema}"."note" ON "${dataSource.schema}"."note".id = "${dataSource.schema}"."noteTarget"."noteId"
-           LEFT JOIN "${dataSource.schema}"."taskTarget" ON "${dataSource.schema}"."taskTarget"."${objectMetadata.nameSingular}Id" = main.id  
-           LEFT JOIN "${dataSource.schema}"."task" ON "${dataSource.schema}"."task".id = "${dataSource.schema}"."taskTarget"."taskId"
-           LEFT JOIN "${dataSource.schema}"."attachment" ON "${dataSource.schema}"."attachment"."${objectMetadata.nameSingular}Id" = main.id
-           WHERE main."${fieldName}" = $1 AND main."deletedAt" IS NULL
-           GROUP BY main.id
-           LIMIT ${aiAgentConfig.wipLimit}`,
-          [currentFieldValue]
+              main.*${notesSelect},
+              COALESCE(
+                json_agg(DISTINCT task.*) FILTER (WHERE task.id IS NOT NULL),
+                '[]'::json
+              ) as tasks,
+              COALESCE(
+                json_agg(DISTINCT attachment.*) FILTER (WHERE attachment.id IS NOT NULL),
+                '[]'::json
+              ) as attachments
+            FROM "${dataSource.schema}"."${tableName}" main
+            LEFT JOIN "${dataSource.schema}"."taskTarget" 
+              ON "taskTarget"."${objectMetadata.nameSingular}Id" = main.id
+            LEFT JOIN "${dataSource.schema}"."task" task 
+              ON task.id = "taskTarget"."taskId"
+            LEFT JOIN "${dataSource.schema}"."attachment" 
+              ON "attachment"."${objectMetadata.nameSingular}Id" = main.id
+            ${notesJoin}
+            WHERE main."${fieldName}" = $1
+              AND main."deletedAt" IS NULL
+            GROUP BY main.id
+            LIMIT ${aiAgentConfig.wipLimit}`,
+          [currentFieldValue],
+          undefined,
+          { shouldBypassPermissionChecks: true }
         );
 
         console.log(`📊 Found ${queryResult.length} records to potentially update from ${currentFieldValue} to ${nextFieldValue}`);
@@ -233,7 +267,9 @@ export class NestboxAiAgentCronJob {
                 `UPDATE "${dataSource.schema}"."${tableName}" 
                  SET "${fieldName}" = $1, "updatedAt" = NOW()
                  WHERE id = $2 AND "deletedAt" IS NULL`,
-                [nextFieldValue, record.id]
+                [nextFieldValue, record.id],
+                undefined,
+                { shouldBypassPermissionChecks: true }
               );
 
               console.log(`✅ Updated record ${record.id} from '${currentFieldValue}' to '${nextFieldValue}' in ${dataSource.schema}.${tableName}`);

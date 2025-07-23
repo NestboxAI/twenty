@@ -15,11 +15,12 @@ import {
 } from '@/object-record/record-field/types/FieldMetadata';
 import { isFieldRelationFromManyObjects } from '@/object-record/record-field/types/guards/isFieldRelationFromManyObjects';
 import { isFieldRelationToOneObject } from '@/object-record/record-field/types/guards/isFieldRelationToOneObject';
-import { INLINE_CELL_HOTKEY_SCOPE_MEMOIZE_KEY } from '@/object-record/record-inline-cell/constants/InlineCellHotkeyScopeMemoizeKey';
 import { recordStoreFamilyState } from '@/object-record/record-store/states/recordStoreFamilyState';
 import { recordStoreFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreFamilySelector';
-import { DEFAULT_CELL_SCOPE } from '@/object-record/record-table/record-table-cell/hooks/useOpenRecordTableCellV2';
-import { usePreviousHotkeyScope } from '@/ui/utilities/hotkey/hooks/usePreviousHotkeyScope';
+import { getRecordFieldInputInstanceId } from '@/object-record/utils/getRecordFieldInputId';
+import { usePushFocusItemToFocusStack } from '@/ui/utilities/focus/hooks/usePushFocusItemToFocusStack';
+import { useRemoveFocusItemFromFocusStackById } from '@/ui/utilities/focus/hooks/useRemoveFocusItemFromFocusStackById';
+import { FocusComponentType } from '@/ui/utilities/focus/types/FocusComponentType';
 import { useRecoilCallback } from 'recoil';
 import { isDefined } from 'twenty-shared/utils';
 
@@ -31,16 +32,18 @@ export const useOpenFieldInputEditMode = () => {
   const { openActivityTargetCellEditMode } =
     useOpenActivityTargetCellEditMode();
 
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const { pushFocusItemToFocusStack } = usePushFocusItemToFocusStack();
 
   const openFieldInput = useRecoilCallback(
     ({ snapshot }) =>
       ({
         fieldDefinition,
         recordId,
+        prefix,
       }: {
         fieldDefinition: FieldDefinition<FieldMetadata>;
         recordId: string;
+        prefix?: string;
       }) => {
         if (
           isFieldRelationFromManyObjects(fieldDefinition) &&
@@ -72,7 +75,11 @@ export const useOpenFieldInputEditMode = () => {
           });
 
           openActivityTargetCellEditMode({
-            recordPickerInstanceId: `relation-from-many-field-input-${recordId}`,
+            recordPickerInstanceId: getRecordFieldInputInstanceId({
+              recordId,
+              fieldName: fieldDefinition.metadata.fieldName,
+              prefix,
+            }),
             activityTargetObjectRecords,
           });
           return;
@@ -81,7 +88,8 @@ export const useOpenFieldInputEditMode = () => {
         if (isFieldRelationToOneObject(fieldDefinition)) {
           openRelationToOneFieldInput({
             fieldName: fieldDefinition.metadata.fieldName,
-            recordId: recordId,
+            recordId,
+            prefix,
           });
 
           return;
@@ -97,28 +105,63 @@ export const useOpenFieldInputEditMode = () => {
               fieldName: fieldDefinition.metadata.fieldName,
               objectNameSingular:
                 fieldDefinition.metadata.relationObjectMetadataNameSingular,
-              recordId: recordId,
+              recordId,
+              prefix,
             });
             return;
           }
         }
 
-        setHotkeyScopeAndMemorizePreviousScope({
-          scope: DEFAULT_CELL_SCOPE.scope,
-          customScopes: DEFAULT_CELL_SCOPE.customScopes,
-          memoizeKey: INLINE_CELL_HOTKEY_SCOPE_MEMOIZE_KEY,
+        pushFocusItemToFocusStack({
+          focusId: getRecordFieldInputInstanceId({
+            recordId,
+            fieldName: fieldDefinition.metadata.fieldName,
+            prefix,
+          }),
+          component: {
+            type: FocusComponentType.OPENED_FIELD_INPUT,
+            instanceId: getRecordFieldInputInstanceId({
+              recordId,
+              fieldName: fieldDefinition.metadata.fieldName,
+              prefix,
+            }),
+          },
+          globalHotkeysConfig: {
+            enableGlobalHotkeysConflictingWithKeyboard: false,
+          },
         });
       },
     [
       openActivityTargetCellEditMode,
       openRelationFromManyFieldInput,
       openRelationToOneFieldInput,
-      setHotkeyScopeAndMemorizePreviousScope,
+      pushFocusItemToFocusStack,
     ],
   );
 
+  const { removeFocusItemFromFocusStackById } =
+    useRemoveFocusItemFromFocusStackById();
+
+  const closeFieldInput = ({
+    fieldDefinition,
+    recordId,
+    prefix,
+  }: {
+    fieldDefinition: FieldDefinition<FieldMetadata>;
+    recordId: string;
+    prefix?: string;
+  }) => {
+    removeFocusItemFromFocusStackById({
+      focusId: getRecordFieldInputInstanceId({
+        recordId,
+        fieldName: fieldDefinition.metadata.fieldName,
+        prefix,
+      }),
+    });
+  };
+
   return {
-    openFieldInput: openFieldInput,
-    closeFieldInput: () => {},
+    openFieldInput,
+    closeFieldInput,
   };
 };

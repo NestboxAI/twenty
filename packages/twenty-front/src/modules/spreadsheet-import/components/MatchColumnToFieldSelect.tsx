@@ -8,8 +8,10 @@ import { MatchColumnSelectFieldSelectDropdownContent } from '@/spreadsheet-impor
 import { MatchColumnSelectSubFieldSelectDropdownContent } from '@/spreadsheet-import/components/MatchColumnSelectSubFieldSelectDropdownContent';
 import { DO_NOT_IMPORT_OPTION_KEY } from '@/spreadsheet-import/constants/DoNotImportOptionKey';
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
+import styled from '@emotion/styled';
 import { isDefined } from 'twenty-shared/utils';
+import { IconChevronDown } from 'twenty-ui/display';
 import { SelectOption } from 'twenty-ui/input';
 import { MenuItem } from 'twenty-ui/navigation';
 
@@ -18,22 +20,31 @@ interface MatchColumnToFieldSelectProps {
   onChange: (value: ReadonlyDeep<SelectOption> | null) => void;
   value?: ReadonlyDeep<SelectOption>;
   options: readonly ReadonlyDeep<SelectOption>[];
+  suggestedOptions: readonly ReadonlyDeep<SelectOption>[];
   placeholder?: string;
 }
 
+const StyledMenuItem = styled(MenuItem)`
+  background-color: ${({ theme }) => theme.background.transparent.lighter};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: ${({ theme }) => theme.border.radius.sm};
+`;
 export const MatchColumnToFieldSelect = ({
   onChange,
   value,
   options,
+  suggestedOptions,
   placeholder,
   columnIndex,
 }: MatchColumnToFieldSelectProps) => {
   const dropdownId = `match-column-select-v2-dropdown-${columnIndex}`;
-
-  const { closeDropdown } = useDropdown(dropdownId);
-
+  const { closeDropdown } = useCloseDropdown();
   const [selectedFieldMetadataItem, setSelectedFieldMetadataItem] =
     useState<FieldMetadataItem | null>(null);
+
+  const doNotImportOption = options.find(
+    (option) => option.value === DO_NOT_IMPORT_OPTION_KEY,
+  );
 
   const handleFieldMetadataItemSelect = (
     selectedFieldMetadataItem: FieldMetadataItem,
@@ -47,9 +58,8 @@ export const MatchColumnToFieldSelect = ({
 
       if (isDefined(correspondingOption)) {
         setSelectedFieldMetadataItem(null);
-
         onChange(correspondingOption);
-        closeDropdown();
+        closeDropdown(dropdownId);
       }
     }
   };
@@ -70,16 +80,22 @@ export const MatchColumnToFieldSelect = ({
 
     if (isDefined(correspondingOption)) {
       setSelectedFieldMetadataItem(null);
-
       onChange(correspondingOption);
-      closeDropdown();
+      closeDropdown(dropdownId);
     }
+  };
+
+  const handleSelectSuggestedOption = (
+    selectedSuggestedOption: SelectOption,
+  ) => {
+    onChange(selectedSuggestedOption);
+    closeDropdown(dropdownId);
   };
 
   const handleDoNotImportSelect = () => {
     if (isDefined(doNotImportOption)) {
       onChange(doNotImportOption);
-      closeDropdown();
+      closeDropdown(dropdownId);
     }
   };
 
@@ -93,33 +109,27 @@ export const MatchColumnToFieldSelect = ({
 
   const handleCancelSelectClick = () => {
     setSelectedFieldMetadataItem(null);
-    closeDropdown();
+    closeDropdown(dropdownId);
   };
 
-  const doNotImportOption = options.find(
-    (option) => option.value === DO_NOT_IMPORT_OPTION_KEY,
-  );
-
-  const shouldDisplaySubFieldMetadataItemSelect =
-    isDefined(selectedFieldMetadataItem?.type) &&
-    isCompositeFieldType(selectedFieldMetadataItem?.type);
+  const shouldShowSubField =
+    isDefined(selectedFieldMetadataItem) &&
+    isCompositeFieldType(selectedFieldMetadataItem.type);
 
   return (
     <Dropdown
       dropdownId={dropdownId}
-      dropdownHotkeyScope={{
-        scope: dropdownId,
-      }}
       dropdownPlacement="bottom-start"
       clickableComponent={
-        <MenuItem
+        <StyledMenuItem
           LeftIcon={value?.Icon}
           text={value?.label ?? placeholder ?? ''}
           accent={value?.label ? 'default' : 'placeholder'}
+          RightIcon={IconChevronDown}
         />
       }
       dropdownComponents={
-        shouldDisplaySubFieldMetadataItemSelect && selectedFieldMetadataItem ? (
+        shouldShowSubField ? (
           <MatchColumnSelectSubFieldSelectDropdownContent
             fieldMetadataItem={selectedFieldMetadataItem}
             onSubFieldSelect={handleSubFieldSelect}
@@ -130,13 +140,15 @@ export const MatchColumnToFieldSelect = ({
           <MatchColumnSelectFieldSelectDropdownContent
             selectedValue={value}
             onSelectFieldMetadataItem={handleFieldMetadataItemSelect}
+            onSelectSuggestedOption={handleSelectSuggestedOption}
             onCancelSelect={handleCancelSelectClick}
             onDoNotImportSelect={handleDoNotImportSelect}
-            options={options}
+            suggestedOptions={suggestedOptions}
           />
         )
       }
       onClickOutside={handleClickOutside}
+      isDropdownInModal
     />
   );
 };

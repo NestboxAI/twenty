@@ -1,4 +1,6 @@
+import { isNonEmptyString } from '@sniptt/guards';
 import { ObjectRecordsPermissions } from 'twenty-shared/types';
+import { isDefined } from 'twenty-shared/utils';
 import { QueryExpressionMap } from 'typeorm/query-builder/QueryExpressionMap';
 
 import {
@@ -40,14 +42,30 @@ export const validateOperationIsPermittedOrThrow = ({
   const objectMetadataIdForEntity =
     objectMetadataMaps.idByNameSingular[entityName];
 
-  const objectMetadataIsSystem =
-    objectMetadataMaps.byId[objectMetadataIdForEntity]?.isSystem === true;
+  if (!isNonEmptyString(objectMetadataIdForEntity)) {
+    throw new PermissionsException(
+      PermissionsExceptionMessage.PERMISSION_DENIED,
+      PermissionsExceptionCode.PERMISSION_DENIED,
+    );
+  }
+
+  const objectMetadata = objectMetadataMaps.byId[objectMetadataIdForEntity];
+
+  if (!isDefined(objectMetadata)) {
+    throw new PermissionsException(
+      PermissionsExceptionMessage.PERMISSION_DENIED,
+      PermissionsExceptionCode.PERMISSION_DENIED,
+    );
+  }
+
+  const objectMetadataIsSystem = objectMetadata.isSystem === true;
 
   if (objectMetadataIsSystem) {
     return;
   }
 
-  const permissionsForEntity = objectRecordsPermissions[entityName];
+  const permissionsForEntity =
+    objectRecordsPermissions[objectMetadataIdForEntity];
 
   switch (operationType) {
     case 'select':

@@ -1,14 +1,16 @@
-import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownOnToggleEffect } from '@/ui/layout/dropdown/components/DropdownOnToggleEffect';
+import { DropdownInternalContainer } from '@/ui/layout/dropdown/components/internal/DropdownInternalContainer';
 import { DROPDOWN_RESIZE_MIN_HEIGHT } from '@/ui/layout/dropdown/constants/DropdownResizeMinHeight';
 import { DROPDOWN_RESIZE_MIN_WIDTH } from '@/ui/layout/dropdown/constants/DropdownResizeMinWidth';
-import { DropdownComponentInstanceContext } from '@/ui/layout/dropdown/contexts/DropdownComponeInstanceContext';
+import { DropdownComponentInstanceContext } from '@/ui/layout/dropdown/contexts/DropdownComponentInstanceContext';
+import { useToggleDropdown } from '@/ui/layout/dropdown/hooks/useToggleDropdown';
 import { DropdownScope } from '@/ui/layout/dropdown/scopes/DropdownScope';
-import { dropdownHotkeyComponentState } from '@/ui/layout/dropdown/states/dropdownHotkeyComponentState';
 import { dropdownMaxHeightComponentState } from '@/ui/layout/dropdown/states/internal/dropdownMaxHeightComponentState';
 import { dropdownMaxWidthComponentState } from '@/ui/layout/dropdown/states/internal/dropdownMaxWidthComponentState';
+import { isDropdownOpenComponentState } from '@/ui/layout/dropdown/states/isDropdownOpenComponentState';
 import { DropdownOffset } from '@/ui/layout/dropdown/types/DropdownOffset';
-import { HotkeyScope } from '@/ui/utilities/hotkey/types/HotkeyScope';
+import { GlobalHotkeysConfig } from '@/ui/utilities/hotkey/types/GlobalHotkeysConfig';
+import { useRecoilComponentValueV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValueV2';
 import { useSetRecoilComponentStateV2 } from '@/ui/utilities/state/component-state/hooks/useSetRecoilComponentStateV2';
 import styled from '@emotion/styled';
 import {
@@ -25,7 +27,6 @@ import { Keys } from 'react-hotkeys-hook';
 import { useRecoilCallback } from 'recoil';
 import { isDefined } from 'twenty-shared/utils';
 import { useIsMobile } from 'twenty-ui/utilities';
-import { useDropdown } from '../hooks/useDropdown';
 
 type Width = `${string}px` | `${number}%` | 'auto' | number;
 const StyledDropdownFallbackAnchor = styled.div`
@@ -47,26 +48,25 @@ export type DropdownProps = {
   dropdownComponents: ReactNode;
   hotkey?: {
     key: Keys;
-    scope: string;
   };
-  dropdownHotkeyScope: HotkeyScope;
+  globalHotkeysConfig?: Partial<GlobalHotkeysConfig>;
   dropdownId: string;
   dropdownPlacement?: Placement;
-  dropdownWidth?: Width;
   dropdownOffset?: DropdownOffset;
   dropdownStrategy?: 'fixed' | 'absolute';
   onClickOutside?: () => void;
   onClose?: () => void;
   onOpen?: () => void;
+  excludedClickOutsideIds?: string[];
+  isDropdownInModal?: boolean;
 };
 
 export const Dropdown = ({
   clickableComponent,
   dropdownComponents,
-  dropdownWidth,
   hotkey,
   dropdownId,
-  dropdownHotkeyScope,
+  globalHotkeysConfig,
   dropdownPlacement = 'bottom-end',
   dropdownStrategy = 'absolute',
   dropdownOffset,
@@ -74,8 +74,15 @@ export const Dropdown = ({
   onClose,
   onOpen,
   clickableComponentWidth = 'auto',
+  excludedClickOutsideIds,
+  isDropdownInModal = false,
 }: DropdownProps) => {
-  const { isDropdownOpen, toggleDropdown } = useDropdown(dropdownId);
+  const isDropdownOpen = useRecoilComponentValueV2(
+    isDropdownOpenComponentState,
+    dropdownId,
+  );
+
+  const { toggleDropdown } = useToggleDropdown();
 
   const isUsingOffset =
     isDefined(dropdownOffset?.x) || isDefined(dropdownOffset?.y);
@@ -143,21 +150,16 @@ export const Dropdown = ({
   });
 
   const handleClickableComponentClick = useRecoilCallback(
-    ({ set }) =>
-      async (event: MouseEvent) => {
-        event.stopPropagation();
-        event.preventDefault();
+    () => async (event: MouseEvent) => {
+      event.stopPropagation();
+      event.preventDefault();
 
-        // TODO: refactor this when we have finished dropdown refactor with state and V1 + V2
-        set(
-          dropdownHotkeyComponentState({ scopeId: dropdownId }),
-          dropdownHotkeyScope,
-        );
-
-        toggleDropdown(dropdownHotkeyScope);
-        onClickOutside?.();
-      },
-    [dropdownId, dropdownHotkeyScope, onClickOutside, toggleDropdown],
+      toggleDropdown({
+        dropdownComponentInstanceIdFromProps: dropdownId,
+        globalHotkeysConfig,
+      });
+    },
+    [globalHotkeysConfig, toggleDropdown, dropdownId],
   );
 
   return (
@@ -182,17 +184,17 @@ export const Dropdown = ({
             <StyledDropdownFallbackAnchor ref={refs.setReference} />
           )}
           {isDropdownOpen && (
-            <DropdownContent
+            <DropdownInternalContainer
               floatingStyles={floatingStyles}
-              dropdownWidth={dropdownWidth}
               dropdownComponents={dropdownComponents}
               dropdownId={dropdownId}
               dropdownPlacement={placement}
               floatingUiRefs={refs}
-              hotkeyScope={dropdownHotkeyScope}
               hotkey={hotkey}
               onClickOutside={onClickOutside}
-              onHotkeyTriggered={toggleDropdown}
+              onHotkeyTriggered={onOpen}
+              excludedClickOutsideIds={excludedClickOutsideIds}
+              isDropdownInModal={isDropdownInModal}
             />
           )}
           <DropdownOnToggleEffect

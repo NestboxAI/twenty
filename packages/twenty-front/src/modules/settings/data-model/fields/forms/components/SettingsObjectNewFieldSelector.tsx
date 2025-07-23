@@ -11,24 +11,26 @@ import { FieldType } from '@/settings/data-model/types/FieldType';
 import { SettingsFieldType } from '@/settings/data-model/types/SettingsFieldType';
 import { SettingsPath } from '@/types/SettingsPath';
 import { TextInput } from '@/ui/input/components/TextInput';
+import { useIsFeatureEnabled } from '@/workspace/hooks/useIsFeatureEnabled';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
+import { t } from '@lingui/core/macro';
 import { Section } from '@react-email/components';
 import { useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { FieldMetadataType } from '~/generated-metadata/graphql';
-import { SettingsDataModelFieldTypeFormValues } from '~/pages/settings/data-model/SettingsObjectNewField/SettingsObjectNewFieldSelect';
-import { getSettingsPath } from '~/utils/navigation/getSettingsPath';
-import { t } from '@lingui/core/macro';
 import { H2Title, IconSearch } from 'twenty-ui/display';
 import { UndecoratedLink } from 'twenty-ui/navigation';
+import { FieldMetadataType } from '~/generated-metadata/graphql';
+import { FeatureFlagKey } from '~/generated/graphql';
+import { SettingsDataModelFieldTypeFormValues } from '~/pages/settings/data-model/new-field/SettingsObjectNewFieldSelect';
+import { getSettingsPath } from '~/utils/navigation/getSettingsPath';
 
 type SettingsObjectNewFieldSelectorProps = {
   className?: string;
   excludedFieldTypes?: FieldType[];
   fieldMetadataItem?: Pick<
     FieldMetadataItem,
-    'defaultValue' | 'options' | 'type'
+    'defaultValue' | 'options' | 'type' | 'settings'
   >;
 
   objectNamePlural: string;
@@ -102,12 +104,15 @@ export const SettingsObjectNewFieldSelector = ({
         break;
     }
   };
-
+  const isMorphRelationEnabled = useIsFeatureEnabled(
+    FeatureFlagKey.IS_MORPH_RELATION_ENABLED,
+  );
   return (
     <>
       {' '}
       <Section>
         <StyledSearchInput
+          instanceId="new-field-type-search"
           LeftIcon={IconSearch}
           placeholder={t`Search a type`}
           value={searchQuery}
@@ -130,6 +135,12 @@ export const SettingsObjectNewFieldSelector = ({
                 <StyledContainer>
                   {fieldTypeConfigs
                     .filter(([, config]) => config.category === category)
+                    .filter(([key]) => {
+                      return (
+                        key !== FieldMetadataType.MORPH_RELATION ||
+                        isMorphRelationEnabled
+                      );
+                    })
                     .map(([key, config]) => (
                       <StyledCardContainer key={key}>
                         <UndecoratedLink

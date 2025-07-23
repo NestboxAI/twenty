@@ -11,7 +11,7 @@ import { EmailsMetadata } from 'src/engine/metadata-modules/field-metadata/compo
 import { FullNameMetadata } from 'src/engine/metadata-modules/field-metadata/composite-types/full-name.composite-type';
 import { LinksMetadata } from 'src/engine/metadata-modules/field-metadata/composite-types/links.composite-type';
 import { PhonesMetadata } from 'src/engine/metadata-modules/field-metadata/composite-types/phones.composite-type';
-import { IndexType } from 'src/engine/metadata-modules/index-metadata/index-metadata.entity';
+import { IndexType } from 'src/engine/metadata-modules/index-metadata/types/indexType.types';
 import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
 import { WorkspaceDuplicateCriteria } from 'src/engine/twenty-orm/decorators/workspace-duplicate-criteria.decorator';
 import { WorkspaceEntity } from 'src/engine/twenty-orm/decorators/workspace-entity.decorator';
@@ -304,6 +304,5 @@ export class PersonWorkspaceEntity extends BaseWorkspaceEntity {
   @WorkspaceIsNullable()
   @WorkspaceIsSystem()
   @WorkspaceFieldIndex({ indexType: IndexType.GIN })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  searchVector: any;
+  searchVector: string;
 }
