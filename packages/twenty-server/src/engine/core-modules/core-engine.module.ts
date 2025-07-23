@@ -6,28 +6,26 @@ import { WorkspaceQueryRunnerModule } from 'src/engine/api/graphql/workspace-que
 import { ActorModule } from 'src/engine/core-modules/actor/actor.module';
 import { AdminPanelModule } from 'src/engine/core-modules/admin-panel/admin-panel.module';
 import { AiAgentConfigModule } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.module';
+import { AiModule } from 'src/engine/core-modules/ai/ai.module';
+import { ApiKeyModule } from 'src/engine/core-modules/api-key/api-key.module';
 import { AppTokenModule } from 'src/engine/core-modules/app-token/app-token.module';
 import { ApprovedAccessDomainModule } from 'src/engine/core-modules/approved-access-domain/approved-access-domain.module';
 import { AuthModule } from 'src/engine/core-modules/auth/auth.module';
+import { BillingWebhookModule } from 'src/engine/core-modules/billing-webhook/billing-webhook.module';
 import { BillingModule } from 'src/engine/core-modules/billing/billing.module';
 import { CacheStorageModule } from 'src/engine/core-modules/cache-storage/cache-storage.module';
 import { TimelineCalendarEventModule } from 'src/engine/core-modules/calendar/timeline-calendar-event.module';
 import { CaptchaModule } from 'src/engine/core-modules/captcha/captcha.module';
 import { captchaModuleFactory } from 'src/engine/core-modules/captcha/captcha.module-factory';
 import { EmailModule } from 'src/engine/core-modules/email/email.module';
-import { emailModuleFactory } from 'src/engine/core-modules/email/email.module-factory';
 import { ExceptionHandlerModule } from 'src/engine/core-modules/exception-handler/exception-handler.module';
 import { exceptionHandlerModuleFactory } from 'src/engine/core-modules/exception-handler/exception-handler.module-factory';
 import { FeatureFlagModule } from 'src/engine/core-modules/feature-flag/feature-flag.module';
 import { FileStorageModule } from 'src/engine/core-modules/file-storage/file-storage.module';
-import { fileStorageModuleFactory } from 'src/engine/core-modules/file-storage/file-storage.module-factory';
 import { FileStorageService } from 'src/engine/core-modules/file-storage/file-storage.service';
 import { HealthModule } from 'src/engine/core-modules/health/health.module';
+import { ImapSmtpCaldavModule } from 'src/engine/core-modules/imap-smtp-caldav-connection/imap-smtp-caldav-connection.module';
 import { LabModule } from 'src/engine/core-modules/lab/lab.module';
-import { LLMChatModelModule } from 'src/engine/core-modules/llm-chat-model/llm-chat-model.module';
-import { llmChatModelModuleFactory } from 'src/engine/core-modules/llm-chat-model/llm-chat-model.module-factory';
-import { LLMTracingModule } from 'src/engine/core-modules/llm-tracing/llm-tracing.module';
-import { llmTracingModuleFactory } from 'src/engine/core-modules/llm-tracing/llm-tracing.module-factory';
 import { LoggerModule } from 'src/engine/core-modules/logger/logger.module';
 import { loggerModuleFactory } from 'src/engine/core-modules/logger/logger.module-factory';
 import { MessageQueueModule } from 'src/engine/core-modules/message-queue/message-queue.module';
@@ -45,6 +43,7 @@ import { TelemetryModule } from 'src/engine/core-modules/telemetry/telemetry.mod
 import { TwentyConfigModule } from 'src/engine/core-modules/twenty-config/twenty-config.module';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserModule } from 'src/engine/core-modules/user/user.module';
+import { WebhookModule } from 'src/engine/core-modules/webhook/webhook.module';
 import { WorkflowApiModule } from 'src/engine/core-modules/workflow/workflow-api.module';
 import { WorkspaceInvitationModule } from 'src/engine/core-modules/workspace-invitation/workspace-invitation.module';
 import { WorkspaceModule } from 'src/engine/core-modules/workspace/workspace.module';
@@ -63,6 +62,7 @@ import { FileModule } from './file/file.module';
     AuditModule,
     AuthModule,
     BillingModule,
+    BillingWebhookModule,
     ClientConfigModule,
     FeatureFlagModule,
     FileModule,
@@ -81,16 +81,13 @@ import { FileModule } from './file/file.module';
     ActorModule,
     TelemetryModule,
     AdminPanelModule,
-    AiAgentConfigModule,
     LabModule,
     RoleModule,
     RedisClientModule,
     WorkspaceQueryRunnerModule,
     SubscriptionsModule,
-    FileStorageModule.forRootAsync({
-      useFactory: fileStorageModuleFactory,
-      inject: [TwentyConfigService],
-    }),
+    ImapSmtpCaldavModule,
+    FileStorageModule.forRoot(),
     LoggerModule.forRootAsync({
       useFactory: loggerModuleFactory,
       inject: [TwentyConfigService],
@@ -103,10 +100,7 @@ import { FileModule } from './file/file.module';
       useFactory: exceptionHandlerModuleFactory,
       inject: [TwentyConfigService, HttpAdapterHost],
     }),
-    EmailModule.forRoot({
-      useFactory: emailModuleFactory,
-      inject: [TwentyConfigService],
-    }),
+    EmailModule.forRoot(),
     CaptchaModule.forRoot({
       useFactory: captchaModuleFactory,
       inject: [TwentyConfigService],
@@ -115,19 +109,15 @@ import { FileModule } from './file/file.module';
       wildcard: true,
     }),
     CacheStorageModule,
-    LLMChatModelModule.forRoot({
-      useFactory: llmChatModelModuleFactory,
-      inject: [TwentyConfigService],
-    }),
-    LLMTracingModule.forRoot({
-      useFactory: llmTracingModuleFactory,
-      inject: [TwentyConfigService],
-    }),
+    AiModule,
     ServerlessModule.forRootAsync({
       useFactory: serverlessModuleFactory,
       inject: [TwentyConfigService, FileStorageService],
     }),
     SearchModule,
+    ApiKeyModule,
+    WebhookModule,
+    AiAgentConfigModule,
   ],
   exports: [
     AuditModule,
@@ -139,6 +129,7 @@ import { FileModule } from './file/file.module';
     WorkspaceModule,
     WorkspaceInvitationModule,
     WorkspaceSSOModule,
+    ImapSmtpCaldavModule,
   ],
 })
 export class CoreEngineModule {}

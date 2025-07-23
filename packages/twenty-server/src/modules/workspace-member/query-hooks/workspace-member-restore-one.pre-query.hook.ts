@@ -3,31 +3,27 @@ import { RestoreOneResolverArgs } from 'src/engine/api/graphql/workspace-resolve
 
 import { WorkspaceQueryHook } from 'src/engine/api/graphql/workspace-query-runner/workspace-query-hook/decorators/workspace-query-hook.decorator';
 import { AuthContext } from 'src/engine/core-modules/auth/types/auth-context.type';
-import { WorkspaceMemberPreQueryHookService } from 'src/modules/workspace-member/query-hooks/workspace-member-pre-query-hook.service';
+import { workspaceValidator } from 'src/engine/core-modules/workspace/workspace.validate';
+import {
+  PermissionsException,
+  PermissionsExceptionCode,
+  PermissionsExceptionMessage,
+} from 'src/engine/metadata-modules/permissions/permissions.exception';
 
 @WorkspaceQueryHook(`workspaceMember.restoreOne`)
 export class WorkspaceMemberRestoreOnePreQueryHook
   implements WorkspacePreQueryHookInstance
 {
-  constructor(
-    private readonly workspaceMemberPreQueryHookService: WorkspaceMemberPreQueryHookService,
-  ) {}
+  constructor() {}
 
-  async execute(
-    authContext: AuthContext,
-    objectName: string,
-    payload: RestoreOneResolverArgs,
-  ): Promise<RestoreOneResolverArgs> {
-    await this.workspaceMemberPreQueryHookService.validateWorkspaceMemberUpdatePermissionOrThrow(
-      {
-        userWorkspaceId: authContext.userWorkspaceId,
-        targettedWorkspaceMemberId: payload.id,
-        workspaceId: authContext.workspace.id,
-        apiKey: authContext.apiKey,
-        workspaceMemberId: authContext.workspaceMemberId,
-      },
+  async execute(authContext: AuthContext): Promise<RestoreOneResolverArgs> {
+    const workspace = authContext.workspace;
+
+    workspaceValidator.assertIsDefinedOrThrow(workspace);
+
+    throw new PermissionsException(
+      PermissionsExceptionMessage.PERMISSION_DENIED,
+      PermissionsExceptionCode.PERMISSION_DENIED,
     );
-
-    return payload;
   }
 }

@@ -13,7 +13,7 @@ import { NestboxAiAgentCronJob } from 'src/modules/nestbox-ai-agent/crons/jobs/n
 @Module({
   imports: [
     TypeOrmModule.forFeature([Workspace, AiAgentConfig], 'core'),
-    TypeOrmModule.forFeature([ObjectMetadataEntity, DataSourceEntity], 'metadata'),
+    TypeOrmModule.forFeature([ObjectMetadataEntity, DataSourceEntity], 'core'),
   ],
   providers: [
     NestboxAiAgentCronCommand,

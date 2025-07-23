@@ -1,20 +1,20 @@
 import styled from '@emotion/styled';
 import { useContext, useState } from 'react';
 
+import { useObjectPermissionsForObject } from '@/object-record/hooks/useObjectPermissionsForObject';
 import { RecordBoardContext } from '@/object-record/record-board/contexts/RecordBoardContext';
 import { RecordBoardColumnDropdownMenu } from '@/object-record/record-board/record-board-column/components/RecordBoardColumnDropdownMenu';
 import { RecordBoardColumnHeaderAggregateDropdown } from '@/object-record/record-board/record-board-column/components/RecordBoardColumnHeaderAggregateDropdown';
 import { RecordBoardColumnContext } from '@/object-record/record-board/record-board-column/contexts/RecordBoardColumnContext';
 import { useAggregateRecordsForRecordBoardColumn } from '@/object-record/record-board/record-board-column/hooks/useAggregateRecordsForRecordBoardColumn';
-import { RecordBoardColumnHotkeyScope } from '@/object-record/record-board/types/BoardColumnHotkeyScope';
-import { AIWorkflowIndicator } from '@/object-record/record-group/components/AIWorkflowIndicator';
 import { RecordGroupDefinitionType } from '@/object-record/record-group/types/RecordGroupDefinition';
 import { useCreateNewIndexRecord } from '@/object-record/record-table/hooks/useCreateNewIndexRecord';
-import { useHasObjectReadOnlyPermission } from '@/settings/roles/hooks/useHasObjectReadOnlyPermission';
-import { usePreviousHotkeyScope } from '@/ui/utilities/hotkey/hooks/usePreviousHotkeyScope';
+import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
+import { useToggleDropdown } from '@/ui/layout/dropdown/hooks/useToggleDropdown';
 import { Tag } from 'twenty-ui/components';
 import { IconDotsVertical, IconPlus } from 'twenty-ui/display';
 import { LightIconButton } from 'twenty-ui/input';
+import { AIWorkflowIndicator } from '@/object-record/record-group/components/AIWorkflowIndicator';
 
 const StyledHeader = styled.div`
   align-items: center;
@@ -67,40 +67,27 @@ const StyledTag = styled(Tag)`
 
 export const RecordBoardColumnHeader = () => {
   const { columnDefinition } = useContext(RecordBoardColumnContext);
-  const [isBoardColumnMenuOpen, setIsBoardColumnMenuOpen] = useState(false);
   const [isHeaderHovered, setIsHeaderHovered] = useState(false);
 
   const { objectMetadataItem, selectFieldMetadataItem } =
     useContext(RecordBoardContext);
 
-  const {
-    setHotkeyScopeAndMemorizePreviousScope,
-    goBackToPreviousHotkeyScope,
-  } = usePreviousHotkeyScope();
-
-  const handleBoardColumnMenuOpen = () => {
-    setIsBoardColumnMenuOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope({
-      scope: RecordBoardColumnHotkeyScope.BoardColumn,
-      customScopes: {
-        goto: false,
-      },
-    });
-  };
-
-  const handleBoardColumnMenuClose = () => {
-    goBackToPreviousHotkeyScope();
-    setIsBoardColumnMenuOpen(false);
-  };
-
   const { aggregateValue, aggregateLabel } =
     useAggregateRecordsForRecordBoardColumn();
 
-  const hasObjectReadOnlyPermission = useHasObjectReadOnlyPermission();
+  const objectPermissions = useObjectPermissionsForObject(
+    objectMetadataItem.id,
+  );
+
+  const hasObjectUpdatePermissions = objectPermissions.canUpdateObjectRecords;
 
   const { createNewIndexRecord } = useCreateNewIndexRecord({
     objectMetadataItem: objectMetadataItem,
   });
+
+  const { toggleDropdown } = useToggleDropdown();
+
+  const dropdownId = `record-board-column-dropdown-${columnDefinition.id}`;
 
   return (
     <StyledColumn>
@@ -110,25 +97,36 @@ export const RecordBoardColumnHeader = () => {
       >
         <StyledHeaderContainer>
           <StyledLeftContainer>
-            <StyledTag
-              onClick={handleBoardColumnMenuOpen}
-              variant={
-                columnDefinition.type === RecordGroupDefinitionType.Value
-                  ? 'solid'
-                  : 'outline'
+            <Dropdown
+              dropdownId={dropdownId}
+              dropdownPlacement="bottom-start"
+              dropdownOffset={{
+                x: 0,
+                y: 10,
+              }}
+              clickableComponent={
+                <StyledTag
+                  variant={
+                    columnDefinition.type === RecordGroupDefinitionType.Value
+                      ? 'solid'
+                      : 'outline'
+                  }
+                  color={
+                    columnDefinition.type === RecordGroupDefinitionType.Value
+                      ? columnDefinition.color
+                      : 'transparent'
+                  }
+                  text={columnDefinition.title}
+                  weight={
+                    columnDefinition.type === RecordGroupDefinitionType.Value
+                      ? 'regular'
+                      : 'medium'
+                  }
+                />
               }
-              color={
-                columnDefinition.type === RecordGroupDefinitionType.Value
-                  ? columnDefinition.color
-                  : 'transparent'
-              }
-              text={columnDefinition.title}
-              weight={
-                columnDefinition.type === RecordGroupDefinitionType.Value
-                  ? 'regular'
-                  : 'medium'
-              }
+              dropdownComponents={<RecordBoardColumnDropdownMenu />}
             />
+
             <RecordBoardColumnHeaderAggregateDropdown
               aggregateValue={aggregateValue}
               dropdownId={`record-board-column-aggregate-dropdown-${columnDefinition.id}`}
@@ -136,10 +134,10 @@ export const RecordBoardColumnHeader = () => {
               aggregateLabel={aggregateLabel}
             />
             {/* nesboxai: add AI workflow indicator */}
-            <AIWorkflowIndicator 
-              recordGroupId={columnDefinition.id}
-              context="board"
-            />
+            <AIWorkflowIndicator
+               recordGroupId={columnDefinition.id}
+               context="board"
+             />
           </StyledLeftContainer>
           <StyledRightContainer>
             {isHeaderHovered && (
@@ -147,9 +145,13 @@ export const RecordBoardColumnHeader = () => {
                 <LightIconButton
                   accent="tertiary"
                   Icon={IconDotsVertical}
-                  onClick={handleBoardColumnMenuOpen}
+                  onClick={() => {
+                    toggleDropdown({
+                      dropdownComponentInstanceIdFromProps: dropdownId,
+                    });
+                  }}
                 />
-                {!hasObjectReadOnlyPermission && (
+                {hasObjectUpdatePermissions && (
                   <LightIconButton
                     accent="tertiary"
                     Icon={IconPlus}
@@ -166,12 +168,6 @@ export const RecordBoardColumnHeader = () => {
           </StyledRightContainer>
         </StyledHeaderContainer>
       </StyledHeader>
-      {isBoardColumnMenuOpen && (
-        <RecordBoardColumnDropdownMenu
-          onClose={handleBoardColumnMenuClose}
-          stageId={columnDefinition.id}
-        />
-      )}
     </StyledColumn>
   );
 };

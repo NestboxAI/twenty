@@ -16,14 +16,16 @@ import {
   RelationFilter,
   SelectFilter,
   StringFilter,
+  TSVectorFilter,
+  UUIDFilter,
 } from '@/object-record/graphql/types/RecordGqlOperationFilter';
 import { Field } from '~/generated/graphql';
 import { generateILikeFiltersForCompositeFields } from '~/utils/array/generateILikeFiltersForCompositeFields';
 
 import { getFilterTypeFromFieldType } from '@/object-metadata/utils/formatFieldMetadataItemsAsFilterDefinitions';
 import {
-  convertGreaterThanRatingToArrayOfRatingValues,
-  convertLessThanRatingToArrayOfRatingValues,
+  convertGreaterThanOrEqualRatingToArrayOfRatingValues,
+  convertLessThanOrEqualRatingToArrayOfRatingValues,
   convertRatingToRatingValue,
 } from '@/object-record/object-filter-dropdown/components/ObjectFilterDropdownRatingInput';
 import { RecordFilter } from '@/object-record/record-filter/types/RecordFilter';
@@ -32,9 +34,7 @@ import { RecordFilterValueDependencies } from '@/object-record/record-filter/typ
 import { getEmptyRecordGqlOperationFilter } from '@/object-record/record-filter/utils/getEmptyRecordGqlOperationFilter';
 
 import { resolveDateViewFilterValue } from '@/views/view-filter-value/utils/resolveDateViewFilterValue';
-import { resolveSelectViewFilterValue } from '@/views/view-filter-value/utils/resolveSelectViewFilterValue';
 import { jsonRelationFilterValueSchema } from '@/views/view-filter-value/validation-schemas/jsonRelationFilterValueSchema';
-import { simpleRelationFilterValueSchema } from '@/views/view-filter-value/validation-schemas/simpleRelationFilterValueSchema';
 import { endOfDay, roundToNearestMinutes, startOfDay } from 'date-fns';
 import { z } from 'zod';
 
@@ -43,6 +43,8 @@ import { checkIfShouldComputeEmptinessFilter } from '@/object-record/record-filt
 import { checkIfShouldSkipFiltering } from '@/object-record/record-filter/utils/compute-record-gql-operation-filter/checkIfShouldSkipFiltering';
 import { computeGqlOperationFilterForEmails } from '@/object-record/record-filter/utils/compute-record-gql-operation-filter/for-composite-field/computeGqlOperationFilterForEmails';
 import { computeGqlOperationFilterForLinks } from '@/object-record/record-filter/utils/compute-record-gql-operation-filter/for-composite-field/computeGqlOperationFilterForLinks';
+import { arrayOfStringsOrVariablesSchema } from '@/views/view-filter-value/validation-schemas/arrayOfStringsOrVariablesSchema';
+import { arrayOfUuidOrVariableSchema } from '@/views/view-filter-value/validation-schemas/arrayOfUuidsOrVariablesSchema';
 import { FieldMetadataType } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 
@@ -112,6 +114,19 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
                 ilike: `%${recordFilter.value}%`,
               } as StringFilter,
             },
+          };
+        default:
+          throw new Error(
+            `Unknown operand ${recordFilter.operand} for ${filterType} filter`,
+          );
+      }
+    case 'TS_VECTOR':
+      switch (recordFilter.operand) {
+        case RecordFilterOperand.VectorSearch:
+          return {
+            [correspondingFieldMetadataItem.name]: {
+              search: recordFilter.value,
+            } as TSVectorFilter,
           };
         default:
           throw new Error(
@@ -253,18 +268,18 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
               eq: convertRatingToRatingValue(parseFloat(recordFilter.value)),
             } as RatingFilter,
           };
-        case RecordFilterOperand.GreaterThan:
+        case RecordFilterOperand.GreaterThanOrEqual:
           return {
             [correspondingFieldMetadataItem.name]: {
-              in: convertGreaterThanRatingToArrayOfRatingValues(
+              in: convertGreaterThanOrEqualRatingToArrayOfRatingValues(
                 parseFloat(recordFilter.value),
               ),
             } as RatingFilter,
           };
-        case RecordFilterOperand.LessThan:
+        case RecordFilterOperand.LessThanOrEqual:
           return {
             [correspondingFieldMetadataItem.name]: {
-              in: convertLessThanRatingToArrayOfRatingValues(
+              in: convertLessThanOrEqualRatingToArrayOfRatingValues(
                 parseFloat(recordFilter.value),
               ),
             } as RatingFilter,
@@ -276,13 +291,13 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
       }
     case 'NUMBER':
       switch (recordFilter.operand) {
-        case RecordFilterOperand.GreaterThan:
+        case RecordFilterOperand.GreaterThanOrEqual:
           return {
             [correspondingFieldMetadataItem.name]: {
               gte: parseFloat(recordFilter.value),
             } as FloatFilter,
           };
-        case RecordFilterOperand.LessThan:
+        case RecordFilterOperand.LessThanOrEqual:
           return {
             [correspondingFieldMetadataItem.name]: {
               lte: parseFloat(recordFilter.value),
@@ -298,7 +313,7 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
         jsonRelationFilterValueSchema
           .catch({
             isCurrentWorkspaceMemberSelected: false,
-            selectedRecordIds: simpleRelationFilterValueSchema.parse(
+            selectedRecordIds: arrayOfUuidOrVariableSchema.parse(
               recordFilter.value,
             ),
           })
@@ -353,7 +368,9 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
           subFieldName,
         )
       ) {
-        const parsedCurrencyCodes = JSON.parse(recordFilter.value) as string[];
+        const parsedCurrencyCodes = arrayOfStringsOrVariablesSchema.parse(
+          recordFilter.value,
+        );
 
         if (parsedCurrencyCodes.length === 0) return undefined;
 
@@ -384,13 +401,13 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
         !isSubFieldFilter
       ) {
         switch (recordFilter.operand) {
-          case RecordFilterOperand.GreaterThan:
+          case RecordFilterOperand.GreaterThanOrEqual:
             return {
               [correspondingFieldMetadataItem.name]: {
                 amountMicros: { gte: parseFloat(recordFilter.value) * 1000000 },
               } as CurrencyFilter,
             };
-          case RecordFilterOperand.LessThan:
+          case RecordFilterOperand.LessThanOrEqual:
             return {
               [correspondingFieldMetadataItem.name]: {
                 amountMicros: { lte: parseFloat(recordFilter.value) * 1000000 },
@@ -529,14 +546,11 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
             };
           } else {
             if (subFieldName === 'addressCountry') {
-              const parsedCountryCodes = JSON.parse(
+              const parsedCountryCodes = arrayOfStringsOrVariablesSchema.parse(
                 recordFilter.value,
-              ) as string[];
+              );
 
-              if (
-                recordFilter.value === '[]' ||
-                parsedCountryCodes.length === 0
-              ) {
+              if (parsedCountryCodes.length === 0) {
                 return {};
               }
 
@@ -745,7 +759,7 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
           );
       }
     case 'MULTI_SELECT': {
-      const options = resolveSelectViewFilterValue(recordFilter);
+      const options = arrayOfStringsOrVariablesSchema.parse(recordFilter.value);
 
       if (options.length === 0) return;
 
@@ -803,7 +817,7 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
       }
     }
     case 'SELECT': {
-      const options = resolveSelectViewFilterValue(recordFilter);
+      const options = arrayOfStringsOrVariablesSchema.parse(recordFilter.value);
 
       if (options.length === 0) return;
 
@@ -1162,6 +1176,24 @@ export const turnRecordFilterIntoRecordGqlOperationFilter = ({
           eq: recordFilter.value === 'true',
         } as BooleanFilter,
       };
+    }
+    case 'UUID': {
+      const recordIds = arrayOfUuidOrVariableSchema.parse(recordFilter.value);
+
+      if (recordIds.length === 0) return;
+
+      switch (recordFilter.operand) {
+        case RecordFilterOperand.Is:
+          return {
+            [correspondingFieldMetadataItem.name]: {
+              in: recordIds,
+            } as UUIDFilter,
+          };
+        default:
+          throw new Error(
+            `Unknown operand ${recordFilter.operand} for ${filterType} filter`,
+          );
+      }
     }
     default:
       throw new Error('Unknown filter type');

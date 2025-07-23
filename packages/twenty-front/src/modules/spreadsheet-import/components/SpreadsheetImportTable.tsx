@@ -28,18 +28,17 @@ const StyledDataGrid = styled(DataGrid)`
   --row-selected-hover-background-color: ${({ theme }) =>
     theme.background.secondary};
 
+  border: none;
   block-size: 100%;
-  border: 1px solid ${({ theme }) => theme.border.color.medium};
-  border-radius: ${({ theme }) => theme.border.radius.md};
   width: 100%;
 
   .rdg-header-row .rdg-cell {
     box-shadow: none;
     color: ${({ theme }) => theme.font.color.tertiary};
+    background-color: ${({ theme }) => theme.background.secondary};
     font-size: ${({ theme }) => theme.font.size.sm};
     font-weight: ${({ theme }) => theme.font.weight.semiBold};
     letter-spacing: wider;
-    text-transform: uppercase;
     ${({ headerRowHeight }) => {
       if (headerRowHeight === 0) {
         return `
@@ -68,7 +67,7 @@ const StyledDataGrid = styled(DataGrid)`
   }
 
   .rdg-cell-error {
-    background-color: ${({ theme }) => RGBA(theme.color.red, 0.08)};
+    background-color: ${({ theme }) => theme.adaptiveColors.yellow1};
   }
 
   .rdg-cell-warning {
@@ -108,10 +107,22 @@ const StyledDataGrid = styled(DataGrid)`
   }
 ` as typeof DataGrid;
 
-type SpreadsheetImportTableProps<Data> = DataGridProps<Data> & {
-  rowHeight?: number;
-  hiddenHeader?: boolean;
-};
+type SpreadsheetImportTableProps<Data> = Pick<
+  DataGridProps<Data>,
+  | 'selectedRows'
+  | 'onSelectedRowsChange'
+  | 'columns'
+  | 'headerRowHeight'
+  | 'rowKeyGetter'
+  | 'rows'
+> &
+  Partial<
+    Pick<DataGridProps<Data>, 'onRowClick' | 'components' | 'onRowsChange'>
+  > & {
+    className?: string;
+    rowHeight?: number;
+    hiddenHeader?: boolean;
+  };
 
 export const SpreadsheetImportTable = <Data,>({
   className,
@@ -120,8 +131,8 @@ export const SpreadsheetImportTable = <Data,>({
   headerRowHeight,
   rowKeyGetter,
   rows,
-  onRowClick,
   onRowsChange,
+  onRowClick,
   onSelectedRowsChange,
   selectedRows,
 }: SpreadsheetImportTableProps<Data>) => {
@@ -134,16 +145,16 @@ export const SpreadsheetImportTable = <Data,>({
   return (
     <StyledDataGrid
       direction={rtl ? 'rtl' : 'ltr'}
-      rowHeight={52}
+      rowHeight={40}
       {...{
         className: `${className || ''} ${themeClassName}`,
         columns,
-        components,
         headerRowHeight,
         rowKeyGetter,
-        rows,
-        onRowClick,
         onRowsChange,
+        rows,
+        components,
+        onRowClick,
         onSelectedRowsChange,
         selectedRows,
       }}

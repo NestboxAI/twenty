@@ -4,7 +4,6 @@ import { captchaTokenState } from '@/captcha/states/captchaTokenState';
 import { isRequestingCaptchaTokenState } from '@/captcha/states/isRequestingCaptchaTokenState';
 import { isCaptchaRequiredForPath } from '@/captcha/utils/isCaptchaRequiredForPath';
 import { captchaState } from '@/client-config/states/captchaState';
-import { useLocation } from 'react-router-dom';
 import { CaptchaDriverType } from '~/generated-metadata/graphql';
 import { isUndefinedOrNull } from '~/utils/isUndefinedOrNull';
 
@@ -21,12 +20,10 @@ export const useRequestFreshCaptchaToken = () => {
     isRequestingCaptchaTokenState,
   );
 
-  const location = useLocation();
-
   const requestFreshCaptchaToken = useRecoilCallback(
     ({ snapshot }) =>
       async () => {
-        if (!isCaptchaRequiredForPath(location.pathname)) {
+        if (!isCaptchaRequiredForPath(window.location.pathname)) {
           return;
         }
 
@@ -41,7 +38,7 @@ export const useRequestFreshCaptchaToken = () => {
         let captchaWidget: any;
 
         switch (captcha.provider) {
-          case CaptchaDriverType.GoogleRecaptcha:
+          case CaptchaDriverType.GOOGLE_RECAPTCHA:
             window.grecaptcha
               .execute(captcha.siteKey, {
                 action: 'submit',
@@ -51,7 +48,7 @@ export const useRequestFreshCaptchaToken = () => {
                 setIsRequestingCaptchaToken(false);
               });
             break;
-          case CaptchaDriverType.Turnstile:
+          case CaptchaDriverType.TURNSTILE:
             captchaWidget = window.turnstile.render('#captcha-widget', {
               sitekey: captcha.siteKey,
             });
@@ -63,7 +60,7 @@ export const useRequestFreshCaptchaToken = () => {
             });
         }
       },
-    [location.pathname, setCaptchaToken, setIsRequestingCaptchaToken],
+    [setCaptchaToken, setIsRequestingCaptchaToken],
   );
 
   return { requestFreshCaptchaToken };

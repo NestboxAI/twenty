@@ -3,13 +3,17 @@ import { isGoogleMessagingEnabledState } from '@/client-config/states/isGoogleMe
 import { isMicrosoftCalendarEnabledState } from '@/client-config/states/isMicrosoftCalendarEnabledState';
 import { isMicrosoftMessagingEnabledState } from '@/client-config/states/isMicrosoftMessagingEnabledState';
 import { useTriggerApisOAuth } from '@/settings/accounts/hooks/useTriggerApiOAuth';
+import { SettingsPath } from '@/types/SettingsPath';
+import { useIsFeatureEnabled } from '@/workspace/hooks/useIsFeatureEnabled';
 import styled from '@emotion/styled';
 import { useLingui } from '@lingui/react/macro';
 import { useRecoilValue } from 'recoil';
 import { ConnectedAccountProvider } from 'twenty-shared/types';
+import { IconAt, IconGoogle, IconMicrosoft } from 'twenty-ui/display';
 import { Button } from 'twenty-ui/input';
 import { Card, CardContent, CardHeader } from 'twenty-ui/layout';
-import { IconGoogle, IconMicrosoft } from 'twenty-ui/display';
+import { FeatureFlagKey } from '~/generated-metadata/graphql';
+import { getSettingsPath } from '~/utils/navigation/getSettingsPath';
 
 const StyledHeader = styled(CardHeader)`
   align-items: center;
@@ -47,6 +51,10 @@ export const SettingsAccountsListEmptyStateCard = ({
     isMicrosoftCalendarEnabledState,
   );
 
+  const isImapSmtpCaldavFeatureFlagEnabled = useIsFeatureEnabled(
+    FeatureFlagKey.IS_IMAP_SMTP_CALDAV_ENABLED,
+  );
+
   return (
     <Card>
       <StyledHeader>{label || t`No connected account`}</StyledHeader>
@@ -66,6 +74,15 @@ export const SettingsAccountsListEmptyStateCard = ({
             title={t`Connect with Microsoft`}
             variant="secondary"
             onClick={() => triggerApisOAuth(ConnectedAccountProvider.MICROSOFT)}
+          />
+        )}
+
+        {isImapSmtpCaldavFeatureFlagEnabled && (
+          <Button
+            Icon={IconAt}
+            title={t`Connect Email Account`}
+            variant="secondary"
+            to={getSettingsPath(SettingsPath.NewImapSmtpCaldavConnection)}
           />
         )}
       </StyledBody>

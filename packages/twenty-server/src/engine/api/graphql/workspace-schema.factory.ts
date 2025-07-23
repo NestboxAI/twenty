@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { makeExecutableSchema } from '@graphql-tools/schema';
+import { makeExecutableSchema, mergeSchemas } from '@graphql-tools/schema';
+import { GraphQLSchemaFactory } from '@nestjs/graphql';
 import { GraphQLSchema, printSchema } from 'graphql';
 import { gql } from 'graphql-tag';
 import { isDefined } from 'twenty-shared/utils';
@@ -9,24 +10,30 @@ import { ScalarsExplorerService } from 'src/engine/api/graphql/services/scalars-
 import { workspaceResolverBuilderMethodNames } from 'src/engine/api/graphql/workspace-resolver-builder/factories/factories';
 import { WorkspaceResolverFactory } from 'src/engine/api/graphql/workspace-resolver-builder/workspace-resolver.factory';
 import { WorkspaceGraphQLSchemaFactory } from 'src/engine/api/graphql/workspace-schema-builder/workspace-graphql-schema.factory';
+import { AiAgentConfigResolver } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.resolver';
+import { NestboxAiResolver } from 'src/engine/core-modules/ai-agent-config/nestbox-ai.resolver';
+import { NestboxAiService } from 'src/engine/core-modules/ai-agent-config/nestbox-ai.service';
+import {
+  AuthException,
+  AuthExceptionCode,
+} from 'src/engine/core-modules/auth/auth.exception';
 import { AuthContext } from 'src/engine/core-modules/auth/types/auth-context.type';
 import { FeatureFlagService } from 'src/engine/core-modules/feature-flag/services/feature-flag.service';
-import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { DataSourceService } from 'src/engine/metadata-modules/data-source/data-source.service';
-import { ObjectMetadataMaps } from 'src/engine/metadata-modules/types/object-metadata-maps';
 import {
   WorkspaceMetadataCacheException,
   WorkspaceMetadataCacheExceptionCode,
 } from 'src/engine/metadata-modules/workspace-metadata-cache/exceptions/workspace-metadata-cache.exception';
 import { WorkspaceMetadataCacheService } from 'src/engine/metadata-modules/workspace-metadata-cache/services/workspace-metadata-cache.service';
-import {
-  WorkspaceMetadataVersionException,
-  WorkspaceMetadataVersionExceptionCode,
-} from 'src/engine/metadata-modules/workspace-metadata-version/exceptions/workspace-metadata-version.exception';
+import { metadataArgsStorage } from 'src/engine/twenty-orm/storage/metadata-args.storage';
 import { WorkspaceCacheStorageService } from 'src/engine/workspace-cache-storage/workspace-cache-storage.service';
+import { standardObjectMetadataDefinitions } from 'src/engine/workspace-manager/workspace-sync-metadata/standard-objects';
+import { isGatedAndNotEnabled } from 'src/engine/workspace-manager/workspace-sync-metadata/utils/is-gate-and-not-enabled.util';
 
 @Injectable()
 export class WorkspaceSchemaFactory {
+  private static codeFirstSchema: GraphQLSchema | null = null;
+
   constructor(
     private readonly dataSourceService: DataSourceService,
     private readonly scalarsExplorerService: ScalarsExplorerService,
@@ -35,10 +42,28 @@ export class WorkspaceSchemaFactory {
     private readonly workspaceCacheStorageService: WorkspaceCacheStorageService,
     private readonly workspaceMetadataCacheService: WorkspaceMetadataCacheService,
     private readonly featureFlagService: FeatureFlagService,
-    private readonly twentyConfigService: TwentyConfigService,
+    private readonly nestboxAiService: NestboxAiService,
+    private readonly gqlSchemaFactory: GraphQLSchemaFactory, // <-- Injected
   ) {}
 
+  static async initializeCodeFirstSchema(gqlSchemaFactory: GraphQLSchemaFactory) {
+    if (!WorkspaceSchemaFactory.codeFirstSchema) {
+      WorkspaceSchemaFactory.codeFirstSchema = await gqlSchemaFactory.create([
+        NestboxAiResolver,
+        AiAgentConfigResolver,
+      ]);
+    }
+  }
+
   async createGraphQLSchema(authContext: AuthContext): Promise<GraphQLSchema> {
+    if (!WorkspaceSchemaFactory.codeFirstSchema) {
+      // Defensive: should be initialized at bootstrap
+      WorkspaceSchemaFactory.codeFirstSchema = await this.gqlSchemaFactory.create([
+        NestboxAiResolver,
+        AiAgentConfigResolver,
+      ]);
+    }
+
     if (!authContext.workspace?.id) {
       return new GraphQLSchema({});
     }
@@ -52,38 +77,12 @@ export class WorkspaceSchemaFactory {
       return new GraphQLSchema({});
     }
 
-    let currentCacheVersion =
-      await this.workspaceCacheStorageService.getMetadataVersion(
-        authContext.workspace.id,
-      );
-
-    let objectMetadataMaps: ObjectMetadataMaps | undefined;
-
-    if (currentCacheVersion === undefined) {
-      const recomputed =
-        await this.workspaceMetadataCacheService.recomputeMetadataCache({
+    const { objectMetadataMaps, metadataVersion } =
+      await this.workspaceMetadataCacheService.getExistingOrRecomputeMetadataMaps(
+        {
           workspaceId: authContext.workspace.id,
-        });
-
-      objectMetadataMaps = recomputed?.recomputedObjectMetadataMaps;
-      currentCacheVersion = recomputed?.recomputedMetadataVersion;
-    } else {
-      objectMetadataMaps =
-        await this.workspaceCacheStorageService.getObjectMetadataMaps(
-          authContext.workspace.id,
-          currentCacheVersion,
-        );
-
-      if (!isDefined(objectMetadataMaps)) {
-        const recomputed =
-          await this.workspaceMetadataCacheService.recomputeMetadataCache({
-            workspaceId: authContext.workspace.id,
-          });
-
-        objectMetadataMaps = recomputed?.recomputedObjectMetadataMaps;
-        currentCacheVersion = recomputed?.recomputedMetadataVersion;
-      }
-    }
+        },
+      );
 
     if (!objectMetadataMaps) {
       throw new WorkspaceMetadataCacheException(
@@ -92,30 +91,61 @@ export class WorkspaceSchemaFactory {
       );
     }
 
-    if (!currentCacheVersion) {
-      throw new WorkspaceMetadataVersionException(
-        'Metadata cache version not found',
-        WorkspaceMetadataVersionExceptionCode.METADATA_VERSION_NOT_FOUND,
+    const workspaceId = authContext.workspace.id;
+
+    if (!workspaceId) {
+      throw new AuthException(
+        'Unauthenticated',
+        AuthExceptionCode.UNAUTHENTICATED,
       );
     }
 
-    const objectMetadataCollection = Object.values(objectMetadataMaps.byId).map(
-      (objectMetadataItem) => ({
+    const workspaceFeatureFlagsMap =
+      await this.featureFlagService.getWorkspaceFeatureFlagsMap(workspaceId);
+
+    const objectMetadataCollection = Object.values(objectMetadataMaps.byId)
+      .filter(isDefined)
+      .map((objectMetadataItem) => ({
         ...objectMetadataItem,
-        fields: objectMetadataItem.fields,
+        fields: Object.values(objectMetadataItem.fieldsById),
         indexes: objectMetadataItem.indexMetadatas,
-      }),
-    );
+      }))
+      .filter((objectMetadata) => {
+        // Find the corresponding workspace entity for this object metadata
+        const workspaceEntity = standardObjectMetadataDefinitions.find(
+          (entity) => {
+            const entityMetadata = metadataArgsStorage.filterEntities(entity);
+
+            return entityMetadata?.standardId === objectMetadata.standardId;
+          },
+        );
+
+        if (!workspaceEntity) {
+          return true; // Include non-workspace entities (custom objects, etc.)
+        }
+
+        const entityMetadata =
+          metadataArgsStorage.filterEntities(workspaceEntity);
+
+        // Filter out entities that are GraphQL-gated and not enabled
+        return !isGatedAndNotEnabled(
+          entityMetadata?.gate,
+          workspaceFeatureFlagsMap,
+          'graphql',
+        );
+      });
 
     // Get typeDefs from cache
     let typeDefs = await this.workspaceCacheStorageService.getGraphQLTypeDefs(
       authContext.workspace.id,
-      currentCacheVersion,
+      metadataVersion,
     );
+
+
     let usedScalarNames =
       await this.workspaceCacheStorageService.getGraphQLUsedScalarNames(
         authContext.workspace.id,
-        currentCacheVersion,
+        metadataVersion,
       );
 
     // If typeDefs are not cached, generate them
@@ -124,7 +154,6 @@ export class WorkspaceSchemaFactory {
         await this.workspaceGraphQLSchemaFactory.create(
           objectMetadataCollection,
           workspaceResolverBuilderMethodNames,
-          {},
         );
 
       usedScalarNames =
@@ -133,12 +162,12 @@ export class WorkspaceSchemaFactory {
 
       await this.workspaceCacheStorageService.setGraphQLTypeDefs(
         authContext.workspace.id,
-        currentCacheVersion,
+        metadataVersion,
         typeDefs,
       );
       await this.workspaceCacheStorageService.setGraphQLUsedScalarNames(
         authContext.workspace.id,
-        currentCacheVersion,
+        metadataVersion,
         usedScalarNames,
       );
     }
@@ -161,6 +190,11 @@ export class WorkspaceSchemaFactory {
       },
     });
 
-    return executableSchema;
+    // Merge code-first schema with dynamic schema
+    const mergedSchema = mergeSchemas({
+      schemas: [WorkspaceSchemaFactory.codeFirstSchema, executableSchema],
+    });
+
+    return mergedSchema;
   }
 }

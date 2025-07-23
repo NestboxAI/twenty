@@ -8,9 +8,10 @@ import { FieldContext } from '@/object-record/record-field/contexts/FieldContext
 import { useEmailsField } from '@/object-record/record-field/meta-types/hooks/useEmailsField';
 import { RecordFieldComponentInstanceContext } from '@/object-record/record-field/states/contexts/RecordFieldComponentInstanceContext';
 import { FieldEmailsValue } from '@/object-record/record-field/types/FieldMetadata';
-import { DEFAULT_CELL_SCOPE } from '@/object-record/record-table/record-table-cell/hooks/useOpenRecordTableCellV2';
-import { getRecordFieldInputId } from '@/object-record/utils/getRecordFieldInputId';
-import { useSetHotkeyScope } from '@/ui/utilities/hotkey/hooks/useSetHotkeyScope';
+import { RECORD_TABLE_CELL_INPUT_ID_PREFIX } from '@/object-record/record-table/constants/RecordTableCellInputIdPrefix';
+import { getRecordFieldInputInstanceId } from '@/object-record/utils/getRecordFieldInputId';
+import { usePushFocusItemToFocusStack } from '@/ui/utilities/focus/hooks/usePushFocusItemToFocusStack';
+import { FocusComponentType } from '@/ui/utilities/focus/types/FocusComponentType';
 import { FieldMetadataType } from '~/generated-metadata/graphql';
 import { EmailsFieldInput } from '../EmailsFieldInput';
 
@@ -57,20 +58,27 @@ const EmailInputWithContext = ({
   onCancel,
   onClickOutside,
 }: EmailInputWithContextProps) => {
-  const setHotkeyScope = useSetHotkeyScope();
+  const { pushFocusItemToFocusStack } = usePushFocusItemToFocusStack();
+  const instanceId = getRecordFieldInputInstanceId({
+    recordId,
+    fieldName: 'emails',
+    prefix: RECORD_TABLE_CELL_INPUT_ID_PREFIX,
+  });
 
   useEffect(() => {
-    setHotkeyScope(DEFAULT_CELL_SCOPE.scope);
-  }, [setHotkeyScope]);
+    pushFocusItemToFocusStack({
+      focusId: instanceId,
+      component: {
+        type: FocusComponentType.OPENED_FIELD_INPUT,
+        instanceId: instanceId,
+      },
+    });
+  }, [pushFocusItemToFocusStack, instanceId]);
 
   return (
     <RecordFieldComponentInstanceContext.Provider
       value={{
-        instanceId: getRecordFieldInputId(
-          recordId,
-          'emails',
-          'record-table-cell',
-        ),
+        instanceId: instanceId,
       }}
     >
       <FieldContext.Provider
@@ -131,8 +139,43 @@ export const Default: Story = {
   },
 };
 
-// FIXME: We will have to fix that behavior, we should only be able to set a secondary email as the primary email
-export const CanSetPrimaryLinkAsPrimaryLink: Story = {
+export const TrimInput: Story = {
+  args: {
+    value: {
+      primaryEmail: 'john@example.com',
+      additionalEmails: [],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const addButton = await canvas.findByText('Add Email');
+    await userEvent.click(addButton);
+
+    const input = await canvas.findByPlaceholderText('Email');
+    await userEvent.type(input, '  new.email@example.com  {enter}');
+
+    const newEmailElement = await canvas.findByText('new.email@example.com');
+    expect(newEmailElement).toBeVisible();
+
+    await waitFor(() => {
+      expect(updateRecord).toHaveBeenCalledWith({
+        variables: {
+          where: { id: 'record-id' },
+          updateOneRecordInput: {
+            emails: {
+              primaryEmail: 'john@example.com',
+              additionalEmails: ['new.email@example.com'],
+            },
+          },
+        },
+      });
+    });
+    expect(updateRecord).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const CanNotSetPrimaryLinkAsPrimaryLink: Story = {
   args: {
     value: {
       primaryEmail: 'primary@example.com',
@@ -152,28 +195,16 @@ export const CanSetPrimaryLinkAsPrimaryLink: Story = {
     });
     await userEvent.click(openDropdownButtons[0]);
 
-    const setPrimaryOption = await within(
+    const editOption = await within(
       getCanvasElementForDropdownTesting(),
-    ).findByText('Set as Primary');
+    ).findByText('Edit');
 
-    expect(setPrimaryOption).toBeVisible();
+    expect(editOption).toBeVisible();
 
-    await userEvent.click(setPrimaryOption);
+    const setPrimaryOption = within(
+      getCanvasElementForDropdownTesting(),
+    ).queryByText('Set as Primary');
 
-    // Verify the update was called with swapped emails
-    await waitFor(() => {
-      expect(updateRecord).toHaveBeenCalledWith({
-        variables: {
-          where: { id: 'record-id' },
-          updateOneRecordInput: {
-            emails: {
-              primaryEmail: 'primary@example.com',
-              additionalEmails: [],
-            },
-          },
-        },
-      });
-    });
-    expect(updateRecord).toHaveBeenCalledTimes(1);
+    expect(setPrimaryOption).not.toBeInTheDocument();
   },
 };

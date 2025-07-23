@@ -3,15 +3,17 @@ import { FormFieldInputInnerContainer } from '@/object-record/record-field/form-
 import { FormFieldInputRowContainer } from '@/object-record/record-field/form-types/components/FormFieldInputRowContainer';
 import { VariableChipStandalone } from '@/object-record/record-field/form-types/components/VariableChipStandalone';
 import { VariablePickerComponent } from '@/object-record/record-field/form-types/types/VariablePickerComponent';
-import { InlineCellHotkeyScope } from '@/object-record/record-inline-cell/types/InlineCellHotkeyScope';
 import { InputLabel } from '@/ui/input/components/InputLabel';
 import { Select } from '@/ui/input/components/Select';
-import { usePreviousHotkeyScope } from '@/ui/utilities/hotkey/hooks/usePreviousHotkeyScope';
-import { useScopedHotkeys } from '@/ui/utilities/hotkey/hooks/useScopedHotkeys';
+import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
+import { useRemoveFocusItemFromFocusStackById } from '@/ui/utilities/focus/hooks/useRemoveFocusItemFromFocusStackById';
+import { useHotkeysOnFocusedElement } from '@/ui/utilities/hotkey/hooks/useHotkeysOnFocusedElement';
 import { isStandaloneVariableString } from '@/workflow/utils/isStandaloneVariableString';
+import { useTheme } from '@emotion/react';
 import { useId, useState } from 'react';
 import { Key } from 'ts-key-enum';
 import { isDefined } from 'twenty-shared/utils';
+import { IconCircleOff } from 'twenty-ui/display';
 import { SelectOption } from 'twenty-ui/input';
 
 type FormSelectFieldInputProps = {
@@ -31,11 +33,12 @@ export const FormSelectFieldInput = ({
   options,
   readonly,
 }: FormSelectFieldInputProps) => {
-  const inputId = useId();
+  const theme = useTheme();
 
-  const hotkeyScope = InlineCellHotkeyScope.InlineCell;
+  const instanceId = useId();
 
-  const { goBackToPreviousHotkeyScope } = usePreviousHotkeyScope();
+  const { removeFocusItemFromFocusStackById } =
+    useRemoveFocusItemFromFocusStackById();
 
   const [draftValue, setDraftValue] = useState<
     | {
@@ -67,7 +70,7 @@ export const FormSelectFieldInput = ({
       editingMode: 'view',
     });
 
-    goBackToPreviousHotkeyScope();
+    removeFocusItemFromFocusStackById({ focusId: instanceId });
 
     onChange(option);
   };
@@ -82,12 +85,18 @@ export const FormSelectFieldInput = ({
       editingMode: 'view',
     });
 
-    goBackToPreviousHotkeyScope();
+    removeFocusItemFromFocusStackById({ focusId: instanceId });
   };
 
   const selectedOption = options.find(
     (option) => option.value === draftValue.value,
   );
+
+  const emptyOption = {
+    label: `No ${label}`,
+    value: '',
+    Icon: IconCircleOff,
+  };
 
   const handleUnlinkVariable = () => {
     setDraftValue({
@@ -108,14 +117,12 @@ export const FormSelectFieldInput = ({
     onChange(variableName);
   };
 
-  useScopedHotkeys(
-    Key.Escape,
-    () => {
-      onCancel();
-    },
-    hotkeyScope,
-    [onCancel],
-  );
+  useHotkeysOnFocusedElement({
+    keys: Key.Escape,
+    callback: onCancel,
+    focusId: instanceId,
+    dependencies: [onCancel],
+  });
 
   return (
     <FormFieldInputContainer>
@@ -124,17 +131,21 @@ export const FormSelectFieldInput = ({
       <FormFieldInputRowContainer>
         {draftValue.type === 'static' ? (
           <Select
-            dropdownId={`${inputId}-select-display`}
+            dropdownId={`${instanceId}-select-display`}
             options={options}
             value={selectedOption?.value}
             onChange={onSelect}
+            emptyOption={emptyOption}
             fullWidth
             hasRightElement={isDefined(VariablePicker) && !readonly}
             withSearchInput
             disabled={readonly}
+            dropdownWidth={GenericDropdownContentWidth.ExtraLarge}
+            dropdownOffset={{ y: parseInt(theme.spacing(1), 10) }}
           />
         ) : (
           <FormFieldInputInnerContainer
+            formFieldInputInstanceId={instanceId}
             hasRightElement={isDefined(VariablePicker) && !readonly}
           >
             <VariableChipStandalone
@@ -146,7 +157,7 @@ export const FormSelectFieldInput = ({
 
         {isDefined(VariablePicker) && !readonly && (
           <VariablePicker
-            inputId={inputId}
+            instanceId={instanceId}
             onVariableSelect={handleVariableTagInsert}
           />
         )}

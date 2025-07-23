@@ -13,6 +13,7 @@ import { AddToFavoritesSingleRecordAction } from '@/action-menu/actions/record-a
 import { DeleteSingleRecordAction } from '@/action-menu/actions/record-actions/single-record/components/DeleteSingleRecordAction';
 import { DestroySingleRecordAction } from '@/action-menu/actions/record-actions/single-record/components/DestroySingleRecordAction';
 import { ExportNoteActionSingleRecordAction } from '@/action-menu/actions/record-actions/single-record/components/ExportNoteActionSingleRecordAction';
+import { ExportSingleRecordAction } from '@/action-menu/actions/record-actions/single-record/components/ExportSingleRecordAction';
 import { NavigateToNextRecordSingleRecordAction } from '@/action-menu/actions/record-actions/single-record/components/NavigateToNextRecordSingleRecordAction';
 import { NavigateToPreviousRecordSingleRecordAction } from '@/action-menu/actions/record-actions/single-record/components/NavigateToPreviousRecordSingleRecordAction';
 import { RemoveFromFavoritesSingleRecordAction } from '@/action-menu/actions/record-actions/single-record/components/RemoveFromFavoritesSingleRecordAction';
@@ -66,8 +67,8 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     position: 0,
     isPinned: true,
     Icon: IconPlus,
-    shouldBeRegistered: ({ hasObjectReadOnlyPermission }) =>
-      !hasObjectReadOnlyPermission,
+    shouldBeRegistered: ({ objectPermissions, isSoftDeleteFilterActive }) =>
+      objectPermissions.canUpdateObjectRecords && !isSoftDeleteFilterActive,
     availableOn: [ActionViewType.INDEX_PAGE_NO_SELECTION],
     component: <CreateNewTableRecordNoSelectionRecordAction />,
   },
@@ -96,8 +97,15 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     position: 2,
     isPinned: true,
     Icon: IconHeart,
-    shouldBeRegistered: ({ selectedRecord, isFavorite }) =>
-      !selectedRecord?.isRemote && !isFavorite,
+    shouldBeRegistered: ({
+      selectedRecord,
+      isFavorite,
+      isSoftDeleteFilterActive,
+    }) =>
+      !selectedRecord?.isRemote &&
+      !isFavorite &&
+      !isDefined(selectedRecord?.deletedAt) &&
+      !isSoftDeleteFilterActive,
     availableOn: [
       ActionViewType.INDEX_PAGE_SINGLE_RECORD_SELECTION,
       ActionViewType.SHOW_PAGE,
@@ -113,21 +121,27 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     isPinned: true,
     position: 3,
     Icon: IconHeartOff,
-    shouldBeRegistered: ({ selectedRecord, isFavorite }) =>
+    shouldBeRegistered: ({
+      selectedRecord,
+      isFavorite,
+      isSoftDeleteFilterActive,
+    }) =>
       isDefined(selectedRecord) &&
       !selectedRecord?.isRemote &&
       isDefined(isFavorite) &&
-      isFavorite,
+      isFavorite &&
+      !isDefined(selectedRecord?.deletedAt) &&
+      !isSoftDeleteFilterActive,
     availableOn: [
       ActionViewType.INDEX_PAGE_SINGLE_RECORD_SELECTION,
       ActionViewType.SHOW_PAGE,
     ],
     component: <RemoveFromFavoritesSingleRecordAction />,
   },
-  [SingleRecordActionKeys.EXPORT]: {
+  [SingleRecordActionKeys.EXPORT_FROM_RECORD_INDEX]: {
     type: ActionType.Standard,
     scope: ActionScope.RecordSelection,
-    key: SingleRecordActionKeys.EXPORT,
+    key: SingleRecordActionKeys.EXPORT_FROM_RECORD_INDEX,
     label: msg`Export`,
     shortLabel: msg`Export`,
     position: 4,
@@ -136,11 +150,23 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     isPinned: false,
     shouldBeRegistered: ({ selectedRecord }) =>
       isDefined(selectedRecord) && !selectedRecord.isRemote,
-    availableOn: [
-      ActionViewType.SHOW_PAGE,
-      ActionViewType.INDEX_PAGE_SINGLE_RECORD_SELECTION,
-    ],
+    availableOn: [ActionViewType.INDEX_PAGE_SINGLE_RECORD_SELECTION],
     component: <ExportMultipleRecordsAction />,
+  },
+  [SingleRecordActionKeys.EXPORT_FROM_RECORD_SHOW]: {
+    type: ActionType.Standard,
+    scope: ActionScope.RecordSelection,
+    key: SingleRecordActionKeys.EXPORT_FROM_RECORD_SHOW,
+    label: msg`Export`,
+    shortLabel: msg`Export`,
+    position: 4,
+    Icon: IconFileExport,
+    accent: 'default',
+    isPinned: false,
+    shouldBeRegistered: ({ selectedRecord }) =>
+      isDefined(selectedRecord) && !selectedRecord.isRemote,
+    availableOn: [ActionViewType.SHOW_PAGE],
+    component: <ExportSingleRecordAction />,
   },
   [MultipleRecordsActionKeys.EXPORT]: {
     type: ActionType.Standard,
@@ -156,13 +182,28 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     availableOn: [ActionViewType.INDEX_PAGE_BULK_SELECTION],
     component: <ExportMultipleRecordsAction />,
   },
+  [NoSelectionRecordActionKeys.IMPORT_RECORDS]: {
+    type: ActionType.Standard,
+    scope: ActionScope.Object,
+    key: NoSelectionRecordActionKeys.IMPORT_RECORDS,
+    label: msg`Import records`,
+    shortLabel: msg`Import`,
+    position: 6,
+    Icon: IconFileImport,
+    accent: 'default',
+    isPinned: false,
+    shouldBeRegistered: ({ isSoftDeleteFilterActive }) =>
+      !isSoftDeleteFilterActive,
+    availableOn: [ActionViewType.INDEX_PAGE_NO_SELECTION],
+    component: <ImportRecordsNoSelectionRecordAction />,
+  },
   [NoSelectionRecordActionKeys.EXPORT_VIEW]: {
     type: ActionType.Standard,
     scope: ActionScope.Object,
     key: NoSelectionRecordActionKeys.EXPORT_VIEW,
     label: msg`Export view`,
     shortLabel: msg`Export`,
-    position: 6,
+    position: 7,
     Icon: IconFileExport,
     accent: 'default',
     isPinned: false,
@@ -176,14 +217,20 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     key: SingleRecordActionKeys.DELETE,
     label: msg`Delete`,
     shortLabel: msg`Delete`,
-    position: 7,
+    position: 8,
     Icon: IconTrash,
     accent: 'default',
     isPinned: true,
-    shouldBeRegistered: ({ selectedRecord, isSoftDeleteFilterActive }) =>
+    shouldBeRegistered: ({
+      selectedRecord,
+      isSoftDeleteFilterActive,
+      objectPermissions,
+    }) =>
       isDefined(selectedRecord) &&
       !selectedRecord.isRemote &&
-      !isSoftDeleteFilterActive,
+      !isSoftDeleteFilterActive &&
+      objectPermissions.canSoftDeleteObjectRecords &&
+      !isDefined(selectedRecord?.deletedAt),
     availableOn: [
       ActionViewType.INDEX_PAGE_SINGLE_RECORD_SELECTION,
       ActionViewType.SHOW_PAGE,
@@ -196,17 +243,17 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     key: MultipleRecordsActionKeys.DELETE,
     label: msg`Delete records`,
     shortLabel: msg`Delete`,
-    position: 8,
+    position: 9,
     Icon: IconTrash,
     accent: 'default',
     isPinned: true,
     shouldBeRegistered: ({
-      hasObjectReadOnlyPermission,
+      objectPermissions,
       isRemote,
       isSoftDeleteFilterActive,
       numberOfSelectedRecords,
     }) =>
-      !hasObjectReadOnlyPermission &&
+      objectPermissions.canSoftDeleteObjectRecords &&
       !isRemote &&
       !isSoftDeleteFilterActive &&
       isDefined(numberOfSelectedRecords) &&
@@ -220,7 +267,7 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     key: NoSelectionRecordActionKeys.SEE_DELETED_RECORDS,
     label: msg`See deleted records`,
     shortLabel: msg`Deleted records`,
-    position: 9,
+    position: 10,
     Icon: IconRotate2,
     accent: 'default',
     isPinned: false,
@@ -235,7 +282,7 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     key: NoSelectionRecordActionKeys.HIDE_DELETED_RECORDS,
     label: msg`Hide deleted records`,
     shortLabel: msg`Hide deleted`,
-    position: 10,
+    position: 11,
     Icon: IconEyeOff,
     accent: 'default',
     isPinned: false,
@@ -243,20 +290,6 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
       isDefined(isSoftDeleteFilterActive) && isSoftDeleteFilterActive,
     availableOn: [ActionViewType.INDEX_PAGE_NO_SELECTION],
     component: <HideDeletedRecordsNoSelectionRecordAction />,
-  },
-  [NoSelectionRecordActionKeys.IMPORT_RECORDS]: {
-    type: ActionType.Standard,
-    scope: ActionScope.Object,
-    key: NoSelectionRecordActionKeys.IMPORT_RECORDS,
-    label: msg`Import records`,
-    shortLabel: msg`Import`,
-    position: 11,
-    Icon: IconFileImport,
-    accent: 'default',
-    isPinned: false,
-    shouldBeRegistered: () => true,
-    availableOn: [ActionViewType.INDEX_PAGE_NO_SELECTION],
-    component: <ImportRecordsNoSelectionRecordAction />,
   },
   [SingleRecordActionKeys.DESTROY]: {
     type: ActionType.Standard,
@@ -268,12 +301,8 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     Icon: IconTrashX,
     accent: 'danger',
     isPinned: true,
-    shouldBeRegistered: ({
-      selectedRecord,
-      hasObjectReadOnlyPermission,
-      isRemote,
-    }) =>
-      !hasObjectReadOnlyPermission &&
+    shouldBeRegistered: ({ selectedRecord, objectPermissions, isRemote }) =>
+      objectPermissions.canDestroyObjectRecords &&
       !isRemote &&
       isDefined(selectedRecord?.deletedAt),
     availableOn: [
@@ -317,12 +346,12 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     accent: 'danger',
     isPinned: true,
     shouldBeRegistered: ({
-      hasObjectReadOnlyPermission,
+      objectPermissions,
       isRemote,
       isSoftDeleteFilterActive,
       numberOfSelectedRecords,
     }) =>
-      !hasObjectReadOnlyPermission &&
+      objectPermissions.canDestroyObjectRecords &&
       !isRemote &&
       isDefined(isSoftDeleteFilterActive) &&
       isSoftDeleteFilterActive &&
@@ -343,14 +372,14 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     isPinned: true,
     shouldBeRegistered: ({
       selectedRecord,
-      hasObjectReadOnlyPermission,
+      objectPermissions,
       isRemote,
       isShowPage,
       isSoftDeleteFilterActive,
     }) =>
       !isRemote &&
       isDefined(selectedRecord?.deletedAt) &&
-      !hasObjectReadOnlyPermission &&
+      objectPermissions.canSoftDeleteObjectRecords &&
       ((isDefined(isShowPage) && isShowPage) ||
         (isDefined(isSoftDeleteFilterActive) && isSoftDeleteFilterActive)),
     availableOn: [
@@ -370,12 +399,12 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     accent: 'default',
     isPinned: true,
     shouldBeRegistered: ({
-      hasObjectReadOnlyPermission,
+      objectPermissions,
       isRemote,
       isSoftDeleteFilterActive,
       numberOfSelectedRecords,
     }) =>
-      !hasObjectReadOnlyPermission &&
+      objectPermissions.canSoftDeleteObjectRecords &&
       !isRemote &&
       isDefined(isSoftDeleteFilterActive) &&
       isSoftDeleteFilterActive &&
@@ -394,10 +423,14 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
     Icon: IconSettingsAutomation,
     accent: 'default',
     isPinned: false,
-    shouldBeRegistered: ({ objectMetadataItem, viewType, isWorkflowEnabled }) =>
+    shouldBeRegistered: ({
+      objectMetadataItem,
+      viewType,
+      getTargetObjectReadPermission,
+    }) =>
+      getTargetObjectReadPermission(CoreObjectNameSingular.Workflow) === true &&
       (objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Workflow ||
-        viewType === ActionViewType.SHOW_PAGE) &&
-      isWorkflowEnabled,
+        viewType === ActionViewType.SHOW_PAGE),
     availableOn: [
       ActionViewType.INDEX_PAGE_NO_SELECTION,
       ActionViewType.INDEX_PAGE_SINGLE_RECORD_SELECTION,
@@ -427,9 +460,14 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
       ActionViewType.INDEX_PAGE_BULK_SELECTION,
       ActionViewType.SHOW_PAGE,
     ],
-    shouldBeRegistered: ({ objectMetadataItem, viewType }) =>
-      objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Person ||
-      viewType === ActionViewType.SHOW_PAGE,
+    shouldBeRegistered: ({
+      objectMetadataItem,
+      viewType,
+      getTargetObjectReadPermission,
+    }) =>
+      getTargetObjectReadPermission(CoreObjectNameSingular.Person) === true &&
+      (objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Person ||
+        viewType === ActionViewType.SHOW_PAGE),
     component: (
       <ActionLink
         to={AppPath.RecordIndexPage}
@@ -453,9 +491,14 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
       ActionViewType.INDEX_PAGE_BULK_SELECTION,
       ActionViewType.SHOW_PAGE,
     ],
-    shouldBeRegistered: ({ objectMetadataItem, viewType }) =>
-      objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Company ||
-      viewType === ActionViewType.SHOW_PAGE,
+    shouldBeRegistered: ({
+      objectMetadataItem,
+      viewType,
+      getTargetObjectReadPermission,
+    }) =>
+      getTargetObjectReadPermission(CoreObjectNameSingular.Company) === true &&
+      (objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Company ||
+        viewType === ActionViewType.SHOW_PAGE),
     component: (
       <ActionLink
         to={AppPath.RecordIndexPage}
@@ -479,9 +522,16 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
       ActionViewType.INDEX_PAGE_BULK_SELECTION,
       ActionViewType.SHOW_PAGE,
     ],
-    shouldBeRegistered: ({ objectMetadataItem, viewType }) =>
-      objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Opportunity ||
-      viewType === ActionViewType.SHOW_PAGE,
+    shouldBeRegistered: ({
+      objectMetadataItem,
+      viewType,
+      getTargetObjectReadPermission,
+    }) =>
+      getTargetObjectReadPermission(CoreObjectNameSingular.Opportunity) ===
+        true &&
+      (objectMetadataItem?.nameSingular !==
+        CoreObjectNameSingular.Opportunity ||
+        viewType === ActionViewType.SHOW_PAGE),
     component: (
       <ActionLink
         to={AppPath.RecordIndexPage}
@@ -531,9 +581,14 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
       ActionViewType.INDEX_PAGE_BULK_SELECTION,
       ActionViewType.SHOW_PAGE,
     ],
-    shouldBeRegistered: ({ objectMetadataItem, viewType }) =>
-      objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Task ||
-      viewType === ActionViewType.SHOW_PAGE,
+    shouldBeRegistered: ({
+      objectMetadataItem,
+      viewType,
+      getTargetObjectReadPermission,
+    }) =>
+      getTargetObjectReadPermission(CoreObjectNameSingular.Task) === true &&
+      (objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Task ||
+        viewType === ActionViewType.SHOW_PAGE),
     component: (
       <ActionLink
         to={AppPath.RecordIndexPage}
@@ -557,9 +612,14 @@ export const DEFAULT_RECORD_ACTIONS_CONFIG: Record<
       ActionViewType.INDEX_PAGE_BULK_SELECTION,
       ActionViewType.SHOW_PAGE,
     ],
-    shouldBeRegistered: ({ objectMetadataItem, viewType }) =>
-      objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Note ||
-      viewType === ActionViewType.SHOW_PAGE,
+    shouldBeRegistered: ({
+      objectMetadataItem,
+      viewType,
+      getTargetObjectReadPermission,
+    }) =>
+      getTargetObjectReadPermission(CoreObjectNameSingular.Note) === true &&
+      (objectMetadataItem?.nameSingular !== CoreObjectNameSingular.Note ||
+        viewType === ActionViewType.SHOW_PAGE),
     component: (
       <ActionLink
         to={AppPath.RecordIndexPage}

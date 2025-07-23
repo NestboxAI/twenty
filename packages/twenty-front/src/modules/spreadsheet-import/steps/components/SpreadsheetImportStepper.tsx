@@ -3,18 +3,18 @@ import styled from '@emotion/styled';
 import { useCallback, useState } from 'react';
 
 import { useSpreadsheetImportInternal } from '@/spreadsheet-import/hooks/useSpreadsheetImportInternal';
-import { SnackBarVariant } from '@/ui/feedback/snack-bar-manager/components/SnackBar';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { Modal } from '@/ui/layout/modal/components/Modal';
 
+import { ImportDataStep } from '@/spreadsheet-import/steps/components/ImportDataStep';
 import { SpreadsheetImportStep } from '@/spreadsheet-import/steps/types/SpreadsheetImportStep';
 import { SpreadsheetImportStepType } from '@/spreadsheet-import/steps/types/SpreadsheetImportStepType';
+import { CircularProgressBar } from 'twenty-ui/feedback';
 import { MatchColumnsStep } from './MatchColumnsStep/MatchColumnsStep';
 import { SelectHeaderStep } from './SelectHeaderStep/SelectHeaderStep';
 import { SelectSheetStep } from './SelectSheetStep/SelectSheetStep';
 import { UploadStep } from './UploadStep/UploadStep';
 import { ValidationStep } from './ValidationStep/ValidationStep';
-import { CircularProgressBar } from 'twenty-ui/feedback';
 
 const StyledProgressBarContainer = styled(Modal.Content)`
   align-items: center;
@@ -46,15 +46,15 @@ export const SpreadsheetImportStepper = ({
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
-  const { enqueueSnackBar } = useSnackBar();
+  const { enqueueErrorSnackBar } = useSnackBar();
 
   const handleError = useCallback(
     (description: string) => {
-      enqueueSnackBar(description, {
-        variant: SnackBarVariant.Error,
+      enqueueErrorSnackBar({
+        message: description,
       });
     },
-    [enqueueSnackBar],
+    [enqueueErrorSnackBar],
   );
 
   const handleBack = useCallback(() => {
@@ -126,6 +126,12 @@ export const SpreadsheetImportStepper = ({
               initialStepState || { type: SpreadsheetImportStepType.upload },
             );
           }}
+        />
+      );
+    case SpreadsheetImportStepType.importData:
+      return (
+        <ImportDataStep
+          recordsToImportCount={currentStepState.recordsToImportCount}
         />
       );
     case SpreadsheetImportStepType.loading:

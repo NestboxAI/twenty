@@ -10,7 +10,8 @@ import { openFavoriteFolderIdsState } from '@/favorites/states/openFavoriteFolde
 import { isLocationMatchingFavorite } from '@/favorites/utils/isLocationMatchingFavorite';
 import { ProcessedFavorite } from '@/favorites/utils/sortFavorites';
 import { DraggableItem } from '@/ui/layout/draggable-list/components/DraggableItem';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
+import { isDropdownOpenComponentState } from '@/ui/layout/dropdown/states/isDropdownOpenComponentState';
 import { ConfirmationModal } from '@/ui/layout/modal/components/ConfirmationModal';
 import { useModal } from '@/ui/layout/modal/hooks/useModal';
 import { isModalOpenedComponentState } from '@/ui/layout/modal/states/isModalOpenedComponentState';
@@ -28,6 +29,7 @@ import { useRecoilState } from 'recoil';
 import { IconFolder, IconFolderOpen, IconHeartOff } from 'twenty-ui/display';
 import { LightIconButton } from 'twenty-ui/input';
 import { AnimatedExpandableContainer } from 'twenty-ui/layout';
+
 type CurrentWorkspaceMemberFavoritesProps = {
   folder: {
     folderId: string;
@@ -68,10 +70,16 @@ export const CurrentWorkspaceMemberFavorites = ({
 
   const { renameFavoriteFolder } = useRenameFavoriteFolder();
   const { deleteFavoriteFolder } = useDeleteFavoriteFolder();
-  const {
-    closeDropdown: closeFavoriteFolderEditDropdown,
-    isDropdownOpen: isFavoriteFolderEditDropdownOpen,
-  } = useDropdown(`favorite-folder-edit-${folder.folderId}`);
+
+  const dropdownId = `favorite-folder-edit-${folder.folderId}`;
+
+  const isDropdownOpenComponent = useRecoilComponentValueV2(
+    isDropdownOpenComponentState,
+    dropdownId,
+  );
+
+  const { closeDropdown } = useCloseDropdown();
+
   const selectedFavoriteIndex = folder.favorites.findIndex((favorite) =>
     isLocationMatchingFavorite(currentPath, currentViewPath, favorite),
   );
@@ -110,10 +118,10 @@ export const CurrentWorkspaceMemberFavorites = ({
   const handleFavoriteFolderDelete = async () => {
     if (folder.favorites.length > 0) {
       openModal(modalId);
-      closeFavoriteFolderEditDropdown();
+      closeDropdown(dropdownId);
     } else {
       await deleteFavoriteFolder(folder.folderId);
-      closeFavoriteFolderEditDropdown();
+      closeDropdown(dropdownId);
     }
   };
 
@@ -126,7 +134,9 @@ export const CurrentWorkspaceMemberFavorites = ({
       folderId={folder.folderId}
       onRename={() => setIsFavoriteFolderRenaming(true)}
       onDelete={handleFavoriteFolderDelete}
-      closeDropdown={closeFavoriteFolderEditDropdown}
+      closeDropdown={() => {
+        closeDropdown(dropdownId);
+      }}
     />
   );
 
@@ -149,7 +159,6 @@ export const CurrentWorkspaceMemberFavorites = ({
             onSubmit={handleSubmitRename}
             onCancel={handleCancelRename}
             onClickOutside={handleClickOutside}
-            hotkeyScope="favorites-folder-input"
           />
         ) : (
           <FavoritesDroppable droppableId={`folder-header-${folder.folderId}`}>
@@ -159,7 +168,8 @@ export const CurrentWorkspaceMemberFavorites = ({
               onClick={handleToggle}
               rightOptions={rightOptions}
               className="navigation-drawer-item"
-              isRightOptionsDropdownOpen={isFavoriteFolderEditDropdownOpen}
+              isRightOptionsDropdownOpen={isDropdownOpenComponent}
+              triggerEvent="CLICK"
             />
           </FavoritesDroppable>
         )}
@@ -190,7 +200,7 @@ export const CurrentWorkspaceMemberFavorites = ({
                         label={favorite.labelIdentifier}
                         objectName={favorite.objectNameSingular}
                         Icon={() => <FavoriteIcon favorite={favorite} />}
-                        to={favorite.link}
+                        to={isDragging ? undefined : favorite.link}
                         active={index === selectedFavoriteIndex}
                         subItemState={getNavigationSubItemLeftAdornment({
                           index,
@@ -205,6 +215,7 @@ export const CurrentWorkspaceMemberFavorites = ({
                           />
                         }
                         isDragging={isDragging}
+                        triggerEvent="CLICK"
                       />
                     }
                   />

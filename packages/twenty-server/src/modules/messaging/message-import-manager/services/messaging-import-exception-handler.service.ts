@@ -45,7 +45,7 @@ export class MessageImportExceptionHandlerService {
     >,
     workspaceId: string,
   ): Promise<void> {
-    if (exception instanceof MessageImportDriverException) {
+    if ('code' in exception) {
       switch (exception.code) {
         case MessageImportDriverExceptionCode.NOT_FOUND:
           await this.handleNotFoundException(
@@ -60,6 +60,7 @@ export class MessageImportExceptionHandlerService {
         case MessageNetworkExceptionCode.ECONNRESET:
         case MessageNetworkExceptionCode.ETIMEDOUT:
         case MessageNetworkExceptionCode.ERR_NETWORK:
+        case MessageImportDriverExceptionCode.CLIENT_NOT_AVAILABLE:
           await this.handleTemporaryException(
             syncStep,
             messageChannel,
@@ -197,6 +198,7 @@ export class MessageImportExceptionHandlerService {
 
     this.exceptionHandlerService.captureExceptions([messageImportException], {
       additionalData: {
+        exception,
         messageChannelId: messageChannel.id,
       },
       workspace: { id: workspaceId },

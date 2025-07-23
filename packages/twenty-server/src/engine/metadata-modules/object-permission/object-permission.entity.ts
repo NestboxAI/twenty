@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -14,7 +15,11 @@ import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadat
 import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
 
 @Entity('objectPermission')
-@Unique('IndexOnObjectPermissionUnique', ['objectMetadataId', 'roleId'])
+@Unique('IDX_OBJECT_PERMISSION_OBJECT_METADATA_ID_ROLE_ID_UNIQUE', [
+  'objectMetadataId',
+  'roleId',
+])
+@Index('IDX_OBJECT_PERMISSION_WORKSPACE_ID_ROLE_ID', ['workspaceId', 'roleId'])
 export class ObjectPermissionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

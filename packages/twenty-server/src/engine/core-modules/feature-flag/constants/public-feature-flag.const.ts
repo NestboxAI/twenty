@@ -7,33 +7,26 @@ type FeatureFlagMetadata = {
 };
 
 export type PublicFeatureFlag = {
-  key: Extract<
-    FeatureFlagKey,
-    FeatureFlagKey.IsWorkflowEnabled | FeatureFlagKey.IsCustomDomainEnabled
-  >;
+  key: FeatureFlagKey;
   metadata: FeatureFlagMetadata;
 };
 
 export const PUBLIC_FEATURE_FLAGS: PublicFeatureFlag[] = [
   {
-    key: FeatureFlagKey.IsWorkflowEnabled,
+    key: FeatureFlagKey.IS_IMAP_SMTP_CALDAV_ENABLED,
     metadata: {
-      label: 'Workflows',
-      description: 'Create custom workflows to automate your work.',
-      imagePath: 'https://twenty.com/images/lab/is-workflow-enabled.png',
+      label: 'IMAP, SMTP, CalDAV',
+      description:
+        'Easily add email accounts from any provider that supports IMAP, send emails with SMTP (and soon, sync calendars with CalDAV)',
+      imagePath:
+        'https://twenty.com/images/lab/is-imap-smtp-caldav-enabled.png',
     },
   },
   ...(process.env.CLOUDFLARE_API_KEY
     ? [
-        {
-          key: FeatureFlagKey.IsCustomDomainEnabled as PublicFeatureFlag['key'],
-          metadata: {
-            label: 'Custom Domain',
-            description: 'Customize your workspace URL with your own domain.',
-            imagePath:
-              'https://twenty.com/images/lab/is-custom-domain-enabled.png',
-          },
-        },
+        // {
+        // Here you can add cloud only feature flags
+        // },
       ]
     : []),
 ];

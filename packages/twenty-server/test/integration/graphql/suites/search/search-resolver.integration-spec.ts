@@ -1,28 +1,27 @@
 import { OBJECT_MODEL_COMMON_FIELDS } from 'test/integration/constants/object-model-common-fields';
 import { PERSON_GQL_FIELDS } from 'test/integration/constants/person-gql-fields.constants';
-import { makeGraphqlAPIRequest } from 'test/integration/graphql/utils/make-graphql-api-request.util';
-import { performCreateManyOperation } from 'test/integration/graphql/utils/perform-create-many-operation.utils';
-import { searchFactory } from 'test/integration/graphql/utils/search-factory.util';
-import { EachTestingContext } from 'twenty-shared/testing';
 import {
   TEST_PERSON_1_ID,
   TEST_PERSON_2_ID,
   TEST_PERSON_3_ID,
 } from 'test/integration/constants/test-person-ids.constants';
-import { TEST_API_KEY_1_ID } from 'test/integration/constants/test-api-key-ids.constant';
-import { cleanTestDatabase } from 'test/integration/utils/clean-test-database';
 import {
   TEST_PET_ID_1,
   TEST_PET_ID_2,
 } from 'test/integration/constants/test-pet-ids.constants';
+import { makeGraphqlAPIRequest } from 'test/integration/graphql/utils/make-graphql-api-request.util';
+import { performCreateManyOperation } from 'test/integration/graphql/utils/perform-create-many-operation.utils';
+import { searchFactory } from 'test/integration/graphql/utils/search-factory.util';
+import { deleteAllRecords } from 'test/integration/utils/delete-all-records';
+import { EachTestingContext } from 'twenty-shared/testing';
 
-import { SearchResultEdgeDTO } from 'src/engine/core-modules/search/dtos/search-result-edge.dto';
 import {
   decodeCursor,
   encodeCursorData,
 } from 'src/engine/api/graphql/graphql-query-runner/utils/cursors.util';
-import { SearchCursor } from 'src/engine/core-modules/search/services/search.service';
 import { SearchArgs } from 'src/engine/core-modules/search/dtos/search-args';
+import { SearchResultEdgeDTO } from 'src/engine/core-modules/search/dtos/search-result-edge.dto';
+import { SearchCursor } from 'src/engine/core-modules/search/services/search.service';
 
 describe('SearchResolver', () => {
   const [firstPerson, secondPerson, thirdPerson] = [
@@ -31,21 +30,21 @@ describe('SearchResolver', () => {
     { id: TEST_PERSON_3_ID, name: { firstName: 'searchInput3' } },
   ];
 
-  const [apiKey] = [
-    {
-      id: TEST_API_KEY_1_ID,
-      name: 'record not searchable',
-      expiresAt: new Date(Date.now()),
-    },
-  ];
-
   const [firstPet, secondPet] = [
     { id: TEST_PET_ID_1, name: 'searchInput1' },
     { id: TEST_PET_ID_2, name: 'searchInput2' },
   ];
 
   beforeAll(async () => {
-    await cleanTestDatabase({ seed: false });
+    await deleteAllRecords('person');
+    await deleteAllRecords('company');
+    await deleteAllRecords('opportunity');
+    await deleteAllRecords('note');
+    await deleteAllRecords('task');
+    await deleteAllRecords('noteTarget');
+    await deleteAllRecords('taskTarget');
+    await deleteAllRecords('_pet');
+    await deleteAllRecords('_surveyResult');
 
     try {
       await performCreateManyOperation(
@@ -60,22 +59,11 @@ describe('SearchResolver', () => {
         secondPerson,
         thirdPerson,
       ]);
-
-      await performCreateManyOperation(
-        'apiKey',
-        'apiKeys',
-        OBJECT_MODEL_COMMON_FIELDS,
-        [apiKey],
-      );
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
       throw new Error('beforeAll failed');
     }
-  });
-
-  afterAll(async () => {
-    await cleanTestDatabase({ seed: true });
   });
 
   const testsUseCases: EachTestingContext<{
@@ -94,6 +82,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
+          excludedObjectNameSingulars: ['workspaceMember'],
           limit: 50,
         },
         eval: {
@@ -122,6 +111,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: 'searchInput1',
+          excludedObjectNameSingulars: ['workspaceMember'],
           limit: 50,
         },
         eval: {
@@ -144,6 +134,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
+          excludedObjectNameSingulars: ['workspaceMember'],
           includedObjectNameSingulars: ['pet'],
           limit: 50,
         },
@@ -166,7 +157,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
-          excludedObjectNameSingulars: ['person'],
+          excludedObjectNameSingulars: ['workspaceMember', 'person'],
           limit: 50,
         },
         eval: {
@@ -188,6 +179,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
+          excludedObjectNameSingulars: ['workspaceMember'],
           filter: { id: { eq: firstPet.id } },
           limit: 50,
         },
@@ -210,6 +202,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
+          excludedObjectNameSingulars: ['workspaceMember'],
           limit: 4,
         },
         eval: {
@@ -237,6 +230,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
+          excludedObjectNameSingulars: ['workspaceMember'],
           limit: 2,
         },
         eval: {
@@ -258,6 +252,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
+          excludedObjectNameSingulars: ['workspaceMember'],
           after: encodeCursorData({
             lastRanks: { tsRank: 0, tsRankCD: 0 },
             lastRecordIdsPerObject: {
@@ -286,6 +281,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: 'searchInput',
+          excludedObjectNameSingulars: ['workspaceMember'],
           limit: 4,
         },
         eval: {
@@ -313,6 +309,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: 'searchInput',
+          excludedObjectNameSingulars: ['workspaceMember'],
           limit: 2,
         },
         eval: {
@@ -335,6 +332,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: 'searchInput',
+          excludedObjectNameSingulars: ['workspaceMember'],
           after: encodeCursorData({
             lastRanks: { tsRank: 0.06079271, tsRankCD: 0.1 },
             lastRecordIdsPerObject: {
@@ -364,6 +362,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: 'searchInput',
+          excludedObjectNameSingulars: ['workspaceMember'],
           after: encodeCursorData({
             lastRanks: { tsRank: 0.06079271, tsRankCD: 0.1 },
             lastRecordIdsPerObject: {
@@ -393,7 +392,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
-          excludedObjectNameSingulars: ['person'],
+          excludedObjectNameSingulars: ['workspaceMember', 'person'],
           limit: 1,
         },
         eval: {
@@ -415,6 +414,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
+          excludedObjectNameSingulars: ['workspaceMember'],
           includedObjectNameSingulars: ['pet'],
           limit: 1,
         },
@@ -437,6 +437,7 @@ describe('SearchResolver', () => {
       context: {
         input: {
           searchInput: '',
+          excludedObjectNameSingulars: ['workspaceMember'],
           limit: 0,
         },
         eval: {
@@ -481,6 +482,7 @@ describe('SearchResolver', () => {
   it('should return cursor for each search edge', async () => {
     const graphqlOperation = searchFactory({
       searchInput: 'searchInput',
+      excludedObjectNameSingulars: ['workspaceMember'],
       limit: 2,
     });
 
@@ -529,6 +531,7 @@ describe('SearchResolver', () => {
   it('should return cursor for each search edge with after cursor input', async () => {
     const graphqlOperation = searchFactory({
       searchInput: 'searchInput',
+      excludedObjectNameSingulars: ['workspaceMember'],
       limit: 2,
       after: encodeCursorData({
         lastRanks: { tsRankCD: 0.1, tsRank: 0.06079271 },

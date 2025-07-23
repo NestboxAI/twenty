@@ -1,15 +1,16 @@
-import { useApolloClient } from '@apollo/client';
 import { useCallback } from 'react';
 
 import { triggerCreateRecordsOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerCreateRecordsOptimisticEffect';
 import { triggerDestroyRecordsOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerDestroyRecordsOptimisticEffect';
 import { triggerUpdateRecordOptimisticEffect } from '@/apollo/optimistic-effect/utils/triggerUpdateRecordOptimisticEffect';
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { CoreObjectNameSingular } from '@/object-metadata/types/CoreObjectNameSingular';
 import { useGetRecordFromCache } from '@/object-record/cache/hooks/useGetRecordFromCache';
 import { useCreateOneRecordMutation } from '@/object-record/hooks/useCreateOneRecordMutation';
 import { useDestroyOneRecordMutation } from '@/object-record/hooks/useDestroyOneRecordMutation';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
 import { useUpdateOneRecordMutation } from '@/object-record/hooks/useUpdateOneRecordMutation';
 import { GraphQLView } from '@/views/types/GraphQLView';
 import { ViewFilterGroup } from '@/views/types/ViewFilterGroup';
@@ -37,12 +38,12 @@ export const usePersistViewFilterGroupRecords = () => {
   });
 
   const { objectMetadataItems } = useObjectMetadataItems();
-
-  const apolloClient = useApolloClient();
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
+  const apolloCoreClient = useApolloCoreClient();
 
   const createViewFilterGroupRecord = useCallback(
     async (viewFilterGroup: ViewFilterGroup, view: GraphQLView) => {
-      const result = await apolloClient.mutate<{
+      const result = await apolloCoreClient.mutate<{
         createViewFilterGroup: ViewFilterGroup;
       }>({
         mutation: createOneRecordMutation,
@@ -65,6 +66,7 @@ export const usePersistViewFilterGroupRecords = () => {
             objectMetadataItem,
             recordsToCreate: [record],
             objectMetadataItems,
+            objectPermissionsByObjectMetadataId,
           });
         },
       });
@@ -76,10 +78,11 @@ export const usePersistViewFilterGroupRecords = () => {
       return { newRecordId: result.data.createViewFilterGroup.id };
     },
     [
-      apolloClient,
+      apolloCoreClient,
       createOneRecordMutation,
       objectMetadataItem,
       objectMetadataItems,
+      objectPermissionsByObjectMetadataId,
     ],
   );
 
@@ -126,7 +129,7 @@ export const usePersistViewFilterGroupRecords = () => {
       if (!viewFilterGroupsToUpdate.length) return;
       return Promise.all(
         viewFilterGroupsToUpdate.map((viewFilterGroup) =>
-          apolloClient.mutate<{ updateViewFilterGroup: ViewFilterGroup }>({
+          apolloCoreClient.mutate<{ updateViewFilterGroup: ViewFilterGroup }>({
             mutation: updateOneRecordMutation,
             variables: {
               idToUpdate: viewFilterGroup.id,
@@ -161,7 +164,7 @@ export const usePersistViewFilterGroupRecords = () => {
       );
     },
     [
-      apolloClient,
+      apolloCoreClient,
       getRecordFromCache,
       objectMetadataItem,
       objectMetadataItems,
@@ -174,7 +177,7 @@ export const usePersistViewFilterGroupRecords = () => {
       if (!viewFilterGroupIdsToDelete.length) return;
       return Promise.all(
         viewFilterGroupIdsToDelete.map((viewFilterGroupId) =>
-          apolloClient.mutate<{ destroyViewFilterGroup: ViewFilterGroup }>({
+          apolloCoreClient.mutate<{ destroyViewFilterGroup: ViewFilterGroup }>({
             mutation: destroyOneRecordMutation,
             variables: {
               idToDestroy: viewFilterGroupId,
@@ -198,7 +201,7 @@ export const usePersistViewFilterGroupRecords = () => {
       );
     },
     [
-      apolloClient,
+      apolloCoreClient,
       destroyOneRecordMutation,
       getRecordFromCache,
       objectMetadataItem,

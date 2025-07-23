@@ -116,7 +116,7 @@ export const ConfirmationModal = ({
       isClosable={true}
       padding="large"
       modalVariant={modalVariant}
-      data-globally-prevent-click-outside
+      dataGloballyPreventClickOutside
     >
       <StyledCenteredTitle>
         <H1Title title={title} fontColor={H1TitleFontColor.Primary} />
@@ -130,6 +130,7 @@ export const ConfirmationModal = ({
       {confirmationValue && (
         <Section>
           <TextInput
+            instanceId="confirmation-modal-input"
             dataTestId="confirmation-modal-input"
             value={inputConfirmationValue}
             onChange={handleInputConfimrationValueChange}

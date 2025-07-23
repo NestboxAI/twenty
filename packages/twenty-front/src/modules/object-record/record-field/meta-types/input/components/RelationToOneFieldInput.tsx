@@ -3,13 +3,18 @@ import { useRelationField } from '../../hooks/useRelationField';
 
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useAddNewRecordAndOpenRightDrawer } from '@/object-record/record-field/meta-types/input/hooks/useAddNewRecordAndOpenRightDrawer';
+import { RecordFieldComponentInstanceContext } from '@/object-record/record-field/states/contexts/RecordFieldComponentInstanceContext';
 import { recordFieldInputLayoutDirectionComponentState } from '@/object-record/record-field/states/recordFieldInputLayoutDirectionComponentState';
 import { recordFieldInputLayoutDirectionLoadingComponentState } from '@/object-record/record-field/states/recordFieldInputLayoutDirectionLoadingComponentState';
 import { FieldInputEvent } from '@/object-record/record-field/types/FieldInputEvent';
 import { SingleRecordPicker } from '@/object-record/record-picker/single-record-picker/components/SingleRecordPicker';
+import { singleRecordPickerSelectedIdComponentState } from '@/object-record/record-picker/single-record-picker/states/singleRecordPickerSelectedIdComponentState';
 import { SingleRecordPickerRecord } from '@/object-record/record-picker/single-record-picker/types/SingleRecordPickerRecord';
 import { ObjectRecord } from '@/object-record/types/ObjectRecord';
+import { useAvailableComponentInstanceIdOrThrow } from '@/ui/utilities/state/component-state/hooks/useAvailableComponentInstanceIdOrThrow';
 import { useRecoilComponentValueV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValueV2';
+import { useSetRecoilComponentStateV2 } from '@/ui/utilities/state/component-state/hooks/useSetRecoilComponentStateV2';
+import { isDefined } from 'twenty-shared/utils';
 import { IconForbid } from 'twenty-ui/display';
 
 export type RelationToOneFieldInputProps = {
@@ -25,7 +30,9 @@ export const RelationToOneFieldInput = ({
 
   const persistField = usePersistField();
 
-  const recordPickerInstanceId = `relation-to-one-field-input-${recordId}-${fieldDefinition.metadata.fieldName}`;
+  const instanceId = useAvailableComponentInstanceIdOrThrow(
+    RecordFieldComponentInstanceContext,
+  );
 
   const handleRecordSelected = (
     selectedRecord: SingleRecordPickerRecord | null | undefined,
@@ -58,22 +65,36 @@ export const RelationToOneFieldInput = ({
     recordFieldInputLayoutDirectionLoadingComponentState,
   );
 
+  const setSingleRecordPickerSelectedId = useSetRecoilComponentStateV2(
+    singleRecordPickerSelectedIdComponentState,
+    instanceId,
+  );
+
+  const handleCreateNew = async (searchInput?: string) => {
+    const newRecordId = await createNewRecordAndOpenRightDrawer?.(searchInput);
+
+    if (isDefined(newRecordId)) {
+      setSingleRecordPickerSelectedId(newRecordId);
+    }
+  };
+
   if (isLoading) {
     return <></>;
   }
 
   return (
     <SingleRecordPicker
-      componentInstanceId={recordPickerInstanceId}
+      focusId={instanceId}
+      componentInstanceId={instanceId}
       EmptyIcon={IconForbid}
       emptyLabel={'No ' + fieldDefinition.label}
       onCancel={onCancel}
-      onCreate={createNewRecordAndOpenRightDrawer}
+      onCreate={handleCreateNew}
       onRecordSelected={handleRecordSelected}
       objectNameSingular={
         fieldDefinition.metadata.relationObjectMetadataNameSingular
       }
-      recordPickerInstanceId={recordPickerInstanceId}
+      recordPickerInstanceId={instanceId}
       layoutDirection={
         layoutDirection === 'downward'
           ? 'search-bar-on-top'

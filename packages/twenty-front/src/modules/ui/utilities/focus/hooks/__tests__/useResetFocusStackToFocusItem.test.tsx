@@ -10,13 +10,13 @@ import { RecoilRoot, useRecoilValue } from 'recoil';
 const renderHooks = () => {
   const { result } = renderHook(
     () => {
-      const pushFocusItem = usePushFocusItemToFocusStack();
-      const resetFocusStackToFocusItem = useResetFocusStackToFocusItem();
+      const { pushFocusItemToFocusStack } = usePushFocusItemToFocusStack();
+      const { resetFocusStackToFocusItem } = useResetFocusStackToFocusItem();
       const focusStack = useRecoilValue(focusStackState);
       const currentFocusId = useRecoilValue(currentFocusIdSelector);
 
       return {
-        pushFocusItem,
+        pushFocusItemToFocusStack,
         resetFocusStackToFocusItem,
         focusStack,
         currentFocusId,
@@ -59,26 +59,22 @@ describe('useResetFocusStackToFocusItem', () => {
     };
 
     await act(async () => {
-      result.current.pushFocusItem({
+      result.current.pushFocusItemToFocusStack({
         focusId: firstFocusItem.focusId,
         component: {
           type: firstFocusItem.componentInstance.componentType,
           instanceId: firstFocusItem.componentInstance.componentInstanceId,
         },
-        hotkeyScope: { scope: 'test-scope' },
-        memoizeKey: 'global',
       });
     });
 
     await act(async () => {
-      result.current.pushFocusItem({
+      result.current.pushFocusItemToFocusStack({
         focusId: secondFocusItem.focusId,
         component: {
           type: secondFocusItem.componentInstance.componentType,
           instanceId: secondFocusItem.componentInstance.componentInstanceId,
         },
-        hotkeyScope: { scope: 'test-scope' },
-        memoizeKey: 'global',
       });
     });
 
@@ -91,8 +87,6 @@ describe('useResetFocusStackToFocusItem', () => {
     await act(async () => {
       result.current.resetFocusStackToFocusItem({
         focusStackItem: firstFocusItem,
-        hotkeyScope: { scope: 'test-scope' },
-        memoizeKey: 'global',
       });
     });
 

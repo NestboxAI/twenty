@@ -6,9 +6,10 @@ import { useContextStoreObjectMetadataItemOrThrow } from '@/context-store/hooks/
 import { prefetchViewsFromObjectMetadataItemFamilySelector } from '@/prefetch/states/selector/prefetchViewsFromObjectMetadataItemFamilySelector';
 import { DraggableItem } from '@/ui/layout/draggable-list/components/DraggableItem';
 import { DraggableList } from '@/ui/layout/draggable-list/components/DraggableList';
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { DropdownMenuSeparator } from '@/ui/layout/dropdown/components/DropdownMenuSeparator';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { useSetRecoilComponentStateV2 } from '@/ui/utilities/state/component-state/hooks/useSetRecoilComponentStateV2';
 import { useChangeView } from '@/views/hooks/useChangeView';
 import { useGetCurrentViewOnly } from '@/views/hooks/useGetCurrentViewOnly';
@@ -50,11 +51,11 @@ export const ViewPickerListContent = () => {
   const { updateView } = useUpdateView();
   const { changeView } = useChangeView();
 
-  const { closeDropdown } = useDropdown(VIEW_PICKER_DROPDOWN_ID);
+  const { closeDropdown } = useCloseDropdown();
 
   const handleViewSelect = (viewId: string) => {
     changeView(viewId);
-    closeDropdown();
+    closeDropdown(VIEW_PICKER_DROPDOWN_ID);
   };
 
   const handleAddViewButtonClick = () => {
@@ -94,8 +95,8 @@ export const ViewPickerListContent = () => {
   );
 
   return (
-    <>
-      <DropdownMenuItemsContainer>
+    <DropdownContent>
+      <DropdownMenuItemsContainer hasMaxHeight>
         <DraggableList
           onDragEnd={handleDragEnd}
           draggableItems={viewsOnCurrentObject.map((view, index) => {
@@ -127,6 +128,6 @@ export const ViewPickerListContent = () => {
           text={t`Add view`}
         />
       </StyledBoldDropdownMenuItemsContainer>
-    </>
+    </DropdownContent>
   );
 };

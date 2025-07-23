@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { PartialIndexMetadata } from 'src/engine/workspace-manager/workspace-sync-metadata/interfaces/partial-index-metadata.interface';
 import { WorkspaceSyncContext } from 'src/engine/workspace-manager/workspace-sync-metadata/interfaces/workspace-sync-context.interface';
 
 import { IndexMetadataEntity } from 'src/engine/metadata-modules/index-metadata/index-metadata.entity';
+import { IndexType } from 'src/engine/metadata-modules/index-metadata/types/indexType.types';
 import { generateDeterministicIndexName } from 'src/engine/metadata-modules/index-metadata/utils/generate-deterministic-index-name';
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
@@ -14,6 +15,8 @@ import { isGatedAndNotEnabled } from 'src/engine/workspace-manager/workspace-syn
 
 @Injectable()
 export class StandardIndexFactory {
+  private readonly logger = new Logger(StandardIndexFactory.name);
+
   create(
     standardObjectMetadataDefinitions: (typeof BaseWorkspaceEntity)[],
     context: WorkspaceSyncContext,
@@ -86,7 +89,7 @@ export class StandardIndexFactory {
           isUnique: workspaceIndexMetadataArgs.isUnique,
           isCustom: false,
           indexWhereClause: workspaceIndexMetadataArgs.whereClause,
-          indexType: workspaceIndexMetadataArgs.type,
+          indexType: workspaceIndexMetadataArgs.type ?? IndexType.BTREE,
         };
 
         return indexMetadata;
@@ -127,7 +130,7 @@ export class StandardIndexFactory {
               columns: workspaceIndexMetadataArgs.columns,
               isCustom: false,
               isUnique: workspaceIndexMetadataArgs.isUnique,
-              indexType: workspaceIndexMetadataArgs.type,
+              indexType: workspaceIndexMetadataArgs.type ?? IndexType.BTREE,
               indexWhereClause: workspaceIndexMetadataArgs.whereClause,
             };
 

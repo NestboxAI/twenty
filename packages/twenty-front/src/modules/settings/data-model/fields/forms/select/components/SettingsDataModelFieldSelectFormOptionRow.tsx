@@ -3,13 +3,12 @@ import { AdvancedSettingsWrapper } from '@/settings/components/AdvancedSettingsW
 import { OPTION_VALUE_MAXIMUM_LENGTH } from '@/settings/data-model/constants/OptionValueMaximumLength';
 import { TextInput } from '@/ui/input/components/TextInput';
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
-import { DropdownMenu } from '@/ui/layout/dropdown/components/DropdownMenu';
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { t } from '@lingui/core/macro';
-import { computeOptionValueFromLabel } from '~/pages/settings/data-model/utils/compute-option-value-from-label.utils';
 import {
   ColorSample,
   IconCheck,
@@ -19,8 +18,9 @@ import {
   IconX,
 } from 'twenty-ui/display';
 import { LightIconButton } from 'twenty-ui/input';
-import { MAIN_COLOR_NAMES } from 'twenty-ui/theme';
 import { MenuItem, MenuItemSelectColor } from 'twenty-ui/navigation';
+import { MAIN_COLOR_NAMES } from 'twenty-ui/theme';
+import { computeOptionValueFromLabel } from '~/pages/settings/data-model/utils/compute-option-value-from-label.utils';
 
 type SettingsDataModelFieldSelectFormOptionRowProps = {
   className?: string;
@@ -82,12 +82,8 @@ export const SettingsDataModelFieldSelectFormOptionRow = ({
   const SELECT_COLOR_DROPDOWN_ID = `select-color-dropdown-${option.id}`;
   const SELECT_ACTIONS_DROPDOWN_ID = `select-actions-dropdown-${option.id}`;
 
-  const { closeDropdown: closeColorDropdown } = useDropdown(
-    SELECT_COLOR_DROPDOWN_ID,
-  );
-  const { closeDropdown: closeActionsDropdown } = useDropdown(
-    SELECT_ACTIONS_DROPDOWN_ID,
-  );
+  const { closeDropdown: closeColorDropdown } = useCloseDropdown();
+  const { closeDropdown: closeActionsDropdown } = useCloseDropdown();
 
   const handleInputEnter = () => {
     onInputEnter?.();
@@ -103,6 +99,7 @@ export const SettingsDataModelFieldSelectFormOptionRow = ({
       />
       <AdvancedSettingsWrapper animationDimension="width" hideDot>
         <StyledOptionInput
+          instanceId={`select-option-value-${option.id}`}
           value={option.value}
           onChange={(input) =>
             onChange({
@@ -117,25 +114,27 @@ export const SettingsDataModelFieldSelectFormOptionRow = ({
       <Dropdown
         dropdownId={SELECT_COLOR_DROPDOWN_ID}
         dropdownPlacement="bottom-start"
-        dropdownHotkeyScope={{ scope: SELECT_COLOR_DROPDOWN_ID }}
         clickableComponent={<StyledColorSample colorName={option.color} />}
         dropdownComponents={
-          <DropdownMenuItemsContainer>
-            {MAIN_COLOR_NAMES.map((colorName) => (
-              <MenuItemSelectColor
-                key={colorName}
-                onClick={() => {
-                  onChange({ ...option, color: colorName });
-                  closeColorDropdown();
-                }}
-                color={colorName}
-                selected={colorName === option.color}
-              />
-            ))}
-          </DropdownMenuItemsContainer>
+          <DropdownContent>
+            <DropdownMenuItemsContainer>
+              {MAIN_COLOR_NAMES.map((colorName) => (
+                <MenuItemSelectColor
+                  key={colorName}
+                  onClick={() => {
+                    onChange({ ...option, color: colorName });
+                    closeColorDropdown(SELECT_COLOR_DROPDOWN_ID);
+                  }}
+                  color={colorName}
+                  selected={colorName === option.color}
+                />
+              ))}
+            </DropdownMenuItemsContainer>
+          </DropdownContent>
         }
       />
       <StyledOptionInput
+        instanceId={`select-option-label-${option.id}`}
         value={option.label}
         onChange={(label) => {
           const optionNameHasBeenEdited = !(
@@ -158,12 +157,11 @@ export const SettingsDataModelFieldSelectFormOptionRow = ({
       <Dropdown
         dropdownId={SELECT_ACTIONS_DROPDOWN_ID}
         dropdownPlacement="right-start"
-        dropdownHotkeyScope={{ scope: SELECT_ACTIONS_DROPDOWN_ID }}
         clickableComponent={
           <StyledLightIconButton accent="tertiary" Icon={IconDotsVertical} />
         }
         dropdownComponents={
-          <DropdownMenu>
+          <DropdownContent>
             <DropdownMenuItemsContainer>
               {isDefault ? (
                 <MenuItem
@@ -171,7 +169,7 @@ export const SettingsDataModelFieldSelectFormOptionRow = ({
                   text={t`Remove as default`}
                   onClick={() => {
                     onRemoveAsDefault?.();
-                    closeActionsDropdown();
+                    closeActionsDropdown(SELECT_ACTIONS_DROPDOWN_ID);
                   }}
                 />
               ) : (
@@ -180,7 +178,7 @@ export const SettingsDataModelFieldSelectFormOptionRow = ({
                   text={t`Set as default`}
                   onClick={() => {
                     onSetAsDefault?.();
-                    closeActionsDropdown();
+                    closeActionsDropdown(SELECT_ACTIONS_DROPDOWN_ID);
                   }}
                 />
               )}
@@ -191,12 +189,12 @@ export const SettingsDataModelFieldSelectFormOptionRow = ({
                   text={t`Remove option`}
                   onClick={() => {
                     onRemove();
-                    closeActionsDropdown();
+                    closeActionsDropdown(SELECT_ACTIONS_DROPDOWN_ID);
                   }}
                 />
               )}
             </DropdownMenuItemsContainer>
-          </DropdownMenu>
+          </DropdownContent>
         }
       />
     </StyledRow>

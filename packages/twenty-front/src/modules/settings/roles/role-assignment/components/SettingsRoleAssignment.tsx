@@ -1,4 +1,7 @@
-import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
+import {
+  CurrentWorkspaceMember,
+  currentWorkspaceMemberState,
+} from '@/auth/states/currentWorkspaceMemberState';
 import { currentWorkspaceMembersState } from '@/auth/states/currentWorkspaceMembersStates';
 import { useUpdateWorkspaceMemberRole } from '@/settings/roles/hooks/useUpdateWorkspaceMemberRole';
 import { SettingsRoleAssignmentConfirmationModal } from '@/settings/roles/role-assignment/components/SettingsRoleAssignmentConfirmationModal';
@@ -10,7 +13,7 @@ import { settingsDraftRoleFamilyState } from '@/settings/roles/states/settingsDr
 import { SettingsPath } from '@/types/SettingsPath';
 import { TextInput } from '@/ui/input/components/TextInput';
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { useModal } from '@/ui/layout/modal/hooks/useModal';
 import { isModalOpenedComponentState } from '@/ui/layout/modal/states/isModalOpenedComponentState';
 import { TableCell } from '@/ui/layout/table/components/TableCell';
@@ -28,11 +31,7 @@ import {
 } from 'twenty-ui/display';
 import { Button } from 'twenty-ui/input';
 import { Section } from 'twenty-ui/layout';
-import {
-  Role,
-  SearchRecord,
-  WorkspaceMember,
-} from '~/generated-metadata/graphql';
+import { Role, WorkspaceMember } from '~/generated-metadata/graphql';
 import { useNavigateSettings } from '~/hooks/useNavigateSettings';
 import { ROLE_ASSIGNMENT_CONFIRMATION_MODAL_ID } from '../constants/RoleAssignmentConfirmationModalId';
 import { SettingsRoleAssignmentTableRow } from './SettingsRoleAssignmentTableRow';
@@ -48,15 +47,15 @@ const StyledSearchContainer = styled.div`
   padding-bottom: ${({ theme }) => theme.spacing(2)};
 `;
 
-const StyledTable = styled.div`
-  border-bottom: 1px solid ${({ theme }) => theme.border.color.light};
-`;
-
 const StyledSearchInput = styled(TextInput)`
   input {
     background: ${({ theme }) => theme.background.transparent.lighter};
     border: 1px solid ${({ theme }) => theme.border.color.medium};
   }
+`;
+
+const StyledTable = styled.div`
+  border-bottom: 1px solid ${({ theme }) => theme.border.color.light};
 `;
 
 const StyledTableRows = styled.div`
@@ -93,7 +92,10 @@ export const SettingsRoleAssignment = ({
     useState<SettingsRoleAssignmentConfirmationModalSelectedWorkspaceMember | null>(
       null,
     );
-  const { closeDropdown } = useDropdown('role-member-select');
+
+  const dropdownId = 'role-member-select';
+
+  const { closeDropdown } = useCloseDropdown();
   const [searchFilter, setSearchFilter] = useState('');
   const currentWorkspaceMembers = useRecoilValue(currentWorkspaceMembersState);
   const currentWorkspaceMember = useRecoilValue(currentWorkspaceMemberState);
@@ -142,20 +144,17 @@ export const SettingsRoleAssignment = ({
   };
 
   const handleSelectWorkspaceMember = (
-    workspaceMemberSearchRecord: SearchRecord,
+    workspaceMember: CurrentWorkspaceMember,
   ) => {
-    const existingRole = workspaceMemberRoleMap.get(
-      workspaceMemberSearchRecord.recordId,
-    );
+    const existingRole = workspaceMemberRoleMap.get(workspaceMember.id);
 
     setSelectedWorkspaceMember({
-      id: workspaceMemberSearchRecord.recordId,
-      name: `${workspaceMemberSearchRecord.label}`,
+      id: workspaceMember.id,
+      name: `${workspaceMember.name.firstName} ${workspaceMember.name.lastName}`,
       role: existingRole,
-      avatarUrl: workspaceMemberSearchRecord.imageUrl,
     });
     openModal(ROLE_ASSIGNMENT_CONFIRMATION_MODAL_ID);
-    closeDropdown();
+    closeDropdown(dropdownId);
   };
 
   const isModalOpened = useRecoilComponentValueV2(
@@ -211,6 +210,7 @@ export const SettingsRoleAssignment = ({
         />
         <StyledSearchContainer>
           <StyledSearchInput
+            instanceId="role-assignment-member-search"
             value={searchFilter}
             onChange={handleSearchChange}
             placeholder={t`Search an assigned team member...`}
@@ -242,7 +242,7 @@ export const SettingsRoleAssignment = ({
         <StyledAssignToMemberContainer>
           <Dropdown
             dropdownId="role-member-select"
-            dropdownHotkeyScope={{ scope: 'roleAssignment' }}
+            dropdownOffset={{ x: 0, y: 4 }}
             clickableComponent={
               <>
                 <div id="assign-member">
@@ -256,7 +256,7 @@ export const SettingsRoleAssignment = ({
                 </div>
                 <AppTooltip
                   anchorSelect="#assign-member"
-                  content={t`No more members to assign`}
+                  content={t`The workspace needs at least one Admin`}
                   delay={TooltipDelay.noDelay}
                   hidden={!allWorkspaceMembersHaveThisRole}
                 />

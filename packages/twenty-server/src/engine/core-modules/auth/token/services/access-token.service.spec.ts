@@ -10,7 +10,6 @@ import { AuthException } from 'src/engine/core-modules/auth/auth.exception';
 import { JwtAuthStrategy } from 'src/engine/core-modules/auth/strategies/jwt.auth.strategy';
 import { EmailService } from 'src/engine/core-modules/email/email.service';
 import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
-import { SSOService } from 'src/engine/core-modules/sso/services/sso.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspace } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { User } from 'src/engine/core-modules/user/user.entity';
@@ -36,7 +35,7 @@ describe('AccessTokenService', () => {
           provide: JwtWrapperService,
           useValue: {
             sign: jest.fn(),
-            verifyWorkspaceToken: jest.fn(),
+            verifyJwtToken: jest.fn(),
             decode: jest.fn(),
             generateAppSecret: jest.fn(),
             extractJwtFromRequest: jest.fn(),
@@ -72,10 +71,6 @@ describe('AccessTokenService', () => {
         },
         {
           provide: EmailService,
-          useValue: {},
-        },
-        {
-          provide: SSOService,
           useValue: {},
         },
         {
@@ -138,7 +133,7 @@ describe('AccessTokenService', () => {
         } as any);
       jest.spyOn(jwtWrapperService, 'sign').mockReturnValue(mockToken);
 
-      const result = await service.generateAccessToken(userId, workspaceId);
+      const result = await service.generateAccessToken({ userId, workspaceId });
 
       expect(result).toEqual({
         token: mockToken,
@@ -159,7 +154,10 @@ describe('AccessTokenService', () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
 
       await expect(
-        service.generateAccessToken('non-existent-user', 'workspace-id'),
+        service.generateAccessToken({
+          userId: 'non-existent-user',
+          workspaceId: 'workspace-id',
+        }),
       ).rejects.toThrow(AuthException);
     });
   });
@@ -184,7 +182,7 @@ describe('AccessTokenService', () => {
         .spyOn(jwtWrapperService, 'extractJwtFromRequest')
         .mockReturnValue(() => mockToken);
       jest
-        .spyOn(jwtWrapperService, 'verifyWorkspaceToken')
+        .spyOn(jwtWrapperService, 'verifyJwtToken')
         .mockResolvedValue(undefined);
       jest
         .spyOn(jwtWrapperService, 'decode')
@@ -196,7 +194,7 @@ describe('AccessTokenService', () => {
       const result = await service.validateTokenByRequest(mockRequest);
 
       expect(result).toEqual(mockAuthContext);
-      expect(jwtWrapperService.verifyWorkspaceToken).toHaveBeenCalledWith(
+      expect(jwtWrapperService.verifyJwtToken).toHaveBeenCalledWith(
         mockToken,
         'ACCESS',
       );

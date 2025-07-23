@@ -3,20 +3,23 @@ import {
   FieldRelationFromManyValue,
   FieldRelationValue,
 } from '@/object-record/record-field/types/FieldMetadata';
+import { useMultipleRecordPickerOpen } from '@/object-record/record-picker/multiple-record-picker/hooks/useMultipleRecordPickerOpen';
 import { useMultipleRecordPickerPerformSearch } from '@/object-record/record-picker/multiple-record-picker/hooks/useMultipleRecordPickerPerformSearch';
 import { multipleRecordPickerPickableMorphItemsComponentState } from '@/object-record/record-picker/multiple-record-picker/states/multipleRecordPickerPickableMorphItemsComponentState';
 import { multipleRecordPickerSearchableObjectMetadataItemsComponentState } from '@/object-record/record-picker/multiple-record-picker/states/multipleRecordPickerSearchableObjectMetadataItemsComponentState';
-import { MultipleRecordPickerHotkeyScope } from '@/object-record/record-picker/multiple-record-picker/types/MultipleRecordPickerHotkeyScope';
 import { RecordPickerPickableMorphItem } from '@/object-record/record-picker/types/RecordPickerPickableMorphItem';
 import { recordStoreFamilyState } from '@/object-record/record-store/states/recordStoreFamilyState';
 import { recordStoreFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreFamilySelector';
-import { usePreviousHotkeyScope } from '@/ui/utilities/hotkey/hooks/usePreviousHotkeyScope';
+import { getRecordFieldInputInstanceId } from '@/object-record/utils/getRecordFieldInputId';
+import { usePushFocusItemToFocusStack } from '@/ui/utilities/focus/hooks/usePushFocusItemToFocusStack';
+import { FocusComponentType } from '@/ui/utilities/focus/types/FocusComponentType';
 import { useRecoilCallback } from 'recoil';
 
 export const useOpenRelationFromManyFieldInput = () => {
   const { performSearch } = useMultipleRecordPickerPerformSearch();
+  const { openMultipleRecordPicker } = useMultipleRecordPickerOpen();
 
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const { pushFocusItemToFocusStack } = usePushFocusItemToFocusStack();
 
   const openRelationFromManyFieldInput = useRecoilCallback(
     ({ set, snapshot }) =>
@@ -24,12 +27,18 @@ export const useOpenRelationFromManyFieldInput = () => {
         fieldName,
         objectNameSingular,
         recordId,
+        prefix,
       }: {
         fieldName: string;
         objectNameSingular: string;
         recordId: string;
+        prefix?: string;
       }) => {
-        const recordPickerInstanceId = `relation-from-many-field-input-${recordId}`;
+        const recordPickerInstanceId = getRecordFieldInputInstanceId({
+          recordId,
+          fieldName,
+          prefix,
+        });
 
         const fieldValue = snapshot
           .getLoadable<FieldRelationValue<FieldRelationFromManyValue>>(
@@ -52,6 +61,8 @@ export const useOpenRelationFromManyFieldInput = () => {
         if (!objectMetadataItem) {
           return;
         }
+
+        openMultipleRecordPicker(recordPickerInstanceId);
 
         const pickableMorphItems: RecordPickerPickableMorphItem[] =
           fieldValue.map((record) => {
@@ -88,11 +99,18 @@ export const useOpenRelationFromManyFieldInput = () => {
           forcePickableMorphItems: pickableMorphItems,
         });
 
-        setHotkeyScopeAndMemorizePreviousScope({
-          scope: MultipleRecordPickerHotkeyScope.MultipleRecordPicker,
+        pushFocusItemToFocusStack({
+          focusId: recordPickerInstanceId,
+          component: {
+            type: FocusComponentType.DROPDOWN,
+            instanceId: recordPickerInstanceId,
+          },
+          globalHotkeysConfig: {
+            enableGlobalHotkeysConflictingWithKeyboard: false,
+          },
         });
       },
-    [performSearch, setHotkeyScopeAndMemorizePreviousScope],
+    [openMultipleRecordPicker, performSearch, pushFocusItemToFocusStack],
   );
 
   return { openRelationFromManyFieldInput };

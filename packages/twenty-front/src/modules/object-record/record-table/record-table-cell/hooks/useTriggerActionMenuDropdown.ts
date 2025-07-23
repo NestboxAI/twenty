@@ -2,15 +2,15 @@ import { useRecoilCallback } from 'recoil';
 
 import { ActionMenuComponentInstanceContext } from '@/action-menu/states/contexts/ActionMenuComponentInstanceContext';
 import { recordIndexActionMenuDropdownPositionComponentState } from '@/action-menu/states/recordIndexActionMenuDropdownPositionComponentState';
-import { ActionMenuDropdownHotkeyScope } from '@/action-menu/types/ActionMenuDropdownHotKeyScope';
 import { getActionMenuDropdownIdFromActionMenuId } from '@/action-menu/utils/getActionMenuDropdownIdFromActionMenuId';
 import { useCommandMenu } from '@/command-menu/hooks/useCommandMenu';
 import { isRowSelectedComponentFamilyState } from '@/object-record/record-table/record-table-row/states/isRowSelectedComponentFamilyState';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
+import { useOpenDropdown } from '@/ui/layout/dropdown/hooks/useOpenDropdown';
 import { getSnapshotValue } from '@/ui/utilities/recoil-scope/utils/getSnapshotValue';
 import { useAvailableComponentInstanceIdOrThrow } from '@/ui/utilities/state/component-state/hooks/useAvailableComponentInstanceIdOrThrow';
 import { useRecoilComponentCallbackStateV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentCallbackStateV2';
 import { extractComponentState } from '@/ui/utilities/state/component-state/utils/extractComponentState';
+
 export const useTriggerActionMenuDropdown = ({
   recordTableId,
 }: {
@@ -33,7 +33,7 @@ export const useTriggerActionMenuDropdown = ({
     actionMenuDropdownId,
   );
 
-  const { openDropdown } = useDropdown(actionMenuDropdownId);
+  const { openDropdown } = useOpenDropdown();
 
   const { closeCommandMenu } = useCommandMenu();
 
@@ -59,7 +59,7 @@ export const useTriggerActionMenuDropdown = ({
         closeCommandMenu();
 
         openDropdown({
-          scope: ActionMenuDropdownHotkeyScope.ActionMenuDropdown,
+          dropdownComponentInstanceIdFromProps: actionMenuDropdownId,
         });
       },
     [
@@ -67,6 +67,7 @@ export const useTriggerActionMenuDropdown = ({
       isRowSelectedFamilyState,
       closeCommandMenu,
       openDropdown,
+      actionMenuDropdownId,
     ],
   );
 

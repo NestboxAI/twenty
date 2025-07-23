@@ -64,6 +64,22 @@ const SettingsNewObject = lazy(() =>
   })),
 );
 
+const SettingsNewImapSmtpCaldavConnection = lazy(() =>
+  import(
+    '@/settings/accounts/components/SettingsAccountsNewImapSmtpCaldavConnection'
+  ).then((module) => ({
+    default: module.SettingsAccountsNewImapSmtpCaldavConnection,
+  })),
+);
+
+const SettingsEditImapSmtpCaldavConnection = lazy(() =>
+  import(
+    '@/settings/accounts/components/SettingsAccountsEditImapSmtpCaldavConnection'
+  ).then((module) => ({
+    default: module.SettingsAccountsEditImapSmtpCaldavConnection,
+  })),
+);
+
 const SettingsObjectDetailPage = lazy(() =>
   import('~/pages/settings/data-model/SettingsObjectDetailPage').then(
     (module) => ({
@@ -182,11 +198,19 @@ const SettingsObjects = lazy(() =>
   })),
 );
 
-const SettingsDevelopersWebhooksDetail = lazy(() =>
+const SettingsDevelopersWebhookNew = lazy(() =>
+  import(
+    '~/pages/settings/developers/webhooks/components/SettingsDevelopersWebhookNew'
+  ).then((module) => ({
+    default: module.SettingsDevelopersWebhookNew,
+  })),
+);
+
+const SettingsDevelopersWebhookDetail = lazy(() =>
   import(
     '~/pages/settings/developers/webhooks/components/SettingsDevelopersWebhookDetail'
   ).then((module) => ({
-    default: module.SettingsDevelopersWebhooksDetail,
+    default: module.SettingsDevelopersWebhookDetail,
   })),
 );
 
@@ -224,7 +248,7 @@ const SettingsIntegrationShowDatabaseConnection = lazy(() =>
 
 const SettingsObjectNewFieldSelect = lazy(() =>
   import(
-    '~/pages/settings/data-model/SettingsObjectNewField/SettingsObjectNewFieldSelect'
+    '~/pages/settings/data-model/new-field/SettingsObjectNewFieldSelect'
   ).then((module) => ({
     default: module.SettingsObjectNewFieldSelect,
   })),
@@ -232,7 +256,7 @@ const SettingsObjectNewFieldSelect = lazy(() =>
 
 const SettingsObjectNewFieldConfigure = lazy(() =>
   import(
-    '~/pages/settings/data-model/SettingsObjectNewField/SettingsObjectNewFieldConfigure'
+    '~/pages/settings/data-model/new-field/SettingsObjectNewFieldConfigure'
   ).then((module) => ({
     default: module.SettingsObjectNewFieldConfigure,
   })),
@@ -319,6 +343,14 @@ const SettingsRoleObjectLevel = lazy(() =>
   })),
 );
 
+const SettingsRoleAddObjectLevel = lazy(() =>
+  import('~/pages/settings/roles/SettingsRoleAddObjectLevel').then(
+    (module) => ({
+      default: module.SettingsRoleAddObjectLevel,
+    }),
+  ),
+);
+
 type SettingsRoutesProps = {
   isFunctionSettingsEnabled?: boolean;
   isAdminPageEnabled?: boolean;
@@ -341,6 +373,14 @@ export const SettingsRoutes = ({
       <Route
         path={SettingsPath.AccountsEmails}
         element={<SettingsAccountsEmails />}
+      />
+      <Route
+        path={SettingsPath.NewImapSmtpCaldavConnection}
+        element={<SettingsNewImapSmtpCaldavConnection />}
+      />
+      <Route
+        path={SettingsPath.EditImapSmtpCaldavConnection}
+        element={<SettingsEditImapSmtpCaldavConnection />}
       />
       <Route
         element={
@@ -412,6 +452,10 @@ export const SettingsRoutes = ({
           path={SettingsPath.RoleObjectLevel}
           element={<SettingsRoleObjectLevel />}
         />
+        <Route
+          path={SettingsPath.RoleAddObjectLevel}
+          element={<SettingsRoleAddObjectLevel />}
+        />
       </Route>
       <Route
         element={
@@ -431,16 +475,20 @@ export const SettingsRoutes = ({
           element={<SettingsRestPlayground />}
         />
         <Route
-          path={SettingsPath.DevelopersNewApiKey}
+          path={SettingsPath.NewApiKey}
           element={<SettingsDevelopersApiKeysNew />}
         />
         <Route
-          path={SettingsPath.DevelopersApiKeyDetail}
+          path={SettingsPath.ApiKeyDetail}
           element={<SettingsDevelopersApiKeyDetail />}
         />
         <Route
-          path={SettingsPath.DevelopersNewWebhookDetail}
-          element={<SettingsDevelopersWebhooksDetail />}
+          path={SettingsPath.NewWebhook}
+          element={<SettingsDevelopersWebhookNew />}
+        />
+        <Route
+          path={SettingsPath.WebhookDetail}
+          element={<SettingsDevelopersWebhookDetail />}
         />
         <Route
           path={SettingsPath.Integrations}

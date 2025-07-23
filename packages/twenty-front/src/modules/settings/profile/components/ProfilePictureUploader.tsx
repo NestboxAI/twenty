@@ -5,8 +5,8 @@ import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMembe
 import { CoreObjectNameSingular } from '@/object-metadata/types/CoreObjectNameSingular';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { ImageInput } from '@/ui/input/components/ImageInput';
-import { isDefined } from 'twenty-shared/utils';
-import { useUploadProfilePictureMutation } from '~/generated/graphql';
+import { buildSignedPath, isDefined } from 'twenty-shared/utils';
+import { useUploadProfilePictureMutation } from '~/generated-metadata/graphql';
 import { isUndefinedOrNull } from '~/utils/isUndefinedOrNull';
 
 export const ProfilePictureUploader = () => {
@@ -51,22 +51,22 @@ export const ProfilePictureUploader = () => {
       setUploadController(null);
       setErrorMessage(null);
 
-      const avatarUrl = result?.data?.uploadProfilePicture.split('?')[0];
+      const signedFile = result?.data?.uploadProfilePicture;
 
-      if (!avatarUrl) {
+      if (!isDefined(signedFile)) {
         throw new Error('Avatar URL not found');
       }
 
       await updateOneRecord({
         idToUpdate: currentWorkspaceMember?.id,
         updateOneRecordInput: {
-          avatarUrl,
+          avatarUrl: signedFile.path,
         },
       });
 
       setCurrentWorkspaceMember({
         ...currentWorkspaceMember,
-        avatarUrl: result?.data?.uploadProfilePicture,
+        avatarUrl: buildSignedPath(signedFile),
       });
 
       return result;

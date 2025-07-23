@@ -9,7 +9,6 @@ import { useShouldActionBeRegisteredParams } from '@/action-menu/hooks/useShould
 import { contextStoreTargetedRecordsRuleComponentState } from '@/context-store/states/contextStoreTargetedRecordsRuleComponentState';
 import { ObjectMetadataItem } from '@/object-metadata/types/ObjectMetadataItem';
 import { useRecoilComponentValueV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValueV2';
-import { useWorkflowWithCurrentVersion } from '@/workflow/hooks/useWorkflowWithCurrentVersion';
 
 export const ActionMenuContextProviderWorkflowsEnabled = ({
   objectMetadataItem,
@@ -28,13 +27,8 @@ export const ActionMenuContextProviderWorkflowsEnabled = ({
     objectMetadataItem,
   });
 
-  const workflowWithCurrentVersion = useWorkflowWithCurrentVersion(
-    params.selectedRecord?.id,
-  );
-
   const shouldBeRegisteredParams = {
     ...params,
-    workflowWithCurrentVersion,
   };
 
   const actions = useRegisteredActions(shouldBeRegisteredParams);
@@ -43,13 +37,13 @@ export const ActionMenuContextProviderWorkflowsEnabled = ({
     contextStoreTargetedRecordsRuleComponentState,
   );
 
-  const isSingleRecordSelection =
+  const isRecordSelection =
     contextStoreTargetedRecordsRule.mode === 'selection' &&
-    contextStoreTargetedRecordsRule.selectedRecordIds.length === 1;
+    contextStoreTargetedRecordsRule.selectedRecordIds.length > 0;
 
   const runWorkflowRecordActions = useRunWorkflowRecordActions({
     objectMetadataItem,
-    skip: !isSingleRecordSelection,
+    skip: !isRecordSelection,
   });
 
   const runWorkflowRecordAgnosticActions =

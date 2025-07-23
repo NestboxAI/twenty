@@ -2,10 +2,10 @@ import { getOperationName } from '@apollo/client/utilities';
 import { graphql, GraphQLQuery, http, HttpResponse } from 'msw';
 
 import { TRACK_ANALYTICS } from '@/analytics/graphql/queries/track';
-import { GET_CLIENT_CONFIG } from '@/client-config/graphql/queries/getClientConfig';
 import { FIND_MANY_OBJECT_METADATA_ITEMS } from '@/object-metadata/graphql/queries';
 import { GET_CURRENT_USER } from '@/users/graphql/queries/getCurrentUser';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
+import { mockedApiKeys } from '~/testing/mock-data/api-keys';
 import {
   getCompaniesMock,
   getCompanyDuplicateMock,
@@ -15,6 +15,7 @@ import { mockedFavoritesData } from '~/testing/mock-data/favorite';
 import { mockedFavoriteFoldersData } from '~/testing/mock-data/favorite-folders';
 import { mockedNotes } from '~/testing/mock-data/notes';
 import { getPeopleRecordConnectionMock } from '~/testing/mock-data/people';
+import { mockedPublicWorkspaceDataBySubdomain } from '~/testing/mock-data/publicWorkspaceDataBySubdomain';
 import { mockedRemoteTables } from '~/testing/mock-data/remote-tables';
 import { mockedUserData } from '~/testing/mock-data/users';
 import { mockedViewsData } from '~/testing/mock-data/views';
@@ -90,22 +91,8 @@ export const graphqlMocks = {
       () => {
         return HttpResponse.json({
           data: {
-            getPublicWorkspaceDataByDomain: {
-              id: 'id',
-              logo: 'logo',
-              displayName: 'displayName',
-              workspaceUrls: {
-                customUrl: undefined,
-                subdomainUrl: 'https://twenty.com',
-              },
-              authProviders: {
-                google: true,
-                microsoft: false,
-                password: true,
-                magicLink: false,
-                sso: [],
-              },
-            },
+            getPublicWorkspaceDataByDomain:
+              mockedPublicWorkspaceDataBySubdomain,
           },
         });
       },
@@ -117,12 +104,8 @@ export const graphqlMocks = {
         },
       });
     }),
-    graphql.query(getOperationName(GET_CLIENT_CONFIG) ?? '', () => {
-      return HttpResponse.json({
-        data: {
-          clientConfig: mockedClientConfig,
-        },
-      });
+    http.get(`${REACT_APP_SERVER_BASE_URL}/client-config`, () => {
+      return HttpResponse.json(mockedClientConfig);
     }),
     metadataGraphql.query(
       getOperationName(FIND_MANY_OBJECT_METADATA_ITEMS) ?? '',
@@ -708,6 +691,65 @@ export const graphqlMocks = {
         `,
         { status: 200 },
       );
+    }),
+    metadataGraphql.query('GetApiKeys', () => {
+      return HttpResponse.json({
+        data: {
+          apiKeys: mockedApiKeys.map((apiKey) => ({
+            __typename: 'ApiKey',
+            ...apiKey,
+            revokedAt: null,
+          })),
+        },
+      });
+    }),
+    metadataGraphql.query('GetApiKey', ({ variables }) => {
+      const apiKeyId = variables.input?.id;
+      const apiKey = mockedApiKeys.find((key) => key.id === apiKeyId);
+
+      return HttpResponse.json({
+        data: {
+          apiKey: apiKey
+            ? {
+                __typename: 'ApiKey',
+                ...apiKey,
+                revokedAt: null,
+              }
+            : null,
+        },
+      });
+    }),
+    metadataGraphql.query('GetWebhooks', () => {
+      return HttpResponse.json({
+        data: {
+          webhooks: [
+            {
+              __typename: 'Webhook',
+              id: '1234',
+              targetUrl: 'https://api.slackbot.io/webhooks/twenty',
+              operations: ['*.created', '*.updated'],
+              description: 'Slack notifications for lead updates',
+              secret: 'sample-secret',
+            },
+          ],
+        },
+      });
+    }),
+    metadataGraphql.query('GetWebhook', ({ variables }) => {
+      const webhookId = variables.input?.id;
+
+      return HttpResponse.json({
+        data: {
+          webhook: {
+            __typename: 'Webhook',
+            id: webhookId || '1234',
+            targetUrl: 'https://api.slackbot.io/webhooks/twenty',
+            operations: ['*.created', '*.updated'],
+            description: 'Slack notifications for lead updates',
+            secret: 'sample-secret',
+          },
+        },
+      });
     }),
   ],
 };

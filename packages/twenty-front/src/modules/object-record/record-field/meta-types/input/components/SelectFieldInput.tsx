@@ -1,11 +1,12 @@
 import { useClearField } from '@/object-record/record-field/hooks/useClearField';
 import { useSelectField } from '@/object-record/record-field/meta-types/hooks/useSelectField';
 import { SELECT_FIELD_INPUT_SELECTABLE_LIST_COMPONENT_INSTANCE_ID } from '@/object-record/record-field/meta-types/input/constants/SelectFieldInputSelectableListComponentInstanceId';
+import { RecordFieldComponentInstanceContext } from '@/object-record/record-field/states/contexts/RecordFieldComponentInstanceContext';
 import { FieldInputEvent } from '@/object-record/record-field/types/FieldInputEvent';
-import { DEFAULT_CELL_SCOPE } from '@/object-record/record-table/record-table-cell/hooks/useOpenRecordTableCellV2';
 import { SelectInput } from '@/ui/field/input/components/SelectInput';
 import { useSelectableList } from '@/ui/layout/selectable-list/hooks/useSelectableList';
-import { useScopedHotkeys } from '@/ui/utilities/hotkey/hooks/useScopedHotkeys';
+import { useHotkeysOnFocusedElement } from '@/ui/utilities/hotkey/hooks/useHotkeysOnFocusedElement';
+import { useAvailableComponentInstanceIdOrThrow } from '@/ui/utilities/state/component-state/hooks/useAvailableComponentInstanceIdOrThrow';
 import { useState } from 'react';
 import { Key } from 'ts-key-enum';
 import { isDefined } from 'twenty-shared/utils';
@@ -21,6 +22,10 @@ export const SelectFieldInput = ({
   onCancel,
 }: SelectFieldInputProps) => {
   const { persistField, fieldDefinition, fieldValue } = useSelectField();
+
+  const instanceId = useAvailableComponentInstanceIdOrThrow(
+    RecordFieldComponentInstanceContext,
+  );
 
   const [filteredOptions, setFilteredOptions] = useState<SelectOption[]>([]);
 
@@ -44,15 +49,15 @@ export const SelectFieldInput = ({
     resetSelectedItem();
   };
 
-  useScopedHotkeys(
-    Key.Escape,
-    () => {
+  useHotkeysOnFocusedElement({
+    keys: [Key.Escape],
+    callback: () => {
       onCancel?.();
       resetSelectedItem();
     },
-    DEFAULT_CELL_SCOPE.scope,
-    [onCancel, resetSelectedItem],
-  );
+    focusId: instanceId,
+    dependencies: [onCancel, resetSelectedItem],
+  });
 
   const optionIds = [
     `No ${fieldDefinition.label}`,
@@ -65,7 +70,7 @@ export const SelectFieldInput = ({
         SELECT_FIELD_INPUT_SELECTABLE_LIST_COMPONENT_INSTANCE_ID
       }
       selectableItemIdArray={optionIds}
-      hotkeyScope={DEFAULT_CELL_SCOPE.scope}
+      focusId={instanceId}
       onEnter={(itemId) => {
         const option = filteredOptions.find(
           (option) => option.value === itemId,

@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { TypeORMModule } from 'src/database/typeorm/typeorm.module';
+import { ApiKey } from 'src/engine/core-modules/api-key/api-key.entity';
 import { AppToken } from 'src/engine/core-modules/app-token/app-token.entity';
 import { AppTokenService } from 'src/engine/core-modules/app-token/services/app-token.service';
 import { GoogleAPIsAuthController } from 'src/engine/core-modules/auth/controllers/google-apis-auth.controller';
@@ -17,6 +18,7 @@ import { CreateCalendarChannelService } from 'src/engine/core-modules/auth/servi
 import { CreateConnectedAccountService } from 'src/engine/core-modules/auth/services/create-connected-account.service';
 import { CreateMessageChannelService } from 'src/engine/core-modules/auth/services/create-message-channel.service';
 import { CreateMessageFolderService } from 'src/engine/core-modules/auth/services/create-message-folder.service';
+import { GoogleAPIScopesService } from 'src/engine/core-modules/auth/services/google-apis-scopes';
 import { GoogleAPIsService } from 'src/engine/core-modules/auth/services/google-apis.service';
 import { MicrosoftAPIsService } from 'src/engine/core-modules/auth/services/microsoft-apis.service';
 import { ResetCalendarChannelService } from 'src/engine/core-modules/auth/services/reset-calendar-channel.service';
@@ -78,6 +80,7 @@ import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
         Workspace,
         User,
         AppToken,
+        ApiKey,
         FeatureFlag,
         WorkspaceSSOIdentityProvider,
         KeyValuePair,
@@ -85,7 +88,7 @@ import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
       ],
       'core',
     ),
-    TypeOrmModule.forFeature([ObjectMetadataEntity], 'metadata'),
+    TypeOrmModule.forFeature([ObjectMetadataEntity], 'core'),
     HttpModule,
     UserWorkspaceModule,
     WorkspaceModule,
@@ -115,6 +118,7 @@ import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
     SamlAuthStrategy,
     AuthResolver,
     GoogleAPIsService,
+    GoogleAPIScopesService,
     MicrosoftAPIsService,
     AppTokenService,
     AccessTokenService,

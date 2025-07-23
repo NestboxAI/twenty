@@ -5,19 +5,22 @@ import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { DropdownMenuSearchInput } from '@/ui/layout/dropdown/components/DropdownMenuSearchInput';
 import { DropdownMenuSeparator } from '@/ui/layout/dropdown/components/DropdownMenuSeparator';
-import { useDropdown } from '@/ui/layout/dropdown/hooks/useDropdown';
 
+import { SelectValue } from '@/ui/input/components/internal/select/types';
 import { SelectControl } from '@/ui/input/components/SelectControl';
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
+import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
+import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { DropdownOffset } from '@/ui/layout/dropdown/types/DropdownOffset';
 import { SelectableList } from '@/ui/layout/selectable-list/components/SelectableList';
 import { SelectableListItem } from '@/ui/layout/selectable-list/components/SelectableListItem';
+import { useSelectableList } from '@/ui/layout/selectable-list/hooks/useSelectableList';
 import { selectedItemIdComponentState } from '@/ui/layout/selectable-list/states/selectedItemIdComponentState';
 import { useRecoilComponentValueV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValueV2';
 import { isDefined } from 'twenty-shared/utils';
 import { IconComponent } from 'twenty-ui/display';
 import { SelectOption } from 'twenty-ui/input';
 import { MenuItem, MenuItemSelect } from 'twenty-ui/navigation';
-import { SelectHotkeyScope } from '../types/SelectHotkeyScope';
 
 export type SelectSizeVariant = 'small' | 'default';
 
@@ -26,8 +29,6 @@ type CallToActionButton = {
   onClick: (event: MouseEvent<HTMLDivElement>) => void;
   Icon?: IconComponent;
 };
-
-export type SelectValue = string | number | boolean | null;
 
 export type SelectProps<Value extends SelectValue> = {
   className?: string;
@@ -39,6 +40,7 @@ export type SelectProps<Value extends SelectValue> = {
   emptyOption?: SelectOption<Value>;
   fullWidth?: boolean;
   label?: string;
+  description?: string;
   onChange?: (value: Value) => void;
   onBlur?: () => void;
   options: SelectOption<Value>[];
@@ -48,6 +50,7 @@ export type SelectProps<Value extends SelectValue> = {
   callToActionButton?: CallToActionButton;
   dropdownOffset?: DropdownOffset;
   hasRightElement?: boolean;
+  isDropdownInModal?: boolean;
 };
 
 const StyledContainer = styled.div<{ fullWidth?: boolean }>`
@@ -62,16 +65,22 @@ const StyledLabel = styled.span`
   margin-bottom: ${({ theme }) => theme.spacing(1)};
 `;
 
+const StyledDescription = styled.span`
+  color: ${({ theme }) => theme.font.color.light};
+  font-size: ${({ theme }) => theme.font.size.sm};
+`;
+
 export const Select = <Value extends SelectValue>({
   className,
   disabled: disabledFromProps,
   selectSizeVariant,
   dropdownId,
-  dropdownWidth = 176,
+  dropdownWidth = GenericDropdownContentWidth.Medium,
   dropdownWidthAuto = false,
   emptyOption,
   fullWidth,
   label,
+  description,
   onChange,
   onBlur,
   options,
@@ -81,6 +90,7 @@ export const Select = <Value extends SelectValue>({
   callToActionButton,
   dropdownOffset,
   hasRightElement,
+  isDropdownInModal,
 }: SelectProps<Value>) => {
   const selectContainerRef = useRef<HTMLDivElement>(null);
 
@@ -90,6 +100,7 @@ export const Select = <Value extends SelectValue>({
     options.find(({ value: key }) => key === value) ||
     emptyOption ||
     options[0];
+
   const filteredOptions = useMemo(
     () =>
       searchInputValue
@@ -106,7 +117,7 @@ export const Select = <Value extends SelectValue>({
       !isDefined(callToActionButton) &&
       (!isDefined(emptyOption) || selectedOption !== emptyOption));
 
-  const { closeDropdown } = useDropdown(dropdownId);
+  const { closeDropdown } = useCloseDropdown();
 
   const dropDownMenuWidth =
     dropdownWidthAuto && selectContainerRef.current?.clientWidth
@@ -119,6 +130,14 @@ export const Select = <Value extends SelectValue>({
     selectedItemIdComponentState,
     dropdownId,
   );
+
+  const { setSelectedItemId } = useSelectableList(dropdownId);
+
+  const handleDropdownOpen = () => {
+    if (selectedOption && !searchInputValue) {
+      setSelectedItemId(selectedOption.label);
+    }
+  };
 
   return (
     <StyledContainer
@@ -139,9 +158,10 @@ export const Select = <Value extends SelectValue>({
       ) : (
         <Dropdown
           dropdownId={dropdownId}
-          dropdownWidth={dropDownMenuWidth}
           dropdownPlacement="bottom-start"
           dropdownOffset={dropdownOffset}
+          onOpen={handleDropdownOpen}
+          isDropdownInModal={isDropdownInModal}
           clickableComponent={
             <SelectControl
               selectedOption={selectedOption}
@@ -151,7 +171,7 @@ export const Select = <Value extends SelectValue>({
             />
           }
           dropdownComponents={
-            <>
+            <DropdownContent widthInPixels={dropDownMenuWidth}>
               {!!withSearchInput && (
                 <DropdownMenuSearchInput
                   autoFocus
@@ -163,10 +183,10 @@ export const Select = <Value extends SelectValue>({
                 <DropdownMenuSeparator />
               )}
               {!!filteredOptions.length && (
-                <DropdownMenuItemsContainer hasMaxHeight width={'auto'}>
+                <DropdownMenuItemsContainer hasMaxHeight>
                   <SelectableList
-                    hotkeyScope={SelectHotkeyScope.Select}
                     selectableListInstanceId={dropdownId}
+                    focusId={dropdownId}
                     selectableItemIdArray={selectableItemIdArray}
                   >
                     {filteredOptions.map((option) => (
@@ -176,7 +196,7 @@ export const Select = <Value extends SelectValue>({
                         onEnter={() => {
                           onChange?.(option.value);
                           onBlur?.();
-                          closeDropdown();
+                          closeDropdown(dropdownId);
                         }}
                       >
                         <MenuItemSelect
@@ -188,7 +208,7 @@ export const Select = <Value extends SelectValue>({
                           onClick={() => {
                             onChange?.(option.value);
                             onBlur?.();
-                            closeDropdown();
+                            closeDropdown(dropdownId);
                           }}
                         />
                       </SelectableListItem>
@@ -208,11 +228,11 @@ export const Select = <Value extends SelectValue>({
                   />
                 </DropdownMenuItemsContainer>
               )}
-            </>
+            </DropdownContent>
           }
-          dropdownHotkeyScope={{ scope: SelectHotkeyScope.Select }}
         />
       )}
+      {!!description && <StyledDescription>{description}</StyledDescription>}
     </StyledContainer>
   );
 };

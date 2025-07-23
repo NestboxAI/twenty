@@ -14,10 +14,6 @@ import { ApiKeyNotificationService } from './services/api-key-notification.servi
 interface ApiKeyCreateOptions {
     workspace: string;
     name: string;
-    domain?: string;
-    ip?: string;
-    gmailEnabled?: boolean;
-    googleCalendarEnabled?: boolean;
 }
 
 @Command({
@@ -54,42 +50,6 @@ export class ApiKeyCreateCommand extends CommandRunner {
     })
     parseName(value: string): string {
         return value;
-    }
-
-    @Option({
-      flags: '--domain <domain>',
-      description: 'Domain name',
-      required: false,
-    })
-    parseDomain(value: string): string {
-      return value;
-    }
-
-    @Option({
-      flags: '--ip <ip>',
-      description: 'Public IP',
-      required: false,
-    })
-    parseIp(value: string): string {
-      return value;
-    }
-
-    @Option({
-        flags: '--gmail-enabled <gmailEnabled>',
-        description: 'Enabled Gmail integration',
-        required: false,
-    })
-    parseGmailEnabled(value: string): boolean {
-        return value === 'true';
-    }
-
-    @Option({
-        flags: '--google-calendar-enabled <googleCalendarEnabled>',
-        description: 'Enabled Google Calendar integration',
-        required: false,
-    })
-    parseGoogleCalendarEnabled(value: string): boolean {
-        return value === 'true';
     }
 
     async run(
@@ -180,14 +140,6 @@ export class ApiKeyCreateCommand extends CommandRunner {
             this.logger.log(`Workspace ID: ${workspace.id}`);
             this.logger.log(`Workspace Name: ${workspace.displayName}`);
             this.logger.log(`Expires At: ${expiresAt.toISOString()}`);
-            this.logger.log(`Domain name: ${options.domain}`);
-            this.logger.log(`Public IP: ${options.ip}`);
-            this.logger.log(
-              `Gmail Enabled: ${options.gmailEnabled}`
-            );
-            this.logger.log(
-              `Google Calendar Enabled: ${options.googleCalendarEnabled}`
-            );
             this.logger.log('');
             this.logger.log('='.repeat(60));
 
@@ -203,10 +155,6 @@ export class ApiKeyCreateCommand extends CommandRunner {
                         workspaceName: workspace.displayName || 'Unknown Workspace',
                         adminEmail: adminEmail,
                         adminPassword: adminPassword,
-                        domainName: options.domain,
-                        publicIp: options.ip,
-                        isGmailEnabled: options.gmailEnabled,
-                        isGoogleCalendarEnabled: options.googleCalendarEnabled,
                     });
                     this.logger.log('✅ API key notification email sent successfully!');
                 } catch (emailError) {

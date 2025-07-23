@@ -38,8 +38,9 @@ export const ObjectFilterDropdownNumberInput = () => {
   };
 
   return (
-    <DropdownMenuItemsContainer width="auto">
+    <DropdownMenuItemsContainer>
       <DropdownMenuInput
+        instanceId="object-filter-dropdown-number-input"
         ref={handleInputRef}
         value={objectFilterDropdownFilterValue}
         autoFocus
