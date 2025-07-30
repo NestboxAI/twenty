@@ -17,6 +17,14 @@ import { DataSourceEntity } from 'src/engine/metadata-modules/data-source/data-s
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { TwentyORMGlobalManager } from 'src/engine/twenty-orm/twenty-orm-global.manager';
 
+const stripFormatting = (text: string | null | undefined): string => {
+  if (!text) return '';
+  return text
+    .replace(/\n+/g, ' ')
+    .replace(/[*_`~]/g, '')
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1');
+};
+
 @Processor(MessageQueue.cronQueue)
 export class NestboxAiAgentCronJob {
   constructor(
@@ -172,6 +180,23 @@ export class NestboxAiAgentCronJob {
           position: vg.position
         }));
 
+        // Step 6b: Load relation fields for the object
+        const relationFieldsResult = await workspaceDataSource.query(
+          `SELECT f.name, f."settings"->>'joinColumnName' as "joinColumnName", om."nameSingular", om."isCustom"
+           FROM "core"."fieldMetadata" f
+           LEFT JOIN "core"."objectMetadata" om ON om.id = f."relationTargetObjectMetadataId"
+           WHERE f."objectMetadataId" = $1 AND f.type = 'RELATION' AND f."settings"->>'joinColumnName' IS NOT NULL`,
+          [aiAgentConfig.objectMetadataId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
+        );
+
+        const relationFields = relationFieldsResult.map((r: any) => ({
+          fieldName: r.name,
+          joinColumnName: r.joinColumnName,
+          tableName: r.isCustom ? `_${r.nameSingular}` : r.nameSingular,
+        }));
+
         // Step 7: Query records that match current fieldValue with related notes, tasks, and attachments
         let notesJoin = '';
         let notesSelect = '';
@@ -181,7 +206,7 @@ export class NestboxAiAgentCronJob {
             LEFT JOIN "${dataSource.schema}"."noteTarget" 
               ON "noteTarget"."${objectMetadata.nameSingular}Id" = main.id
             LEFT JOIN "${dataSource.schema}"."note" note 
-              ON note.id = "noteTarget"."noteId"`;
+              ON note.id = "noteTarget"."noteId" AND note."deletedAt" IS NULL`;
 
           notesSelect = `,
             COALESCE(
@@ -205,9 +230,9 @@ export class NestboxAiAgentCronJob {
             LEFT JOIN "${dataSource.schema}"."taskTarget" 
               ON "taskTarget"."${objectMetadata.nameSingular}Id" = main.id
             LEFT JOIN "${dataSource.schema}"."task" task 
-              ON task.id = "taskTarget"."taskId"
+              ON task.id = "taskTarget"."taskId" AND task."deletedAt" IS NULL
             LEFT JOIN "${dataSource.schema}"."attachment" 
-              ON "attachment"."${objectMetadata.nameSingular}Id" = main.id
+              ON "attachment"."${objectMetadata.nameSingular}Id" = main.id AND "attachment"."deletedAt" IS NULL
             ${notesJoin}
             WHERE main."${fieldName}" = $1
               AND main."deletedAt" IS NULL
@@ -239,9 +264,36 @@ export class NestboxAiAgentCronJob {
               // Step 8a: Call Nestbox AI API for each record
               console.log(`🤖 Processing record ${record.id} with Nestbox AI agent ${aiAgentConfig.agent}`);
 
+              // Sanitize notes and tasks
+              const sanitizedNotes = (record.notes || []).filter((n: any) => n.deletedAt === null).map((n: any) => ({
+                ...n,
+                plainBody: stripFormatting(n.bodyV2?.markdown || n.body),
+              }));
+              const sanitizedTasks = (record.tasks || []).filter((t: any) => t.deletedAt === null).map((t: any) => ({
+                ...t,
+                plainBody: stripFormatting(t.bodyV2?.markdown || t.body),
+              }));
+
+              // Load related objects
+              const relatedObjects: Record<string, any> = {};
+              for (const rel of relationFields) {
+                const relatedId = record[rel.joinColumnName];
+                if (!relatedId) continue;
+                const relRes = await workspaceDataSource.query(
+                  `SELECT * FROM "${dataSource.schema}"."${rel.tableName}" WHERE id = $1 AND "deletedAt" IS NULL LIMIT 1`,
+                  [relatedId],
+                  undefined,
+                  { shouldBypassPermissionChecks: true }
+                );
+                if (relRes.length > 0) relatedObjects[rel.fieldName] = relRes[0];
+              }
+
               // Add view group information to the record
               const enrichedRecord = {
                 ...record,
+                ...relatedObjects,
+                notes: sanitizedNotes,
+                tasks: sanitizedTasks,
                 viewGroupContext: {
                   availableViewGroups: availableViewGroups,
                   currentViewGroup: {
@@ -251,28 +303,36 @@ export class NestboxAiAgentCronJob {
                 },
                 NestboxApiPath: objectMetadata.namePlural,
                 NestboxTwentyObjectName: objectMetadata.nameSingular,
+                NestboxTwentyURL: this.twentyConfigService.get('SERVER_URL'),
+                NestboxTwentyAPIToken: this.twentyConfigService.get('NESTBOX_AI_INSTANCE_API_KEY'),
+                NestboxStateFieldName: fieldName,
+                aiWorkflow: aiAgentConfig.agent,
               };
 
-              const queries = await queryApi.agentOperationsQueryControllerCreateQuery(aiAgentConfig.agent, {
-                params: {
-                  data: enrichedRecord,
-                  additional_agent: aiAgentConfig.additionalInput,
-                }
-              });
+              console.log('DATA:', enrichedRecord);
 
-              console.log(`✅ Nestbox AI query response for record ${record.id}:`, queries.data);
+              // const queries = await queryApi.agentOperationsQueryControllerCreateQuery(aiAgentConfig.agent, {
+              //   params: {
+              //     data: enrichedRecord,
+              //     additional_agent: aiAgentConfig.additionalInput,
+              //   }
+              // });
+
+              await new Promise((r) => setTimeout(r, 100));
+
+              // console.log(`✅ Nestbox AI query response for record ${record.id}:`, queries.data);
 
               // Step 8b: Update individual record to next position's fieldValue
-              await workspaceDataSource.query(
-                `UPDATE "${dataSource.schema}"."${tableName}" 
-                 SET "${fieldName}" = $1, "updatedAt" = NOW()
-                 WHERE id = $2 AND "deletedAt" IS NULL`,
-                [nextFieldValue, record.id],
-                undefined,
-                { shouldBypassPermissionChecks: true }
-              );
-
-              console.log(`✅ Updated record ${record.id} from '${currentFieldValue}' to '${nextFieldValue}' in ${dataSource.schema}.${tableName}`);
+              // await workspaceDataSource.query(
+              //   `UPDATE "${dataSource.schema}"."${tableName}"
+              //    SET "${fieldName}" = $1, "updatedAt" = NOW()
+              //    WHERE id = $2 AND "deletedAt" IS NULL`,
+              //   [nextFieldValue, record.id],
+              //   undefined,
+              //   { shouldBypassPermissionChecks: true }
+              // );
+              //
+              // console.log(`✅ Updated record ${record.id} from '${currentFieldValue}' to '${nextFieldValue}' in ${dataSource.schema}.${tableName}`);
 
             } catch (error) {
               console.error(`❌ Error processing record ${record.id}:`, error);

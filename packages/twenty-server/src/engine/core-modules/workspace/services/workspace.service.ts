@@ -47,6 +47,7 @@ import { WorkspaceCacheStorageService } from 'src/engine/workspace-cache-storage
 import { WorkspaceManagerService } from 'src/engine/workspace-manager/workspace-manager.service';
 import { DEFAULT_FEATURE_FLAGS } from 'src/engine/workspace-manager/workspace-sync-metadata/constants/default-feature-flags';
 import { extractVersionMajorMinorPatch } from 'src/utils/version/extract-version-major-minor-patch';
+import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 
 @Injectable()
 // eslint-disable-next-line @nx/workspace-inject-workspace-repository
@@ -75,6 +76,7 @@ export class WorkspaceService extends TypeOrmQueryService<Workspace> {
     private readonly workspaceCacheStorageService: WorkspaceCacheStorageService,
     @InjectMessageQueue(MessageQueue.deleteCascadeQueue)
     private readonly messageQueueService: MessageQueueService,
+    private readonly onboardingService: OnboardingService,
   ) {
     super(workspaceRepository);
   }
@@ -277,6 +279,11 @@ export class WorkspaceService extends TypeOrmQueryService<Workspace> {
       displayName: data.displayName,
       activationStatus: WorkspaceActivationStatus.ACTIVE,
       version: extractVersionMajorMinorPatch(appVersion),
+    });
+
+    await this.onboardingService.setOnboardingBookOnboardingPending({
+      workspaceId: workspace.id,
+      value: false,
     });
 
     return await this.workspaceRepository.findOneBy({
