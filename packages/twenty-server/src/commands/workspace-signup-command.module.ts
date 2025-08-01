@@ -7,7 +7,6 @@ import { DomainManagerModule } from 'src/engine/core-modules/domain-manager/doma
 import { User } from 'src/engine/core-modules/user/user.entity';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceModule } from 'src/engine/core-modules/workspace/workspace.module';
-import { OnboardingModule } from 'src/engine/core-modules/onboarding/onboarding.module';
 
 import { WorkspaceSignupCommand } from './workspace-signup.command';
 
@@ -17,7 +16,6 @@ import { WorkspaceSignupCommand } from './workspace-signup.command';
     AuthModule,
     WorkspaceModule,
     DomainManagerModule,
-    OnboardingModule,
   ],
   providers: [WorkspaceSignupCommand],
 })

@@ -8,7 +8,6 @@ import { Repository } from 'typeorm';
 import { hashPassword } from 'src/engine/core-modules/auth/auth.util';
 import { SignInUpService } from 'src/engine/core-modules/auth/services/sign-in-up.service';
 import { DomainManagerService } from 'src/engine/core-modules/domain-manager/services/domain-manager.service';
-import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { User } from 'src/engine/core-modules/user/user.entity';
 import { WorkspaceService } from 'src/engine/core-modules/workspace/services/workspace.service';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -36,7 +35,6 @@ export class WorkspaceSignupCommand extends CommandRunner {
     // Removed AuthService since it's not being used
     private readonly workspaceService: WorkspaceService,
     private readonly domainManagerService: DomainManagerService,
-    private readonly onboardingService: OnboardingService,
     @InjectRepository(User, 'core')
     private readonly userRepository: Repository<User>,
     @InjectRepository(Workspace, 'core')
@@ -172,11 +170,6 @@ export class WorkspaceSignupCommand extends CommandRunner {
       }
 
       this.logger.log(`Workspace activated successfully`);
-
-      await this.onboardingService.setOnboardingBookOnboardingPending({
-        workspaceId: activatedWorkspace.id,
-        value: false,
-      });
 
       // Generate workspace URLs
       const workspaceUrls = this.domainManagerService.getWorkspaceUrls(activatedWorkspace);
