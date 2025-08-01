@@ -17,7 +17,7 @@ import { DataSourceEntity } from 'src/engine/metadata-modules/data-source/data-s
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { TwentyORMGlobalManager } from 'src/engine/twenty-orm/twenty-orm-global.manager';
 import { ApiKeyWorkspaceEntity } from 'src/modules/api-key/standard-objects/api-key.workspace-entity';
-import { ApiKeyService } from 'src/engine/core-modules/api-key/api-key.service';
+import { ApiKeyService } from 'src/engine/core-modules/auth/services/api-key.service';
 
 @Processor(MessageQueue.cronQueue)
 export class NestboxAiAgentCronJob {
@@ -175,7 +175,22 @@ export class NestboxAiAgentCronJob {
           position: vg.position
         }));
 
-        // Step 6b: Load relation fields for the object
+        // Step 6b: Get View fields for the object
+        const viewResult = await workspaceDataSource.query(
+          `SELECT "name" FROM "${dataSource.schema}"."view" 
+           WHERE "deletedAt" IS NULL AND "id" = $1`,
+          [aiAgentConfig.viewId],
+          undefined,
+          { shouldBypassPermissionChecks: true }
+        );
+
+        let viewName = null;
+
+        if (viewResult || viewResult.length >= 0) {
+          viewName = viewResult[0].name;
+        }
+
+        // Step 6c: Load relation fields for the object
         const relationFieldsResult = await workspaceDataSource.query(
           `SELECT f.name, f."settings"->>'joinColumnName' as "joinColumnName", om."nameSingular", om."isCustom"
            FROM "core"."fieldMetadata" f
@@ -321,8 +336,8 @@ export class NestboxAiAgentCronJob {
                 NestboxApiPath: objectMetadata.namePlural,
                 NestboxTwentyObjectName: objectMetadata.nameSingular,
                 NestboxTwentyURL: this.twentyConfigService.get('SERVER_URL'),
-                NestboxTwentyAPIToken: apiKeyToken,
-                // NestboxStateFieldName: fieldName,
+                NestboxTwentyAPIToken: apiKeyToken?.token,
+                NestboxStateFieldName: viewName,
                 aiWorkflow: aiAgentConfig.agent,
               };
 
