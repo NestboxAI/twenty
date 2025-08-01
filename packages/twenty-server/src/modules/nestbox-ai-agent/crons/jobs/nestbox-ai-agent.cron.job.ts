@@ -337,14 +337,15 @@ export class NestboxAiAgentCronJob {
                 NestboxTwentyObjectName: objectMetadata.nameSingular,
                 NestboxTwentyURL: this.twentyConfigService.get('SERVER_URL'),
                 NestboxTwentyAPIToken: apiKeyToken?.token,
-                NestboxStateFieldName: viewName,
+                NestboxStateViewName: viewName,
+                NestboxStateFieldName: fieldName,
                 aiWorkflow: aiAgentConfig.agent,
               };
 
               const queries = await queryApi.agentOperationsQueryControllerCreateQuery(aiAgentConfig.agent, {
                 params: {
                   data: enrichedRecord,
-                  additional_agent: aiAgentConfig.additionalInput,
+                  instructions: aiAgentConfig.additionalInput,
                 }
               });
 
