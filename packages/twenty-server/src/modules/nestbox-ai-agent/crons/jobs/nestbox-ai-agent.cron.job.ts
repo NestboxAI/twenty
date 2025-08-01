@@ -326,26 +326,28 @@ export class NestboxAiAgentCronJob {
                 ...relatedObjects,
                 notes: sanitizedNotes,
                 tasks: sanitizedTasks,
-                viewGroupContext: {
-                  availableViewGroups: availableViewGroups,
-                  currentViewGroup: {
-                    fieldValue: currentFieldValue,
-                    position: currentPosition
-                  }
-                },
-                NestboxApiPath: objectMetadata.namePlural,
-                NestboxTwentyObjectName: objectMetadata.nameSingular,
-                NestboxTwentyURL: this.twentyConfigService.get('SERVER_URL'),
-                NestboxTwentyAPIToken: apiKeyToken?.token,
-                NestboxStateViewName: viewName,
-                NestboxStateFieldName: fieldName,
-                aiWorkflow: aiAgentConfig.agent,
               };
 
               const queries = await queryApi.agentOperationsQueryControllerCreateQuery(aiAgentConfig.agent, {
                 params: {
                   data: enrichedRecord,
                   instructions: aiAgentConfig.additionalInput,
+                  metadata: {
+                    viewGroupContext: {
+                      availableViewGroups: availableViewGroups,
+                      currentViewGroup: {
+                        fieldValue: currentFieldValue,
+                        position: currentPosition
+                      }
+                    },
+                    NestboxApiPath: objectMetadata.namePlural,
+                    NestboxTwentyObjectName: objectMetadata.nameSingular,
+                    NestboxTwentyURL: this.twentyConfigService.get('SERVER_URL'),
+                    NestboxTwentyAPIToken: apiKeyToken?.token,
+                    NestboxStateViewName: viewName,
+                    NestboxStateFieldName: fieldName,
+                    aiWorkflow: aiAgentConfig.agent,                    
+                  }
                 }
               });
 
