@@ -16,14 +16,8 @@ import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import { DataSourceEntity } from 'src/engine/metadata-modules/data-source/data-source.entity';
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { TwentyORMGlobalManager } from 'src/engine/twenty-orm/twenty-orm-global.manager';
-
-const stripFormatting = (text: string | null | undefined): string => {
-  if (!text) return '';
-  return text
-    .replace(/\n+/g, ' ')
-    .replace(/[*_`~]/g, '')
-    .replace(/\[(.*?)\]\(.*?\)/g, '$1');
-};
+import { ApiKeyWorkspaceEntity } from 'src/modules/api-key/standard-objects/api-key.workspace-entity';
+import { ApiKeyService } from 'src/engine/core-modules/api-key/api-key.service';
 
 @Processor(MessageQueue.cronQueue)
 export class NestboxAiAgentCronJob {
@@ -39,6 +33,7 @@ export class NestboxAiAgentCronJob {
     private readonly twentyORMGlobalManager: TwentyORMGlobalManager,
     private readonly exceptionHandlerService: ExceptionHandlerService,
     private readonly twentyConfigService: TwentyConfigService,
+    private readonly apiKeyService: ApiKeyService,
   ) {}
 
   @Process(NestboxAiAgentCronJob.name)
@@ -48,7 +43,7 @@ export class NestboxAiAgentCronJob {
   )
   async handle(): Promise<void> {
     const cronPattern = this.twentyConfigService.get('NESTBOX_AI_AGENT_CRON_PATTERN');
-    
+
     console.log(`🚀 Nestbox AI Agent cron job started with pattern: ${cronPattern}`);
 
     try {
@@ -63,7 +58,7 @@ export class NestboxAiAgentCronJob {
 
   private async processCoreSchemaRecords(): Promise<void> {
     console.log('📊 Processing core schema records...');
-    
+
     const aiAgentConfigs = await this.aiAgentConfigRepository.find({
       where: {
         status: AiAgentConfigStatus.ENABLED,
@@ -74,7 +69,7 @@ export class NestboxAiAgentCronJob {
 
     for (const aiAgentConfig of aiAgentConfigs) {
       console.log(`Processing agent: ${aiAgentConfig.id} - ${aiAgentConfig.workspaceId}`);
-      
+
       try {
         // Step 1: Get schema from dataSource based on workspaceId
         const dataSource = await this.dataSourceRepository.findOne({
@@ -100,7 +95,7 @@ export class NestboxAiAgentCronJob {
 
         // Determine table name based on isCustom property
         const tableName = objectMetadata.isCustom ? `_${objectMetadata.nameSingular}` : objectMetadata.nameSingular;
-        
+
         console.log(`📋 Found nameSingular: ${objectMetadata.nameSingular} (isCustom: ${objectMetadata.isCustom}) -> tableName: ${tableName} for objectMetadataId: ${aiAgentConfig.objectMetadataId}`);
 
         // Step 3: Query the actual table using schema and tableName
@@ -256,6 +251,30 @@ export class NestboxAiAgentCronJob {
             },
           });
 
+          const apiKeyRepository =
+            await this.twentyORMGlobalManager.getRepositoryForWorkspace<ApiKeyWorkspaceEntity>(
+              aiAgentConfig.workspaceId,
+              'apiKey',
+              {
+                shouldBypassPermissionChecks: true,
+              },
+            );
+
+          const [latestApiKey] = await apiKeyRepository.find({
+            order: { createdAt: 'DESC' },
+            take: 1,
+          });
+
+          let apiKeyToken = null;
+
+          if (latestApiKey) {
+            apiKeyToken = await this.apiKeyService.generateApiKeyToken(
+              aiAgentConfig.workspaceId,
+              latestApiKey.id,
+              latestApiKey.expiresAt,
+            );
+          }
+
           const queryApi = new QueryApi(config);
 
           // Process each record individually
@@ -264,15 +283,13 @@ export class NestboxAiAgentCronJob {
               // Step 8a: Call Nestbox AI API for each record
               console.log(`🤖 Processing record ${record.id} with Nestbox AI agent ${aiAgentConfig.agent}`);
 
-              // Sanitize notes and tasks
-              const sanitizedNotes = (record.notes || []).filter((n: any) => n.deletedAt === null).map((n: any) => ({
-                ...n,
-                plainBody: stripFormatting(n.bodyV2?.markdown || n.body),
-              }));
-              const sanitizedTasks = (record.tasks || []).filter((t: any) => t.deletedAt === null).map((t: any) => ({
-                ...t,
-                plainBody: stripFormatting(t.bodyV2?.markdown || t.body),
-              }));
+              const sanitizedNotes = (record.notes || []).map(
+                ({ bodyV2Blocknote, ...note }: any) => note
+              );
+
+              const sanitizedTasks = (record.tasks || []).map(
+                ({ bodyV2Blocknote, ...task }: any) => task
+              );
 
               // Load related objects
               const relatedObjects: Record<string, any> = {};
@@ -304,35 +321,33 @@ export class NestboxAiAgentCronJob {
                 NestboxApiPath: objectMetadata.namePlural,
                 NestboxTwentyObjectName: objectMetadata.nameSingular,
                 NestboxTwentyURL: this.twentyConfigService.get('SERVER_URL'),
-                NestboxTwentyAPIToken: this.twentyConfigService.get('NESTBOX_AI_INSTANCE_API_KEY'),
-                NestboxStateFieldName: fieldName,
+                NestboxTwentyAPIToken: apiKeyToken,
+                // NestboxStateFieldName: fieldName,
                 aiWorkflow: aiAgentConfig.agent,
               };
 
-              console.log('DATA:', enrichedRecord);
-
-              // const queries = await queryApi.agentOperationsQueryControllerCreateQuery(aiAgentConfig.agent, {
-              //   params: {
-              //     data: enrichedRecord,
-              //     additional_agent: aiAgentConfig.additionalInput,
-              //   }
-              // });
+              const queries = await queryApi.agentOperationsQueryControllerCreateQuery(aiAgentConfig.agent, {
+                params: {
+                  data: enrichedRecord,
+                  additional_agent: aiAgentConfig.additionalInput,
+                }
+              });
 
               await new Promise((r) => setTimeout(r, 100));
 
-              // console.log(`✅ Nestbox AI query response for record ${record.id}:`, queries.data);
+              console.log(`✅ Nestbox AI query response for record ${record.id}:`, queries.data);
 
               // Step 8b: Update individual record to next position's fieldValue
-              // await workspaceDataSource.query(
-              //   `UPDATE "${dataSource.schema}"."${tableName}"
-              //    SET "${fieldName}" = $1, "updatedAt" = NOW()
-              //    WHERE id = $2 AND "deletedAt" IS NULL`,
-              //   [nextFieldValue, record.id],
-              //   undefined,
-              //   { shouldBypassPermissionChecks: true }
-              // );
-              //
-              // console.log(`✅ Updated record ${record.id} from '${currentFieldValue}' to '${nextFieldValue}' in ${dataSource.schema}.${tableName}`);
+              await workspaceDataSource.query(
+                `UPDATE "${dataSource.schema}"."${tableName}"
+                 SET "${fieldName}" = $1, "updatedAt" = NOW()
+                 WHERE id = $2 AND "deletedAt" IS NULL`,
+                [nextFieldValue, record.id],
+                undefined,
+                { shouldBypassPermissionChecks: true }
+              );
+
+              console.log(`✅ Updated record ${record.id} from '${currentFieldValue}' to '${nextFieldValue}' in ${dataSource.schema}.${tableName}`);
 
             } catch (error) {
               console.error(`❌ Error processing record ${record.id}:`, error);
@@ -350,4 +365,4 @@ export class NestboxAiAgentCronJob {
       }
     }
   }
-} 
+}

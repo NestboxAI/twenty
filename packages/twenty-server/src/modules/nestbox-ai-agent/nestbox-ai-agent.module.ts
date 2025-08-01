@@ -9,11 +9,13 @@ import { NestboxAiAgentRunOnceCommand } from 'src/modules/nestbox-ai-agent/crons
 import { NestboxAiAgentCronCommand } from 'src/modules/nestbox-ai-agent/crons/commands/nestbox-ai-agent-start.command';
 import { NestboxAiAgentCronStopCommand } from 'src/modules/nestbox-ai-agent/crons/commands/nestbox-ai-agent-stop.command';
 import { NestboxAiAgentCronJob } from 'src/modules/nestbox-ai-agent/crons/jobs/nestbox-ai-agent.cron.job';
+import { ApiKeyModule } from 'src/engine/core-modules/api-key/api-key.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Workspace, AiAgentConfig], 'core'),
     TypeOrmModule.forFeature([ObjectMetadataEntity, DataSourceEntity], 'core'),
+    ApiKeyModule,
   ],
   providers: [
     NestboxAiAgentCronCommand,
