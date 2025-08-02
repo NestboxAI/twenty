@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { ApiKeyService } from 'src/engine/core-modules/api-key/api-key.service';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
-import { TwentyORMGlobalManager } from 'src/engine/twenty-orm/twenty-orm-global.manager';
 
 import { ApiKeyNotificationService } from './services/api-key-notification.service';
 
@@ -30,7 +29,6 @@ export class ApiKeyCreateCommand extends CommandRunner {
 
   constructor(
     private readonly apiKeyService: ApiKeyService,
-    private readonly twentyORMGlobalManager: TwentyORMGlobalManager,
     private readonly apiKeyNotificationService: ApiKeyNotificationService,
     @InjectRepository(Workspace, 'core')
     private readonly workspaceRepository: Repository<Workspace>,

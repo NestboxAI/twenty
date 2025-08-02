@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+
 import { render } from '@react-email/render';
 import { ApiKeyCreatedEmail } from 'twenty-emails';
 import { APP_LOCALES } from 'twenty-shared/translations';
@@ -27,9 +28,12 @@ export class ApiKeyNotificationService {
     private readonly twentyConfigService: TwentyConfigService,
   ) {}
 
-  async sendApiKeyCreatedNotification(data: ApiKeyNotificationData): Promise<void> {
+  async sendApiKeyCreatedNotification(
+    data: ApiKeyNotificationData,
+  ): Promise<void> {
     try {
-      const serverUrl = this.twentyConfigService.get('SERVER_URL') || 'http://localhost:3000';
+      const serverUrl =
+        this.twentyConfigService.get('SERVER_URL') || 'http://localhost:3000';
       const locale: keyof typeof APP_LOCALES = 'en'; // Default to English
 
       const emailData = {
@@ -62,10 +66,14 @@ export class ApiKeyNotificationService {
         html,
       });
 
-      this.logger.log(`API key notification email sent successfully to ${data.adminEmail}`);
+      this.logger.log(
+        `API key notification email sent successfully to ${data.adminEmail}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send API key notification email: ${error.message}`);
+      this.logger.error(
+        `Failed to send API key notification email: ${error.message}`,
+      );
       throw error;
     }
   }
-} 
+}
