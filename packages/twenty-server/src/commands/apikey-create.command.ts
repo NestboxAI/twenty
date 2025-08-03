@@ -151,6 +151,7 @@ export class ApiKeyCreateCommand extends CommandRunner {
       }
 
       await this.apiKeyService.create({
+        workspaceId: workspace.id,
         id: apiKeyId,
         name: options.name,
         expiresAt: expiresAt,
