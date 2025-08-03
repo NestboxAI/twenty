@@ -115,6 +115,7 @@ export class WorkspaceSignupCommand extends CommandRunner {
 
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
       if (!emailRegex.test(options.username)) {
         throw new Error('Invalid email format for username');
       }
@@ -138,7 +139,7 @@ export class WorkspaceSignupCommand extends CommandRunner {
 
       // Create new user with admin privileges
       const passwordHash = await hashPassword(options.password);
-      
+
       const newUserData = {
         email: options.username,
         firstName: options.adminFirstName,
@@ -148,10 +149,11 @@ export class WorkspaceSignupCommand extends CommandRunner {
       };
 
       // Use the existing signUpOnNewWorkspace method
-      const { user, workspace } = await this.signInUpService.signUpOnNewWorkspace({
-        type: 'newUserWithPicture',
-        newUserWithPicture: newUserData,
-      });
+      const { user, workspace } =
+        await this.signInUpService.signUpOnNewWorkspace({
+          type: 'newUserWithPicture',
+          newUserWithPicture: newUserData,
+        });
 
       this.logger.log(`Workspace created with ID: ${workspace.id}`);
       this.logger.log(`User created with ID: ${user.id}`);
@@ -172,7 +174,8 @@ export class WorkspaceSignupCommand extends CommandRunner {
       this.logger.log(`Workspace activated successfully`);
 
       // Generate workspace URLs
-      const workspaceUrls = this.domainManagerService.getWorkspaceUrls(activatedWorkspace);
+      const workspaceUrls =
+        this.domainManagerService.getWorkspaceUrls(activatedWorkspace);
 
       // Output confirmation
       this.logger.log('='.repeat(60));
@@ -182,7 +185,9 @@ export class WorkspaceSignupCommand extends CommandRunner {
       this.logger.log(`Workspace Name: ${activatedWorkspace.displayName}`);
       this.logger.log(`Workspace Subdomain: ${activatedWorkspace.subdomain}`);
       this.logger.log(`Workspace URL: ${workspaceUrls.subdomainUrl}`);
-      this.logger.log(`Activation Status: ${activatedWorkspace.activationStatus}`);
+      this.logger.log(
+        `Activation Status: ${activatedWorkspace.activationStatus}`,
+      );
       this.logger.log('');
       this.logger.log('ADMIN USER SETUP CONFIRMED');
       this.logger.log('='.repeat(60));
@@ -191,12 +196,13 @@ export class WorkspaceSignupCommand extends CommandRunner {
       this.logger.log(`Admin First Name: ${user.firstName}`);
       this.logger.log(`Admin Last Name: ${user.lastName}`);
       this.logger.log(`Can Impersonate: ${user.canImpersonate}`);
-      this.logger.log(`Can Access Full Admin Panel: ${user.canAccessFullAdminPanel}`);
+      this.logger.log(
+        `Can Access Full Admin Panel: ${user.canAccessFullAdminPanel}`,
+      );
       this.logger.log(`Email Verified: ${user.isEmailVerified}`);
       this.logger.log('');
       this.logger.log('Workspace is ready for use!');
       this.logger.log('='.repeat(60));
-
     } catch (error) {
       this.logger.error('Failed to create workspace:', error.message);
       throw error;
