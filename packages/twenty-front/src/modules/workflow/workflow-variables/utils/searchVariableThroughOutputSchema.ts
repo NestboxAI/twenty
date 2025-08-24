@@ -1,20 +1,13 @@
 import { CAPTURE_ALL_VARIABLE_TAG_INNER_REGEX } from '@/workflow/workflow-variables/constants/CaptureAllVariableTagInnerRegex';
+import { type VariableSearchResult } from '@/workflow/workflow-variables/hooks/useSearchVariable';
 import {
-  OutputSchema,
-  StepOutputSchema,
+  type OutputSchema,
+  type StepOutputSchema,
 } from '@/workflow/workflow-variables/types/StepOutputSchema';
 import { isBaseOutputSchema } from '@/workflow/workflow-variables/utils/isBaseOutputSchema';
 import { isLinkOutputSchema } from '@/workflow/workflow-variables/utils/isLinkOutputSchema';
 import { isRecordOutputSchema } from '@/workflow/workflow-variables/utils/isRecordOutputSchema';
 import { isDefined } from 'twenty-shared/utils';
-
-type VariableInfo = {
-  variableLabel: string | undefined;
-  variablePathLabel: string | undefined;
-  variableType?: string | undefined;
-  fieldMetadataId?: string | undefined;
-  compositeFieldSubFieldName?: string | undefined;
-};
 
 const getDisplayedSubStepObjectLabel = (outputSchema: OutputSchema) => {
   if (!isRecordOutputSchema(outputSchema)) {
@@ -83,7 +76,7 @@ const searchCurrentStepOutputSchema = ({
   path: string[];
   isFullRecord: boolean;
   selectedField: string;
-}) => {
+}): VariableSearchResult => {
   let currentSubStep = stepOutputSchema.outputSchema;
   let nextKeyIndex = 0;
   let nextKey = path[nextKeyIndex];
@@ -169,7 +162,7 @@ export const searchVariableThroughOutputSchema = ({
   stepOutputSchema: StepOutputSchema;
   rawVariableName: string;
   isFullRecord?: boolean;
-}): VariableInfo => {
+}): VariableSearchResult => {
   if (!isDefined(stepOutputSchema)) {
     return {
       variableLabel: undefined,
