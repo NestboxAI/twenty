@@ -9070,7 +9070,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestbox-ai/agents@npm:^1.0.42":
+"@nestbox-ai/agents@npm:^1.0.47":
   version: 1.0.47
   resolution: "@nestbox-ai/agents@npm:1.0.47"
   dependencies:
@@ -9079,12 +9079,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestbox-ai/instances@npm:1.0.42":
-  version: 1.0.42
-  resolution: "@nestbox-ai/instances@npm:1.0.42"
+"@nestbox-ai/instances@npm:^1.0.47":
+  version: 1.0.47
+  resolution: "@nestbox-ai/instances@npm:1.0.47"
   dependencies:
     axios: "npm:^1.6.1"
-  checksum: 10c0/526adb58c863a67a21dab2d78c4415ef13c7c5b1f39f7a06b5fbfb2ff491148d3da6be4fe3a80040cb4427233b434d021b2f26b57a7a2efb8721f26fa6dfc5fc
+  checksum: 10c0/d5462c10be23d44f028b75f22a6f9e3dfe6a64bacb2b032c457c8e43bb876d37ea51a7c57e994ad6be743bab0ba5bc143d6b427a19f442da66720a0e6241262b
   languageName: node
   linkType: hard
 
@@ -51401,8 +51401,8 @@ __metadata:
     "@graphql-codegen/typescript-react-apollo": "npm:^3.3.7"
     "@linaria/core": "npm:^6.2.0"
     "@linaria/react": "npm:^6.2.1"
-    "@nestbox-ai/agents": "npm:^1.0.42"
-    "@nestbox-ai/instances": "npm:1.0.42"
+    "@nestbox-ai/agents": "npm:^1.0.47"
+    "@nestbox-ai/instances": "npm:^1.0.47"
     "@nx/eslint": "npm:21.3.11"
     "@nx/eslint-plugin": "npm:21.3.11"
     "@nx/jest": "npm:21.3.11"
