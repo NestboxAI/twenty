@@ -13,7 +13,7 @@ export type AIWorkflowSetupModalContainerProps = {
 };
 
 export const AIWorkflowSetupModalContainer = ({ 
-  recordGroupId 
+  recordGroupId,
 }: AIWorkflowSetupModalContainerProps) => {
   const modalId = `ai-workflow-setup-${recordGroupId}`;
 
