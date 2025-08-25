@@ -28,7 +28,7 @@ export const AIWorkflowSetupModalContainer = ({
   );
 
   // Get context values for logging
-  const currentWorkspace: any = useRecoilValue(currentWorkspaceState);
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const currentViewId = useRecoilComponentValue(
     contextStoreCurrentViewIdComponentState,
   );
@@ -38,13 +38,15 @@ export const AIWorkflowSetupModalContainer = ({
     setIsModalOpened(false);
   };
 
-  return AIWorkflowSetupDrawer({
-    isOpen: isModalOpened,
-    onClose: handleClose,
-    workspaceId: currentWorkspace?.id,
-    objectMetadataId: objectMetadataItem?.id,
-    viewGroupId: recordGroupId,
-    viewId: currentViewId,
-    fieldMetadataId: selectFieldMetadataItem?.id,
-  });
+  return (
+    <AIWorkflowSetupDrawer 
+      isOpen={isModalOpened} 
+      onClose={handleClose}
+      workspaceId={currentWorkspace?.id}
+      objectMetadataId={objectMetadataItem?.id}
+      viewGroupId={recordGroupId}
+      viewId={currentViewId}
+      fieldMetadataId={selectFieldMetadataItem?.id}
+    />
+  );
 }; 
