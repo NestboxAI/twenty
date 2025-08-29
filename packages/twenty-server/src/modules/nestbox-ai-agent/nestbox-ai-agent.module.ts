@@ -10,12 +10,17 @@ import { NestboxAiAgentRunOnceCommand } from 'src/modules/nestbox-ai-agent/crons
 import { NestboxAiAgentCronCommand } from 'src/modules/nestbox-ai-agent/crons/commands/nestbox-ai-agent-start.command';
 import { NestboxAiAgentCronStopCommand } from 'src/modules/nestbox-ai-agent/crons/commands/nestbox-ai-agent-stop.command';
 import { NestboxAiAgentCronJob } from 'src/modules/nestbox-ai-agent/crons/jobs/nestbox-ai-agent.cron.job';
+import { NestboxAiAgentController } from 'src/modules/nestbox-ai-agent/nestbox-ai-agent.controller';
+import { WorkflowRunModule } from 'src/modules/workflow/workflow-runner/workflow-run/workflow-run.module';
+import { WorkflowExecutorModule } from 'src/modules/workflow/workflow-executor/workflow-executor.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Workspace, AiAgentConfig], 'core'),
     TypeOrmModule.forFeature([ObjectMetadataEntity, DataSourceEntity], 'core'),
     ApiKeyModule,
+    WorkflowRunModule,
+    WorkflowExecutorModule,
   ],
   providers: [
     NestboxAiAgentCronCommand,
@@ -24,5 +29,6 @@ import { NestboxAiAgentCronJob } from 'src/modules/nestbox-ai-agent/crons/jobs/n
     NestboxAiAgentCronJob,
   ],
   exports: [],
+  controllers: [NestboxAiAgentController],
 })
 export class NestboxAiAgentModule {}

@@ -143,6 +143,15 @@ export const workflowAiAgentActionSettingsSchema =
     }),
   });
 
+export const workflowNestboxAiAgentActionSettingsSchema =
+  baseWorkflowActionSettingsSchema.extend({
+    input: z.object({
+      agentId: z.string().optional(),
+      prompt: z.string().optional(),
+      params: z.record(z.string()).optional(),
+    }),
+  });
+
 export const workflowFilterActionSettingsSchema =
   baseWorkflowActionSettingsSchema.extend({
     input: z.object({
@@ -203,6 +212,12 @@ export const workflowAiAgentActionSchema = baseWorkflowActionSchema.extend({
   settings: workflowAiAgentActionSettingsSchema,
 });
 
+export const workflowNestboxAiAgentActionSchema =
+  baseWorkflowActionSchema.extend({
+    type: z.literal('NESTBOX_AI_AGENT'),
+    settings: workflowNestboxAiAgentActionSettingsSchema,
+  });
+
 export const workflowFilterActionSchema = baseWorkflowActionSchema.extend({
   type: z.literal('FILTER'),
   settings: workflowFilterActionSettingsSchema,
@@ -219,6 +234,7 @@ export const workflowActionSchema = z.discriminatedUnion('type', [
   workflowFormActionSchema,
   workflowHttpRequestActionSchema,
   workflowAiAgentActionSchema,
+  workflowNestboxAiAgentActionSchema,
   workflowFilterActionSchema,
 ]);
 

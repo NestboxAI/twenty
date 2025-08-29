@@ -131,7 +131,7 @@ export class WorkspaceSchemaFactory {
         return !isGatedAndNotEnabled(
           entityMetadata?.gate,
           workspaceFeatureFlagsMap,
-          'graphql',
+          'workspaceApi',
         );
       });
 

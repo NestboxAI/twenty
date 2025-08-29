@@ -57,4 +57,30 @@ export class NestboxAiService {
       throw new Error('Failed to fetch agents from Nestbox AI');
     }
   }
-} 
+
+  async filteredAllAgentsWithParams(): Promise<Agent[]> {
+    const agents = await this.getAllAgents();
+
+    const dedupeAgents = (agentsToDedupe: Agent[]) =>
+      agentsToDedupe.map((agent) => {
+        const dedupe = (items: any[] = []) => {
+          const seen = new Set<string>();
+          return items.filter((param) => {
+            if (param.machineAgentId !== agent.id) return false;
+            const key = `${param.name}-${param.machineAgentId}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+        };
+
+        return {
+          ...agent,
+          parameters: dedupe(agent.parameters),
+          additionalParameters: dedupe(agent.additionalParameters),
+        };
+      });
+
+    return dedupeAgents(agents);
+  }
+}

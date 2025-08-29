@@ -24,6 +24,7 @@ export const getActionIconColorOrThrow = ({
     case 'FILTER':
       return theme.font.color.tertiary;
     case 'AI_AGENT':
+    case 'NESTBOX_AI_AGENT':
       return theme.color.pink;
     default:
       assertUnreachable(actionType, `Unsupported action type: ${actionType}`);

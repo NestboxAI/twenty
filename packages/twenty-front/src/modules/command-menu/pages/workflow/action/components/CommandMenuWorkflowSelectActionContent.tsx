@@ -100,14 +100,23 @@ export const CommandMenuWorkflowSelectActionContent = ({
         {t`Data`}
       </RightDrawerWorkflowSelectStepTitle>
       {WorkflowActionMenuItems(RECORD_ACTIONS, theme, handleCreateStep)}
-      {isAiEnabled && (
-        <>
-          <RightDrawerWorkflowSelectStepTitle>
-            {t`AI`}
-          </RightDrawerWorkflowSelectStepTitle>
-          {WorkflowActionMenuItems(AI_ACTIONS, theme, handleCreateStep)}
-        </>
-      )}
+      {(() => {
+        const availableAiActions = AI_ACTIONS.filter((action) =>
+          action.type === 'AI_AGENT' ? isAiEnabled : true,
+        );
+        return availableAiActions.length > 0 ? (
+          <>
+            <RightDrawerWorkflowSelectStepTitle>
+              {t`AI`}
+            </RightDrawerWorkflowSelectStepTitle>
+            {WorkflowActionMenuItems(
+              availableAiActions,
+              theme,
+              handleCreateStep,
+            )}
+          </>
+        ) : null;
+      })()}
       <RightDrawerWorkflowSelectStepTitle>
         {t`Core`}
       </RightDrawerWorkflowSelectStepTitle>

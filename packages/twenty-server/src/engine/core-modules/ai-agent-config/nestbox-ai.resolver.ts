@@ -1,5 +1,6 @@
 import { Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { Field, ID, ObjectType, Query, Resolver } from '@nestjs/graphql';
+import GraphQLJSON from 'graphql-type-json';
 
 import { PreventNestToAutoLogGraphqlErrorsFilter } from 'src/engine/core-modules/graphql/filters/prevent-nest-to-auto-log-graphql-errors.filter';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -26,6 +27,12 @@ export class NestboxAgent {
 
   @Field()
   updatedAt: string;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  parameters?: any[];
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  additionalParameters?: any[];
 }
 
 @Resolver(() => NestboxAgent)
@@ -38,14 +45,13 @@ export class NestboxAiResolver {
 
   @Query(() => [NestboxAgent], { nullable: true })
   async agents(@AuthWorkspace() workspace: Workspace): Promise<ServiceAgent[] | null> {
-    // console.log('NestboxAiResolver.agents called'); // Added log
     try {
-      const agents = await this.nestboxAiService.getAllAgents();
-      // this.logger.log(`Successfully retrieved ${agents.length} agents for workspace ${workspace.id}`);
+      const agents =
+        await this.nestboxAiService.filteredAllAgentsWithParams();
       return agents || [];
     } catch (error) {
       this.logger.error('Error in agents resolver:', error);
       return null;
     }
   }
-} 
+}
