@@ -147,7 +147,6 @@ export const workflowNestboxAiAgentActionSettingsSchema =
   baseWorkflowActionSettingsSchema.extend({
     input: z.object({
       agentId: z.string().optional(),
-      prompt: z.string().optional(),
       params: z.record(z.string()).optional(),
     }),
   });

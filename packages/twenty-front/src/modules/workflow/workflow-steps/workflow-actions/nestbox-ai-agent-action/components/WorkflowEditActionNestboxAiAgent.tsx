@@ -1,10 +1,13 @@
+import { useNestboxAiAgentOutputSchema } from '@/ai/hooks/useNestboxAiAgentOutputSchema';
 import { FormTextFieldInput } from '@/object-record/record-field/ui/form-types/components/FormTextFieldInput';
 import { Select } from '@/ui/input/components/Select';
 import { type WorkflowNestboxAiAgentAction } from '@/workflow/types/Workflow';
 import { WorkflowStepBody } from '@/workflow/workflow-steps/components/WorkflowStepBody';
 import { WorkflowStepHeader } from '@/workflow/workflow-steps/components/WorkflowStepHeader';
 import { useWorkflowActionHeader } from '@/workflow/workflow-steps/workflow-actions/hooks/useWorkflowActionHeader';
+import { WorkflowOutputSchemaBuilder } from '@/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder';
 import { WorkflowVariablePicker } from '@/workflow/workflow-variables/components/WorkflowVariablePicker';
+import type { BaseOutputSchema } from '@/workflow/workflow-variables/types/StepOutputSchema';
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { useIcons } from 'twenty-ui/display';
@@ -48,6 +51,16 @@ export const WorkflowEditActionNestboxAiAgent = ({
       action,
       defaultTitle: 'Nestbox AI Agent',
     });
+
+  const { handleOutputSchemaChange, outputFields } =
+    useNestboxAiAgentOutputSchema(
+      action.settings.outputSchema as BaseOutputSchema,
+      actionOptions.readonly === true
+        ? undefined
+        : actionOptions.onActionUpdate,
+      action,
+      actionOptions.readonly,
+    );
 
   const { data: agentsData, loading: agentsLoading } =
     useQuery<GetNestboxAgentsResult>(GET_NESTBOX_AGENTS);
@@ -168,6 +181,12 @@ export const WorkflowEditActionNestboxAiAgent = ({
             />
           ),
         )}
+
+        <WorkflowOutputSchemaBuilder
+          fields={outputFields}
+          onChange={handleOutputSchemaChange}
+          readonly={actionOptions.readonly}
+        />
       </WorkflowStepBody>
     </>
   );
