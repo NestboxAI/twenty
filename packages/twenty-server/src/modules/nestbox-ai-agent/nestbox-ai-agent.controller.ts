@@ -1,7 +1,15 @@
-import { Body, Controller, Logger, All, Query } from '@nestjs/common';
+import {
+  All,
+  Body,
+  Controller,
+  Logger,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { StepStatus } from 'twenty-shared/workflow';
 
+import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
 import { WorkflowExecutorWorkspaceService } from 'src/modules/workflow/workflow-executor/workspace-services/workflow-executor.workspace-service';
 import { WorkflowRunWorkspaceService } from 'src/modules/workflow/workflow-runner/workflow-run/workflow-run.workspace-service';
 
@@ -15,13 +23,16 @@ export class NestboxAiAgentController {
   ) {}
 
   @All('callback')
+  @UseGuards(PublicEndpointGuard)
   async handleCallback(
     @Body() body: any,
     @Query('workflowRunId') workflowRunId: string,
     @Query('workspaceId') workspaceId: string,
     @Query('stepId') stepId: string,
   ) {
-    this.logger.log(`Nestbox AI Agent callback payload: ${JSON.stringify(body)}`);
+    this.logger.log(
+      `Nestbox AI Agent callback payload: ${JSON.stringify(body)}`,
+    );
 
     const eventType = body?.eventType || body?.type;
     const isError = eventType === 'QUERY_FAILED';
@@ -37,10 +48,11 @@ export class NestboxAiAgentController {
       },
     });
 
-    const workflowRun = await this.workflowRunWorkspaceService.getWorkflowRunOrFail({
-      workflowRunId,
-      workspaceId,
-    });
+    const workflowRun =
+      await this.workflowRunWorkspaceService.getWorkflowRunOrFail({
+        workflowRunId,
+        workspaceId,
+      });
     const step = workflowRun.state.flow.steps.find((s) => s.id === stepId);
     const nextStepIds = step?.nextStepIds ?? [];
 

@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import axios from 'axios';
+import { Configuration as Config, QueryApi } from '@nestbox-ai/agents';
 import { resolveInput } from 'twenty-shared/utils';
 
 import { type WorkflowAction } from 'src/modules/workflow/workflow-executor/interfaces/workflow-action.interface';
 
+import { ApiKeyService } from 'src/engine/core-modules/api-key/api-key.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import {
   WorkflowStepExecutorException,
@@ -19,7 +20,10 @@ import { isWorkflowNestboxAiAgentAction } from './guards/is-workflow-nestbox-ai-
 export class NestboxAiAgentWorkflowAction implements WorkflowAction {
   private readonly logger = new Logger('NestboxAiAgentWorkflowAction');
 
-  constructor(private readonly twentyConfigService: TwentyConfigService) {}
+  constructor(
+    private readonly twentyConfigService: TwentyConfigService,
+    private readonly apiKeyService: ApiKeyService,
+  ) {}
 
   async execute({
     currentStepId,
@@ -65,52 +69,47 @@ export class NestboxAiAgentWorkflowAction implements WorkflowAction {
       this.logger.log('apiKey', apiKey);
       this.logger.log('callbackUrl', callbackUrl);
 
-      this.logger.log('API Data', `${basePath}/agents/${agentId}/chat`, {
-        Data: {
-          params: params || {},
-          messages: [
-            {
-              id: Date.now(),
-              role: 'user',
-              content: prompt ?? '',
-            },
-          ],
-          adHocCallback: {
-            url: callbackUrl,
-            eventTypes: ['QUERY_COMPLETED', 'QUERY_FAILED'],
-          },
-        },
-        Header: {
+      const config = new Config({
+        basePath,
+        baseOptions: {
           headers: {
             Authorization: apiKey,
-            'Content-Type': 'application/json',
           },
         },
       });
 
-      await axios.post(
-        `${basePath}/agents/${agentId}/chat`,
-        {
-          params: params || {},
-          messages: [
-            {
-              id: Date.now(),
-              role: 'user',
-              content: prompt ?? '',
-            },
-          ],
-          adHocCallback: {
-            url: callbackUrl,
-            eventTypes: ['QUERY_COMPLETED', 'QUERY_FAILED'],
-          },
-        },
-        {
-          headers: {
-            Authorization: apiKey,
-            'Content-Type': 'application/json',
-          },
-        },
+      const apiKeys = await this.apiKeyService.findByWorkspaceId(workspaceId);
+
+      const latestApiKey = apiKeys.find(
+        (key) => !key.revokedAt && key.expiresAt > new Date(),
       );
+
+      let apiKeyToken = null;
+
+      if (latestApiKey) {
+        apiKeyToken = await this.apiKeyService.generateApiKeyToken(
+          workspaceId,
+          latestApiKey.id,
+          latestApiKey.expiresAt,
+        );
+      }
+
+      const queryApi = new QueryApi(config);
+
+      await queryApi.agentOperationsQueryControllerCreateQuery(agentId, {
+        params: params || {},
+        adHocCallback: {
+          url: callbackUrl,
+          eventTypes: ['QUERY_COMPLETED', 'QUERY_FAILED'],
+          headers: {
+            Authorization: `Bearer ${apiKeyToken?.token}`,
+          },
+        },
+      });
+
+      this.logger.log('basePath', basePath);
+      this.logger.log('apiKey', apiKey);
+      this.logger.log('callbackUrl', callbackUrl);
 
       return { pendingEvent: true };
     } catch (error) {
