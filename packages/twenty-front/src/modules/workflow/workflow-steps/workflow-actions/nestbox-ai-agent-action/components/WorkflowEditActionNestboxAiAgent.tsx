@@ -5,12 +5,11 @@ import { WorkflowStepBody } from '@/workflow/workflow-steps/components/WorkflowS
 import { WorkflowStepHeader } from '@/workflow/workflow-steps/components/WorkflowStepHeader';
 import { useWorkflowActionHeader } from '@/workflow/workflow-steps/workflow-actions/hooks/useWorkflowActionHeader';
 import { WorkflowVariablePicker } from '@/workflow/workflow-variables/components/WorkflowVariablePicker';
-import { t } from '@lingui/core/macro';
+import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { useIcons } from 'twenty-ui/display';
 import { type SelectOption } from 'twenty-ui/input';
 import { RightDrawerSkeletonLoader } from '~/loading/components/RightDrawerSkeletonLoader';
-import { useMemo } from 'react';
-import { useQuery } from '@apollo/client';
 import { GET_NESTBOX_AGENTS } from '../graphql/getNestboxAgents';
 
 type NestboxAgentParameter = {
@@ -66,7 +65,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
       },
       [
         {
-          label: t`No Agent`,
+          label: `No Agent`,
           value: '',
         },
       ],
@@ -84,17 +83,14 @@ export const WorkflowEditActionNestboxAiAgent = ({
 
   const selectedAgentData = useMemo(
     () =>
-      agentsData?.agents.find(
+      agentsData?.agents?.find(
         (a: NestboxAgent) => a.id === selectedAgent?.value,
       ),
     [agentsData, selectedAgent],
   );
 
-  const handleFieldChange = (
-    field: 'agentId' | 'prompt',
-    value: string,
-  ) => {
-    if (actionOptions.readonly) return;
+  const handleFieldChange = (field: 'agentId' | 'prompt', value: string) => {
+    if (actionOptions.readonly === true) return;
     const input = { ...action.settings.input, [field]: value };
     if (field === 'agentId') {
       input.params = {};
@@ -109,7 +105,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
   };
 
   const handleParamChange = (name: string, value: string) => {
-    if (actionOptions.readonly) return;
+    if (actionOptions.readonly === true) return;
     actionOptions.onActionUpdate?.({
       ...action,
       settings: {
@@ -135,7 +131,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
     <>
       <WorkflowStepHeader
         onTitleChange={(newName: string) => {
-          if (actionOptions.readonly) return;
+          if (actionOptions.readonly === true) return;
           actionOptions.onActionUpdate?.({ ...action, name: newName });
         }}
         Icon={getIcon(headerIcon)}
@@ -148,7 +144,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
         <div>
           <Select
             dropdownId="select-nestbox-agent"
-            label={t`Select Agent`}
+            label={`Select Agent`}
             options={agentOptions}
             value={action.settings.input.agentId || ''}
             onChange={(value) => handleFieldChange('agentId', value)}
@@ -156,27 +152,21 @@ export const WorkflowEditActionNestboxAiAgent = ({
           />
         </div>
 
-        <FormTextFieldInput
-          multiline
-          VariablePicker={WorkflowVariablePicker}
-          label={t`Instructions for Agent`}
-          placeholder={t`Describe what you want the agent to do...`}
-          defaultValue={action.settings.input.prompt}
-          onChange={(value) => handleFieldChange('prompt', value)}
-          readonly={actionOptions.readonly}
-        />
-
         {selectedAgentData?.additionalParameters?.map(
           (param: NestboxAgentParameter) => (
             <FormTextFieldInput
+              multiline
+              VariablePicker={WorkflowVariablePicker}
               key={param.name}
               label={param.name}
               hint={param.description}
-              defaultValue={action.settings.input.params?.[param.name] as string}
+              defaultValue={
+                action.settings.input.params?.[param.name] as string
+              }
               onChange={(value) => handleParamChange(param.name, value)}
               readonly={actionOptions.readonly}
             />
-          )
+          ),
         )}
       </WorkflowStepBody>
     </>

@@ -1,16 +1,19 @@
-import axios from 'axios';
 import { Injectable, Logger } from '@nestjs/common';
+
+import axios from 'axios';
 import { resolveInput } from 'twenty-shared/utils';
 
 import { type WorkflowAction } from 'src/modules/workflow/workflow-executor/interfaces/workflow-action.interface';
+
+import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import {
   WorkflowStepExecutorException,
   WorkflowStepExecutorExceptionCode,
 } from 'src/modules/workflow/workflow-executor/exceptions/workflow-step-executor.exception';
 import { type WorkflowActionInput } from 'src/modules/workflow/workflow-executor/types/workflow-action-input';
 import { type WorkflowActionOutput } from 'src/modules/workflow/workflow-executor/types/workflow-action-output.type';
+
 import { isWorkflowNestboxAiAgentAction } from './guards/is-workflow-nestbox-ai-agent-action.guard';
-import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 @Injectable()
 export class NestboxAiAgentWorkflowAction implements WorkflowAction {
@@ -41,9 +44,8 @@ export class NestboxAiAgentWorkflowAction implements WorkflowAction {
       );
     }
 
-    const { agentId, prompt, params } = resolveInput(step.settings.input, context) as {
+    const { agentId, params } = resolveInput(step.settings.input, context) as {
       agentId?: string;
-      prompt?: string;
       params?: Record<string, any>;
     };
 
@@ -59,11 +61,9 @@ export class NestboxAiAgentWorkflowAction implements WorkflowAction {
       const callbackUrl = `${this.twentyConfigService.get('SERVER_URL')}/nestbox-ai-agent/callback?workflowRunId=${workflowRunId}&workspaceId=${workspaceId}&stepId=${currentStepId}`;
       // const callbackUrl = `http://qqolu-72-255-40-107.a.free.pinggy.link/nestbox-ai-agent/callback?workflowRunId=${workflowRunId}&workspaceId=${workspaceId}&stepId=${currentStepId}`;
 
-
       this.logger.log('basePath', basePath);
       this.logger.log('apiKey', apiKey);
       this.logger.log('callbackUrl', callbackUrl);
-
 
       this.logger.log('API Data', `${basePath}/agents/${agentId}/chat`, {
         Data: {

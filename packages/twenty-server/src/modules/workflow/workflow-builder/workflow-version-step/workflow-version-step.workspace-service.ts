@@ -667,7 +667,6 @@ export class WorkflowVersionStepWorkspaceService {
             ...BASE_STEP_DEFINITION,
             input: {
               agentId: '',
-              prompt: '',
               params: {},
             },
           },
