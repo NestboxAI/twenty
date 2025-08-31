@@ -10,8 +10,8 @@ import {
 import { StepStatus } from 'twenty-shared/workflow';
 
 import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
-import { WorkflowExecutorWorkspaceService } from 'src/modules/workflow/workflow-executor/workspace-services/workflow-executor.workspace-service';
 import { WorkflowRunWorkspaceService } from 'src/modules/workflow/workflow-runner/workflow-run/workflow-run.workspace-service';
+import { WorkflowRunnerWorkspaceService } from 'src/modules/workflow/workflow-runner/workspace-services/workflow-runner.workspace-service';
 
 @Controller('nestbox-ai-agent')
 export class NestboxAiAgentController {
@@ -19,7 +19,7 @@ export class NestboxAiAgentController {
 
   constructor(
     private readonly workflowRunWorkspaceService: WorkflowRunWorkspaceService,
-    private readonly workflowExecutorWorkspaceService: WorkflowExecutorWorkspaceService,
+    private readonly workflowRunnerWorkspaceService: WorkflowRunnerWorkspaceService,
   ) {}
 
   @All('callback')
@@ -43,32 +43,16 @@ export class NestboxAiAgentController {
       workspaceId,
       stepInfo: {
         status: isError ? StepStatus.FAILED : StepStatus.SUCCESS,
-        result: isError ? undefined : body,
+        result: body?.data || {},
         error: isError ? body : undefined,
       },
     });
 
-    const workflowRun =
-      await this.workflowRunWorkspaceService.getWorkflowRunOrFail({
-        workflowRunId,
-        workspaceId,
-      });
-    const step = workflowRun.state.flow.steps.find((s) => s.id === stepId);
-    const nextStepIds = step?.nextStepIds ?? [];
-
-    if (nextStepIds.length > 0) {
-      await this.workflowExecutorWorkspaceService.executeFromSteps({
-        stepIds: nextStepIds,
-        workflowRunId,
-        workspaceId,
-      });
-    } else {
-      await this.workflowExecutorWorkspaceService.executeFromSteps({
-        stepIds: [],
-        workflowRunId,
-        workspaceId,
-      });
-    }
+    await this.workflowRunnerWorkspaceService.resume({
+      workspaceId,
+      workflowRunId,
+      lastExecutedStepId: stepId,
+    });
 
     return { received: true };
   }
