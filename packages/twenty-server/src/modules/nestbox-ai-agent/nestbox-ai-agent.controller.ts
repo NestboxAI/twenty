@@ -9,7 +9,8 @@ import {
 
 import { StepStatus } from 'twenty-shared/workflow';
 
-import { PublicEndpointGuard } from 'src/engine/guards/public-endpoint.guard';
+import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
+import { WorkspaceAuthGuard } from 'src/engine/guards/workspace-auth.guard';
 import { WorkflowRunWorkspaceService } from 'src/modules/workflow/workflow-runner/workflow-run/workflow-run.workspace-service';
 import { WorkflowRunnerWorkspaceService } from 'src/modules/workflow/workflow-runner/workspace-services/workflow-runner.workspace-service';
 
@@ -23,7 +24,7 @@ export class NestboxAiAgentController {
   ) {}
 
   @All('callback')
-  @UseGuards(PublicEndpointGuard)
+  @UseGuards(JwtAuthGuard, WorkspaceAuthGuard)
   async handleCallback(
     @Body() body: any,
     @Query('workflowRunId') workflowRunId: string,

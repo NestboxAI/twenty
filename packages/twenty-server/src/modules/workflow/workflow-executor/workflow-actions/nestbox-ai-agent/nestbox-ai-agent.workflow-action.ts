@@ -63,7 +63,7 @@ export class NestboxAiAgentWorkflowAction implements WorkflowAction {
         'NESTBOX_AI_INSTANCE_API_KEY',
       );
       const callbackUrl = `${this.twentyConfigService.get('SERVER_URL')}/nestbox-ai-agent/callback?workflowRunId=${workflowRunId}&workspaceId=${workspaceId}&stepId=${currentStepId}`;
-      // const callbackUrl = `http://qqolu-72-255-40-107.a.free.pinggy.link/nestbox-ai-agent/callback?workflowRunId=${workflowRunId}&workspaceId=${workspaceId}&stepId=${currentStepId}`;
+      // const callbackUrl = `https://ajouu-2607-fea8-501-e900-8cd3-80f9-b485-dbe1.a.free.pinggy.link/nestbox-ai-agent/callback?workflowRunId=${workflowRunId}&workspaceId=${workspaceId}&stepId=${currentStepId}`;
 
       this.logger.log('basePath', basePath);
       this.logger.log('apiKey', apiKey);
