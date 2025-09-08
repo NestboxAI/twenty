@@ -133,9 +133,18 @@ export const WorkflowEditActionNestboxAiAgent = ({
   };
 
   const renderFormField = (paramName: string, paramSchema: any) => {
+    const isRequired =
+      selectedAgentData?.inputSchema?.required?.includes(paramName) || false;
+    const schemaDefault = paramSchema.default;
+    const currentValue = action.settings.input.params?.[paramName];
+
+    // Use schema default if no current value is set
+    const computedDefaultValue =
+      currentValue !== undefined ? currentValue : schemaDefault;
+
     const commonProps = {
       key: paramName,
-      label: paramName,
+      label: isRequired ? `${paramName} *` : paramName,
       hint: paramSchema.description,
       readonly: actionOptions.readonly,
       VariablePicker: WorkflowVariablePicker,
@@ -151,12 +160,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
             hint={commonProps.hint}
             readonly={commonProps.readonly}
             VariablePicker={commonProps.VariablePicker}
-            defaultValue={
-              action.settings.input.params?.[paramName] as
-                | number
-                | string
-                | undefined
-            }
+            defaultValue={computedDefaultValue as number | string | undefined}
             onChange={(value: any) => handleParamChange(paramName, value)}
           />
         );
@@ -168,12 +172,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
             label={commonProps.label}
             readonly={commonProps.readonly}
             VariablePicker={commonProps.VariablePicker}
-            defaultValue={
-              action.settings.input.params?.[paramName] as
-                | boolean
-                | string
-                | undefined
-            }
+            defaultValue={computedDefaultValue as boolean | string | undefined}
             onChange={(value: any) => handleParamChange(paramName, value)}
           />
         );
@@ -196,10 +195,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
               VariablePicker={commonProps.VariablePicker}
               options={options}
               defaultValue={
-                action.settings.input.params?.[paramName] as
-                  | string[]
-                  | string
-                  | undefined
+                computedDefaultValue as string[] | string | undefined
               }
               onChange={(value: any) => handleParamChange(paramName, value)}
             />
@@ -215,11 +211,9 @@ export const WorkflowEditActionNestboxAiAgent = ({
             VariablePicker={commonProps.VariablePicker}
             multiline
             defaultValue={
-              Array.isArray(action.settings.input.params?.[paramName])
-                ? (action.settings.input.params?.[paramName] as string[]).join(
-                    ', ',
-                  )
-                : (action.settings.input.params?.[paramName] as string)
+              Array.isArray(computedDefaultValue)
+                ? (computedDefaultValue as string[]).join(', ')
+                : (computedDefaultValue as string)
             }
             onChange={(value: string) => {
               // Convert comma-separated string to array
@@ -244,7 +238,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
               readonly={commonProps.readonly}
               VariablePicker={commonProps.VariablePicker}
               multiline={false}
-              defaultValue={action.settings.input.params?.[paramName] as string}
+              defaultValue={computedDefaultValue as string}
               onChange={(value: string) => handleParamChange(paramName, value)}
             />
           );
@@ -258,7 +252,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
             readonly={commonProps.readonly}
             VariablePicker={commonProps.VariablePicker}
             multiline
-            defaultValue={action.settings.input.params?.[paramName] as string}
+            defaultValue={computedDefaultValue as string}
             onChange={(value: string) => handleParamChange(paramName, value)}
           />
         );
