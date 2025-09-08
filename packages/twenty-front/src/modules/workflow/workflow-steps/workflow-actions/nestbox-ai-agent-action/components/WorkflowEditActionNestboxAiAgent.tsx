@@ -1,4 +1,7 @@
 import { useNestboxAiAgentOutputSchema } from '@/ai/hooks/useNestboxAiAgentOutputSchema';
+import { FormBooleanFieldInput } from '@/object-record/record-field/ui/form-types/components/FormBooleanFieldInput';
+import { FormMultiSelectFieldInput } from '@/object-record/record-field/ui/form-types/components/FormMultiSelectFieldInput';
+import { FormNumberFieldInput } from '@/object-record/record-field/ui/form-types/components/FormNumberFieldInput';
 import { FormTextFieldInput } from '@/object-record/record-field/ui/form-types/components/FormTextFieldInput';
 import { Select } from '@/ui/input/components/Select';
 import { type WorkflowNestboxAiAgentAction } from '@/workflow/types/Workflow';
@@ -10,23 +13,18 @@ import { WorkflowVariablePicker } from '@/workflow/workflow-variables/components
 import type { BaseOutputSchema } from '@/workflow/workflow-variables/types/StepOutputSchema';
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
+import { isDefined } from 'twenty-shared/utils';
 import { useIcons } from 'twenty-ui/display';
 import { type SelectOption } from 'twenty-ui/input';
 import { RightDrawerSkeletonLoader } from '~/loading/components/RightDrawerSkeletonLoader';
 import { GET_NESTBOX_AGENTS } from '../graphql/getNestboxAgents';
-
-type NestboxAgentParameter = {
-  name: string;
-  machineAgentId: string;
-  description?: string;
-};
 
 type NestboxAgent = {
   id: string;
   name: string;
   description?: string;
   type?: string | null;
-  additionalParameters?: NestboxAgentParameter[];
+  inputSchema?: Record<string, any> | null;
 };
 
 type GetNestboxAgentsResult = {
@@ -134,6 +132,139 @@ export const WorkflowEditActionNestboxAiAgent = ({
     });
   };
 
+  const renderFormField = (paramName: string, paramSchema: any) => {
+    const commonProps = {
+      key: paramName,
+      label: paramName,
+      hint: paramSchema.description,
+      readonly: actionOptions.readonly,
+      VariablePicker: WorkflowVariablePicker,
+    };
+
+    switch (paramSchema.type) {
+      case 'number':
+      case 'integer':
+        return (
+          <FormNumberFieldInput
+            key={commonProps.key}
+            label={commonProps.label}
+            hint={commonProps.hint}
+            readonly={commonProps.readonly}
+            VariablePicker={commonProps.VariablePicker}
+            defaultValue={
+              action.settings.input.params?.[paramName] as
+                | number
+                | string
+                | undefined
+            }
+            onChange={(value: any) => handleParamChange(paramName, value)}
+          />
+        );
+
+      case 'boolean':
+        return (
+          <FormBooleanFieldInput
+            key={commonProps.key}
+            label={commonProps.label}
+            readonly={commonProps.readonly}
+            VariablePicker={commonProps.VariablePicker}
+            defaultValue={
+              action.settings.input.params?.[paramName] as
+                | boolean
+                | string
+                | undefined
+            }
+            onChange={(value: any) => handleParamChange(paramName, value)}
+          />
+        );
+
+      case 'array':
+        // For arrays of strings, we'll use MultiSelect if enum is provided, otherwise fallback to text
+        if (
+          isDefined(paramSchema.items?.enum) &&
+          paramSchema.items?.enum.length > 0
+        ) {
+          const options = paramSchema.items.enum.map((value: string) => ({
+            label: value,
+            value: value,
+          }));
+          return (
+            <FormMultiSelectFieldInput
+              key={commonProps.key}
+              label={commonProps.label}
+              readonly={commonProps.readonly}
+              VariablePicker={commonProps.VariablePicker}
+              options={options}
+              defaultValue={
+                action.settings.input.params?.[paramName] as
+                  | string[]
+                  | string
+                  | undefined
+              }
+              onChange={(value: any) => handleParamChange(paramName, value)}
+            />
+          );
+        }
+        // Fallback to text input for array of strings without enum
+        return (
+          <FormTextFieldInput
+            key={commonProps.key}
+            label={commonProps.label}
+            hint={`${paramSchema.description || ''} (Enter comma-separated values)`}
+            readonly={commonProps.readonly}
+            VariablePicker={commonProps.VariablePicker}
+            multiline
+            defaultValue={
+              Array.isArray(action.settings.input.params?.[paramName])
+                ? (action.settings.input.params?.[paramName] as string[]).join(
+                    ', ',
+                  )
+                : (action.settings.input.params?.[paramName] as string)
+            }
+            onChange={(value: string) => {
+              // Convert comma-separated string to array
+              const arrayValue = value
+                .split(',')
+                .map((v) => v.trim())
+                .filter((v) => v.length > 0);
+              handleParamChange(paramName, arrayValue as any);
+            }}
+          />
+        );
+
+      case 'string':
+      default:
+        // Handle string enums as select
+        if (isDefined(paramSchema.enum) && paramSchema.enum.length > 0) {
+          return (
+            <FormTextFieldInput
+              key={commonProps.key}
+              label={commonProps.label}
+              hint={`${paramSchema.description || ''} (Options: ${paramSchema.enum.join(', ')})`}
+              readonly={commonProps.readonly}
+              VariablePicker={commonProps.VariablePicker}
+              multiline={false}
+              defaultValue={action.settings.input.params?.[paramName] as string}
+              onChange={(value: string) => handleParamChange(paramName, value)}
+            />
+          );
+        }
+
+        return (
+          <FormTextFieldInput
+            key={commonProps.key}
+            label={commonProps.label}
+            hint={commonProps.hint}
+            readonly={commonProps.readonly}
+            VariablePicker={commonProps.VariablePicker}
+            multiline
+            defaultValue={action.settings.input.params?.[paramName] as string}
+            onChange={(value: string) => handleParamChange(paramName, value)}
+          />
+        );
+    }
+  };
+
   if (agentsLoading) {
     return <RightDrawerSkeletonLoader />;
   }
@@ -165,22 +296,11 @@ export const WorkflowEditActionNestboxAiAgent = ({
           />
         </div>
 
-        {selectedAgentData?.additionalParameters?.map(
-          (param: NestboxAgentParameter) => (
-            <FormTextFieldInput
-              multiline
-              VariablePicker={WorkflowVariablePicker}
-              key={param.name}
-              label={param.name}
-              hint={param.description}
-              defaultValue={
-                action.settings.input.params?.[param.name] as string
-              }
-              onChange={(value) => handleParamChange(param.name, value)}
-              readonly={actionOptions.readonly}
-            />
-          ),
-        )}
+        {selectedAgentData?.inputSchema?.properties &&
+          Object.entries(selectedAgentData.inputSchema.properties).map(
+            ([paramName, paramSchema]: [string, any]) =>
+              renderFormField(paramName, paramSchema),
+          )}
 
         <WorkflowOutputSchemaBuilder
           fields={outputFields}

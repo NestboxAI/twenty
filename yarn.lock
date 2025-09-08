@@ -9070,21 +9070,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestbox-ai/agents@npm:^1.0.48":
-  version: 1.0.48
-  resolution: "@nestbox-ai/agents@npm:1.0.48"
+"@nestbox-ai/agents@npm:^1.0.50":
+  version: 1.0.50
+  resolution: "@nestbox-ai/agents@npm:1.0.50"
   dependencies:
     axios: "npm:^1.6.1"
-  checksum: 10c0/10e33d06e7e0293903e3031f385a0ee97f8dbbd72150a932155dbf348e02e86f7534aed3bb3c2a45153c4066e3ba600e321dc9f286993321105ca3bdd69ee2f8
+  checksum: 10c0/5cc9a069e5c91a9fe93b3836deca71b409edbf6eff0367b96d47569fdfcf72257e679a8c0f03ee2530486adb93eafddd0a92f65cdea15d444592a80b2c77b003
   languageName: node
   linkType: hard
 
-"@nestbox-ai/instances@npm:^1.0.48":
-  version: 1.0.48
-  resolution: "@nestbox-ai/instances@npm:1.0.48"
+"@nestbox-ai/instances@npm:^1.0.50":
+  version: 1.0.50
+  resolution: "@nestbox-ai/instances@npm:1.0.50"
   dependencies:
     axios: "npm:^1.6.1"
-  checksum: 10c0/6eb4a88ef8a61125177f2f692d6cb29f567ea7f09fda4ffc3d9592856716e5d0926be65b99d44742d2dc7e3b314cd4be549fe459c9c669df2853048e99914164
+  checksum: 10c0/4d14f1f018c9c2277652e41abd4f165e0ae4fb7b7f47c144963eb936df05ad22c10d88354c52b3a50216cade229b75cd387960e550023232e12cd5e67b592b55
   languageName: node
   linkType: hard
 
@@ -51086,8 +51086,8 @@ __metadata:
     "@microsoft/microsoft-graph-client": "npm:3.0.7"
     "@microsoft/microsoft-graph-types": "npm:^2.40.0"
     "@monaco-editor/react": "npm:^4.6.0"
-    "@nestbox-ai/agents": "npm:^1.0.48"
-    "@nestbox-ai/instances": "npm:^1.0.48"
+    "@nestbox-ai/agents": "npm:^1.0.50"
+    "@nestbox-ai/instances": "npm:^1.0.50"
     "@nestjs/axios": "npm:3.0.2"
     "@nestjs/cache-manager": "npm:^2.2.1"
     "@nestjs/cli": "npm:10.3.0"

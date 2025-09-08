@@ -9,8 +9,7 @@ export const GET_NESTBOX_AGENTS = gql`
       type
       createdAt
       updatedAt
-      parameters
-      additionalParameters
+      inputSchema
     }
   }
 `;
