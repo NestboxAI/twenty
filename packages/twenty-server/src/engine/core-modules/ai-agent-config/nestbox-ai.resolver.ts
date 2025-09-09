@@ -28,6 +28,15 @@ export class NestboxAgent {
   updatedAt: string;
 }
 
+@ObjectType('Tool')
+export class Tool {
+  @Field()
+  label: string;
+
+  @Field()
+  value: string;
+}
+
 @Resolver(() => NestboxAgent)
 @UseGuards(WorkspaceAuthGuard)
 @UseFilters(PreventNestToAutoLogGraphqlErrorsFilter)
@@ -45,6 +54,26 @@ export class NestboxAiResolver {
       return agents || [];
     } catch (error) {
       this.logger.error('Error in agents resolver:', error);
+      return null;
+    }
+  }
+
+  @Query(() => [Tool], { nullable: true })
+  async tools(@AuthWorkspace() workspace: Workspace) {
+    console.log('NestboxAiResolver.tools called');
+    try {
+      return [
+        {
+          label: 'Demo MCP 1',
+          value: 'demo-mcp-1'
+        },
+        {
+          label: 'Demo MCP 2',
+          value: 'demo-mcp-2'
+        }
+      ];
+    } catch (error) {
+      this.logger.error('Error in tools resolver:', error);
       return null;
     }
   }

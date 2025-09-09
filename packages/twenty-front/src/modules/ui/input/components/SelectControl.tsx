@@ -61,7 +61,7 @@ export const StyledSelectControlIconChevronDown = styled(IconChevronDown)<{
 `;
 
 export type SelectControlProps = {
-  selectedOption: SelectOption<string | number | boolean | null>;
+  selectedOption?: SelectOption<string | number | boolean | null>;
   isDisabled?: boolean;
   selectSizeVariant?: SelectSizeVariant;
   textAccent?: SelectControlTextAccent;
@@ -80,19 +80,19 @@ export const SelectControl = ({
   return (
     <StyledControlContainer
       disabled={isDisabled}
-      hasIcon={isDefined(selectedOption.Icon)}
+      hasIcon={isDefined(selectedOption?.Icon)}
       selectSizeVariant={selectSizeVariant}
       textAccent={textAccent}
       hasRightElement={hasRightElement}
     >
-      {isDefined(selectedOption.Icon) ? (
+      {isDefined(selectedOption?.Icon) ? (
         <selectedOption.Icon
           color={isDisabled ? theme.font.color.light : theme.font.color.primary}
           size={theme.icon.size.md}
           stroke={theme.icon.stroke.sm}
         />
       ) : null}
-      <OverflowingTextWithTooltip text={selectedOption.label} />
+      <OverflowingTextWithTooltip text={selectedOption?.label ?? ''} />
       <StyledSelectControlIconChevronDown
         disabled={isDisabled}
         size={theme.icon.size.md}

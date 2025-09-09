@@ -57,6 +57,7 @@ export type Agent = {
   id: Scalars['UUID'];
   isCustom: Scalars['Boolean'];
   label: Scalars['String'];
+  mcpTools?: Maybe<Scalars['JSON']>;
   modelId: Scalars['String'];
   name: Scalars['String'];
   prompt: Scalars['String'];
@@ -109,6 +110,47 @@ export enum AggregateOperations {
   PERCENTAGE_EMPTY = 'PERCENTAGE_EMPTY',
   PERCENTAGE_NOT_EMPTY = 'PERCENTAGE_NOT_EMPTY',
   SUM = 'SUM'
+}
+
+export type AiAgentConfig = {
+  __typename?: 'AiAgentConfig';
+  additionalInput?: Maybe<Scalars['String']>;
+  agent: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  deletedAt?: Maybe<Scalars['DateTime']>;
+  fieldMetadataId?: Maybe<Scalars['String']>;
+  id: Scalars['UUID'];
+  objectMetadataId?: Maybe<Scalars['String']>;
+  status: AiAgentConfigStatus;
+  updatedAt: Scalars['DateTime'];
+  viewGroupId?: Maybe<Scalars['String']>;
+  viewId?: Maybe<Scalars['String']>;
+  wipLimit: Scalars['Float'];
+  workspaceId: Scalars['String'];
+};
+
+export type AiAgentConfigEdge = {
+  __typename?: 'AiAgentConfigEdge';
+  /** Cursor for this node. */
+  cursor: Scalars['ConnectionCursor'];
+  /** The node containing the AiAgentConfig */
+  node: AiAgentConfig;
+};
+
+export type AiAgentConfigFilterInput = {
+  agent?: InputMaybe<Scalars['String']>;
+  fieldMetadataId?: InputMaybe<Scalars['String']>;
+  objectMetadataId?: InputMaybe<Scalars['String']>;
+  status?: InputMaybe<AiAgentConfigStatus>;
+  viewGroupId?: InputMaybe<Scalars['String']>;
+  viewId?: InputMaybe<Scalars['String']>;
+  workspaceId?: InputMaybe<Scalars['String']>;
+};
+
+/** AI Agent Configuration Status */
+export enum AiAgentConfigStatus {
+  DISABLED = 'DISABLED',
+  ENABLED = 'ENABLED'
 }
 
 export type Analytics = {
@@ -605,11 +647,24 @@ export type CreateAgentInput = {
   description?: InputMaybe<Scalars['String']>;
   icon?: InputMaybe<Scalars['String']>;
   label: Scalars['String'];
+  mcpTools?: InputMaybe<Scalars['JSON']>;
   modelId: Scalars['String'];
   name?: InputMaybe<Scalars['String']>;
   prompt: Scalars['String'];
   responseFormat?: InputMaybe<Scalars['JSON']>;
   roleId?: InputMaybe<Scalars['UUID']>;
+};
+
+export type CreateAiAgentConfigInput = {
+  additionalInput?: InputMaybe<Scalars['String']>;
+  agent: Scalars['String'];
+  fieldMetadataId?: InputMaybe<Scalars['String']>;
+  objectMetadataId?: InputMaybe<Scalars['String']>;
+  status?: InputMaybe<AiAgentConfigStatus>;
+  viewGroupId?: InputMaybe<Scalars['String']>;
+  viewId?: InputMaybe<Scalars['String']>;
+  wipLimit?: InputMaybe<Scalars['Float']>;
+  workspaceId: Scalars['String'];
 };
 
 export type CreateApiKeyDto = {
@@ -1289,6 +1344,7 @@ export type Mutation = {
   computeStepOutputSchema: Scalars['JSON'];
   createAgentChatThread: AgentChatThread;
   createAgentHandoff: Scalars['Boolean'];
+  createAiAgentConfig: AiAgentConfig;
   createApiKey: ApiKey;
   createApprovedAccessDomain: ApprovedAccessDomain;
   createCoreView: CoreView;
@@ -1313,6 +1369,7 @@ export type Mutation = {
   createWorkflowVersionEdge: WorkflowVersionStepChanges;
   createWorkflowVersionStep: WorkflowVersionStepChanges;
   deactivateWorkflowVersion: Scalars['Boolean'];
+  deleteAiAgentConfig: Scalars['Boolean'];
   deleteApprovedAccessDomain: Scalars['Boolean'];
   deleteCoreView: Scalars['Boolean'];
   deleteCoreViewField: Scalars['Boolean'];
@@ -1378,6 +1435,7 @@ export type Mutation = {
   switchToEnterprisePlan: BillingUpdateOutput;
   switchToYearlyInterval: BillingUpdateOutput;
   trackAnalytics: Analytics;
+  updateAiAgentConfig: AiAgentConfig;
   updateApiKey?: Maybe<ApiKey>;
   updateCoreView: CoreView;
   updateCoreViewField: CoreViewField;
@@ -1462,6 +1520,11 @@ export type MutationCreateAgentChatThreadArgs = {
 
 export type MutationCreateAgentHandoffArgs = {
   input: CreateAgentHandoffInput;
+};
+
+
+export type MutationCreateAiAgentConfigArgs = {
+  input: CreateAiAgentConfigInput;
 };
 
 
@@ -1576,6 +1639,11 @@ export type MutationCreateWorkflowVersionStepArgs = {
 
 export type MutationDeactivateWorkflowVersionArgs = {
   workflowVersionId: Scalars['UUID'];
+};
+
+
+export type MutationDeleteAiAgentConfigArgs = {
+  id: Scalars['String'];
 };
 
 
@@ -1884,6 +1952,12 @@ export type MutationTrackAnalyticsArgs = {
 };
 
 
+export type MutationUpdateAiAgentConfigArgs = {
+  id: Scalars['String'];
+  input: UpdateAiAgentConfigInput;
+};
+
+
 export type MutationUpdateApiKeyArgs = {
   input: UpdateApiKeyDto;
 };
@@ -2054,6 +2128,16 @@ export type MutationValidateApprovedAccessDomainArgs = {
 
 export type MutationVerifyTwoFactorAuthenticationMethodForAuthenticatedUserArgs = {
   otp: Scalars['String'];
+};
+
+export type NestboxAgent = {
+  __typename?: 'NestboxAgent';
+  createdAt: Scalars['String'];
+  description: Scalars['String'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  type: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type Object = {
@@ -2299,6 +2383,8 @@ export type Query = {
   agentChatMessages: Array<AgentChatMessage>;
   agentChatThread: AgentChatThread;
   agentChatThreads: Array<AgentChatThread>;
+  agents?: Maybe<Array<NestboxAgent>>;
+  aiAgentConfig?: Maybe<AiAgentConfig>;
   apiKey?: Maybe<ApiKey>;
   apiKeys: Array<ApiKey>;
   billingPortalSession: BillingSessionOutput;
@@ -2375,6 +2461,11 @@ export type QueryAgentChatThreadArgs = {
 
 export type QueryAgentChatThreadsArgs = {
   agentId: Scalars['UUID'];
+};
+
+
+export type QueryAiAgentConfigArgs = {
+  filter: AiAgentConfigFilterInput;
 };
 
 
@@ -3031,11 +3122,23 @@ export type UpdateAgentInput = {
   icon?: InputMaybe<Scalars['String']>;
   id: Scalars['UUID'];
   label: Scalars['String'];
+  mcpTools?: InputMaybe<Scalars['JSON']>;
   modelId: Scalars['String'];
   name: Scalars['String'];
   prompt: Scalars['String'];
   responseFormat?: InputMaybe<Scalars['JSON']>;
   roleId?: InputMaybe<Scalars['UUID']>;
+};
+
+export type UpdateAiAgentConfigInput = {
+  additionalInput?: InputMaybe<Scalars['String']>;
+  agent?: InputMaybe<Scalars['String']>;
+  fieldMetadataId?: InputMaybe<Scalars['String']>;
+  objectMetadataId?: InputMaybe<Scalars['String']>;
+  status?: InputMaybe<AiAgentConfigStatus>;
+  viewGroupId?: InputMaybe<Scalars['String']>;
+  viewId?: InputMaybe<Scalars['String']>;
+  wipLimit?: InputMaybe<Scalars['Float']>;
 };
 
 export type UpdateApiKeyDto = {
