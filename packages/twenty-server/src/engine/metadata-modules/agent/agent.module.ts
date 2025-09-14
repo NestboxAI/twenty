@@ -33,6 +33,7 @@ import { AgentToolService } from './agent-tool.service';
 import { AgentEntity } from './agent.entity';
 import { AgentResolver } from './agent.resolver';
 import { AgentService } from './agent.service';
+import { McpToolRegistryService } from './services/mcp-tool-registry.service';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { AgentService } from './agent.service';
     AgentTitleGenerationService,
     AgentHandoffExecutorService,
     AgentHandoffService,
+    McpToolRegistryService,
   ],
   exports: [
     AgentService,

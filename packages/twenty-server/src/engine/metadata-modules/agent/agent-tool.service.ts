@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { type ToolSet } from 'ai';
@@ -13,9 +13,12 @@ import { AgentService } from 'src/engine/metadata-modules/agent/agent.service';
 import { AGENT_HANDOFF_DESCRIPTION_TEMPLATE } from 'src/engine/metadata-modules/agent/constants/agent-handoff-description.const';
 import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
 import { camelCase } from 'src/utils/camel-case';
+import { McpToolRegistryService } from './services/mcp-tool-registry.service';
 
 @Injectable()
 export class AgentToolService {
+  private readonly logger = new Logger(AgentToolService.name);
+
   constructor(
     private readonly agentService: AgentService,
     private readonly agentHandoffService: AgentHandoffService,
@@ -24,20 +27,32 @@ export class AgentToolService {
     private readonly roleRepository: Repository<RoleEntity>,
     private readonly toolService: ToolService,
     private readonly toolAdapterService: ToolAdapterService,
+    private readonly mcpToolRegistryService: McpToolRegistryService,
   ) {}
 
   async generateToolsForAgent(
     agentId: string,
     workspaceId: string,
   ): Promise<ToolSet> {
+    this.logger.log(`Generating tools for agent ${agentId} in workspace ${workspaceId}`);
+    
     const agent = await this.agentService.findOneAgent(agentId, workspaceId);
 
+    // Generate handoff tools
     const handoffTools = await this.generateHandoffTools(agentId, workspaceId);
+    this.logger.log(`Generated ${Object.keys(handoffTools).length} handoff tools`);
+
+    // Generate MCP tools if configured
+    const mcpTools = await this.generateMcpTools(agent);
+    this.logger.log(`Generated ${Object.keys(mcpTools).length} MCP tools`);
 
     if (!agent.roleId) {
       const actionTools = await this.toolAdapterService.getTools();
+      this.logger.log(`Generated ${Object.keys(actionTools).length} action tools (no role)`);
 
-      return { ...actionTools, ...handoffTools };
+      const allTools = { ...actionTools, ...handoffTools, ...mcpTools };
+      this.logger.log(`Total tools generated: ${Object.keys(allTools).length}`);
+      return allTools;
     }
 
     const role = await this.roleRepository.findOne({
@@ -48,20 +63,27 @@ export class AgentToolService {
     });
 
     if (!role) {
-      return {};
+      this.logger.warn(`Role ${agent.roleId} not found for agent ${agentId}`);
+      const allTools = { ...handoffTools, ...mcpTools };
+      this.logger.log(`Total tools generated (no role): ${Object.keys(allTools).length}`);
+      return allTools;
     }
 
     const actionTools = await this.toolAdapterService.getTools(
       role.id,
       workspaceId,
     );
+    this.logger.log(`Generated ${Object.keys(actionTools).length} action tools`);
 
     const databaseTools = await this.toolService.listTools(
       role.id,
       workspaceId,
     );
+    this.logger.log(`Generated ${Object.keys(databaseTools).length} database tools`);
 
-    return { ...databaseTools, ...actionTools, ...handoffTools };
+    const allTools = { ...databaseTools, ...actionTools, ...handoffTools, ...mcpTools };
+    this.logger.log(`Total tools generated: ${Object.keys(allTools).length}`);
+    return allTools;
   }
 
   private async generateHandoffTools(
@@ -123,5 +145,32 @@ export class AgentToolService {
     }, {});
 
     return handoffTools;
+  }
+
+  private async generateMcpTools(agent: any): Promise<ToolSet> {
+    // Check if agent has MCP tools configured
+    if (!agent.mcpTools || !agent.mcpTools.selected || !Array.isArray(agent.mcpTools.selected)) {
+      this.logger.log(`Agent ${agent.id} has no MCP tools configured`);
+      return {};
+    }
+
+    const selectedMcpServers = agent.mcpTools.selected as string[];
+    
+    if (selectedMcpServers.length === 0) {
+      this.logger.log(`Agent ${agent.id} has empty MCP tools selection`);
+      return {};
+    }
+
+    this.logger.log(`Agent ${agent.id} has MCP tools configured: ${selectedMcpServers.join(', ')}`);
+
+    try {
+      const mcpTools = await this.mcpToolRegistryService.getMcpToolsForServerIds(selectedMcpServers);
+      this.logger.log(`Successfully loaded MCP tools for agent ${agent.id}`);
+      return mcpTools;
+    } catch (error) {
+      this.logger.error(`Failed to load MCP tools for agent ${agent.id}:`, error);
+      // Return empty tools set instead of throwing to not break agent execution
+      return {};
+    }
   }
 }
