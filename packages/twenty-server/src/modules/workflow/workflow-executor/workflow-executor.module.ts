@@ -7,6 +7,7 @@ import { ScopedWorkspaceContextFactory } from 'src/engine/twenty-orm/factories/s
 import { WorkflowCommonModule } from 'src/modules/workflow/common/workflow-common.module';
 import { WorkflowActionFactory } from 'src/modules/workflow/workflow-executor/factories/workflow-action.factory';
 import { AiAgentActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/ai-agent/ai-agent-action.module';
+import { NestboxAiAgentActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/nestbox-ai-agent/nestbox-ai-agent-action.module';
 import { CodeActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/code/code-action.module';
 import { FilterActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/filter/filter-action.module';
 import { FormActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/form/form-action.module';
@@ -25,6 +26,7 @@ import { WorkflowRunModule } from 'src/modules/workflow/workflow-runner/workflow
     BillingModule,
     FilterActionModule,
     AiAgentActionModule,
+    NestboxAiAgentActionModule,
     FeatureFlagModule,
     AiModule,
   ],

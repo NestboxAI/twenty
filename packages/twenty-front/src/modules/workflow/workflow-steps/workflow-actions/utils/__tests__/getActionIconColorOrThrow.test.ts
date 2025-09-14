@@ -68,13 +68,20 @@ describe('getActionIconColorOrThrow', () => {
   });
 
   describe('action types that return pink color', () => {
-    it('should return pink color for AI_AGENT action type', () => {
-      const result = getActionIconColorOrThrow({
-        theme: mockTheme,
-        actionType: 'AI_AGENT',
-      });
+    const pinkActions: WorkflowActionType[] = [
+      'AI_AGENT',
+      'NESTBOX_AI_AGENT',
+    ];
 
-      expect(result).toBe(mockTheme.color.pink);
+    pinkActions.forEach((actionType) => {
+      it(`should return pink color for ${actionType} action type`, () => {
+        const result = getActionIconColorOrThrow({
+          theme: mockTheme,
+          actionType,
+        });
+
+        expect(result).toBe(mockTheme.color.pink);
+      });
     });
   });
 
@@ -228,6 +235,15 @@ describe('getActionIconColorOrThrow', () => {
       ).toBe(mockTheme.color.pink);
     });
 
+    it('should return pink color for NESTBOX_AI_AGENT action type', () => {
+      expect(
+        getActionIconColorOrThrow({
+          theme: mockTheme,
+          actionType: 'NESTBOX_AI_AGENT',
+        }),
+      ).toBe(mockTheme.color.pink);
+    });
+
     it('should use the provided theme colors correctly', () => {
       const customTheme: Theme = {
         color: {
@@ -255,6 +271,12 @@ describe('getActionIconColorOrThrow', () => {
         getActionIconColorOrThrow({
           theme: customTheme,
           actionType: 'AI_AGENT',
+        }),
+      ).toBe(COLOR.turquoise);
+      expect(
+        getActionIconColorOrThrow({
+          theme: customTheme,
+          actionType: 'NESTBOX_AI_AGENT',
         }),
       ).toBe(COLOR.turquoise);
       expect(

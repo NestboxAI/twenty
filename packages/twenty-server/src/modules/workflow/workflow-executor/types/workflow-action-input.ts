@@ -4,4 +4,6 @@ export type WorkflowActionInput = {
   currentStepId: string;
   steps: WorkflowAction[];
   context: Record<string, unknown>;
+  workflowRunId: string;
+  workspaceId: string;
 };

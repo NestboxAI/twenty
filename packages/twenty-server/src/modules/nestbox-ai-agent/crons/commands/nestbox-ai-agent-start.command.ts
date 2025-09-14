@@ -20,10 +20,14 @@ export class NestboxAiAgentCronCommand extends CommandRunner {
   }
 
   async run(): Promise<void> {
-    const cronPattern = this.twentyConfigService.get('NESTBOX_AI_AGENT_CRON_PATTERN');
-    
-    console.log(`🚀 Starting Nestbox AI Agent cron job with pattern: ${cronPattern}`);
-    
+    const cronPattern = this.twentyConfigService.get(
+      'NESTBOX_AI_AGENT_CRON_PATTERN',
+    );
+
+    console.log(
+      `🚀 Starting Nestbox AI Agent cron job with pattern: ${cronPattern}`,
+    );
+
     await this.messageQueueService.addCron<undefined>({
       jobName: NestboxAiAgentCronJob.name,
       data: undefined,
@@ -33,7 +37,7 @@ export class NestboxAiAgentCronCommand extends CommandRunner {
         },
       },
     });
-    
+
     console.log('✅ Nestbox AI Agent cron job has been started successfully');
   }
-} 
+}
