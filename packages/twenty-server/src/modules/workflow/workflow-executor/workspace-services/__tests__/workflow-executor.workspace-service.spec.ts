@@ -155,6 +155,8 @@ describe('WorkflowExecutorWorkspaceService', () => {
         currentStepId: 'step-1',
         steps: mockSteps,
         context: getWorkflowRunContext(mockStepInfos),
+        workflowRunId: mockWorkflowRunId,
+        workspaceId: mockWorkspaceId,
       });
 
       expect(workspaceEventEmitter.emitCustomBatchEvent).toHaveBeenCalledWith(

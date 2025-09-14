@@ -21,7 +21,7 @@ export class NestboxAiAgentCronStopCommand extends CommandRunner {
     await this.messageQueueService.removeCron({
       jobName: NestboxAiAgentCronJob.name,
     });
-    
+
     console.log('✅ Nestbox AI Agent cron job has been stopped successfully');
   }
-} 
+}
