@@ -64,11 +64,11 @@ export class NestboxAiResolver {
     try {
       return [
         {
-          label: 'Demo MCP 1',
+          label: 'Weather MCP tool',
           value: 'demo-mcp-1'
         },
         {
-          label: 'Demo MCP 2',
+          label: 'Contry Info MCP tool',
           value: 'demo-mcp-2'
         }
       ];
