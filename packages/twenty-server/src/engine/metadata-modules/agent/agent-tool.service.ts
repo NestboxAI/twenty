@@ -95,53 +95,55 @@ export class AgentToolService {
       workspaceId,
     });
 
-    const handoffTools = handoffs.reduce<ToolSet>((tools, handoff) => {
-      const toolName = `handoff_to_${camelCase(handoff.toAgent.name)}`;
+    const handoffTools = handoffs
+      .filter((handoff) => handoff.toAgent !== null)
+      .reduce<ToolSet>((tools, handoff) => {
+        const toolName = `handoff_to_${camelCase(handoff.toAgent.name)}`;
 
-      const handoffSchema = z.object({
-        toolDescription: z
-          .string()
-          .describe(
-            "A clear, human-readable status message describing the handoff being made. This will be shown to the user while the handoff is being processed, so phrase it as a present-tense status update (e.g., 'Transferring you to the sales agent for pricing information').",
-          ),
-        input: z.object({
-          reason: z
+        const handoffSchema = z.object({
+          toolDescription: z
             .string()
             .describe(
-              'Brief explanation of why this handoff is needed (e.g., "User needs pricing information", "User requires technical support", "User wants to discuss billing")',
+              "A clear, human-readable status message describing the handoff being made. This will be shown to the user while the handoff is being processed, so phrase it as a present-tense status update (e.g., 'Transferring you to the sales agent for pricing information').",
             ),
-          context: z
-            .string()
-            .optional()
-            .describe(
-              'Any relevant context or information to pass to the receiving agent (e.g., user preferences, previous conversation details, specific requirements)',
+          input: z.object({
+            reason: z
+              .string()
+              .describe(
+                'Brief explanation of why this handoff is needed (e.g., "User needs pricing information", "User requires technical support", "User wants to discuss billing")',
+              ),
+            context: z
+              .string()
+              .optional()
+              .describe(
+                'Any relevant context or information to pass to the receiving agent (e.g., user preferences, previous conversation details, specific requirements)',
+              ),
+          }),
+        });
+
+        tools[toolName] = {
+          description:
+            handoff.description ||
+            handoff.toAgent.description ||
+            AGENT_HANDOFF_DESCRIPTION_TEMPLATE.replace(
+              '{agentName}',
+              handoff.toAgent.name,
             ),
-        }),
-      });
+          parameters: handoffSchema,
+          execute: async ({ input: { reason, context } }) => {
+            const result = await this.agentHandoffExecutorService.executeHandoff({
+              fromAgentId: agentId,
+              toAgentId: handoff.toAgent.id,
+              workspaceId,
+              reason,
+              context,
+            });
 
-      tools[toolName] = {
-        description:
-          handoff.description ||
-          handoff.toAgent.description ||
-          AGENT_HANDOFF_DESCRIPTION_TEMPLATE.replace(
-            '{agentName}',
-            handoff.toAgent.name,
-          ),
-        parameters: handoffSchema,
-        execute: async ({ input: { reason, context } }) => {
-          const result = await this.agentHandoffExecutorService.executeHandoff({
-            fromAgentId: agentId,
-            toAgentId: handoff.toAgent.id,
-            workspaceId,
-            reason,
-            context,
-          });
+            return result;
+          },
+        };
 
-          return result;
-        },
-      };
-
-      return tools;
+        return tools;
     }, {});
 
     return handoffTools;
