@@ -4,15 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { type Response } from 'express';
 import { Repository } from 'typeorm';
 
+import { type Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import { AgentChatMessageRole } from 'src/engine/metadata-modules/agent/agent-chat-message.entity';
 import { AgentChatThreadEntity } from 'src/engine/metadata-modules/agent/agent-chat-thread.entity';
 import { AgentChatService } from 'src/engine/metadata-modules/agent/agent-chat.service';
 import { AgentExecutionService } from 'src/engine/metadata-modules/agent/agent-execution.service';
 import {
-  AgentException,
-  AgentExceptionCode,
+    AgentException,
+    AgentExceptionCode,
 } from 'src/engine/metadata-modules/agent/agent.exception';
-import { type Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import { type RecordIdsByObjectMetadataNameSingularType } from 'src/engine/metadata-modules/agent/types/recordIdsByObjectMetadataNameSingular.type';
 
 export type StreamAgentChatOptions = {
@@ -91,6 +91,15 @@ export class AgentStreamingService {
               message: chunk.args?.toolDescription,
             });
             break;
+          case 'step-start':
+            this.logger.log(`Step started`);
+            break;
+          case 'step-finish':
+            this.logger.log(`Step finished, finish reason: ${chunk.finishReason}`);
+            break;
+          case 'finish':
+            this.logger.log(`Generation finished: ${chunk.finishReason}`);
+            break;
           case 'error':
             {
               const errorMessage =
@@ -109,7 +118,8 @@ export class AgentStreamingService {
             this.logger.error(`Stream error: ${JSON.stringify(chunk)}`);
             break;
           default:
-            this.logger.log(`Unknown chunk type: ${chunk.type}`);
+            // Handle any unknown chunk types gracefully
+            this.logger.log(`Unknown chunk type: ${(chunk as any).type}`);
             break;
         }
       }

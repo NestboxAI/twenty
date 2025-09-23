@@ -4,14 +4,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { type Readable } from 'stream';
 
 import {
-    type CoreMessage,
-    type CoreUserMessage,
-    type FilePart,
-    generateObject,
-    generateText,
-    type ImagePart,
-    streamText,
-    type UserContent,
+  type CoreMessage,
+  type CoreUserMessage,
+  type FilePart,
+  generateObject,
+  generateText,
+  type ImagePart,
+  streamText,
+  type UserContent,
 } from 'ai';
 import { In, Repository } from 'typeorm';
 
@@ -24,8 +24,8 @@ import { extractFolderPathAndFilename } from 'src/engine/core-modules/file/utils
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { type Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import {
-    type AgentChatMessageEntity,
-    AgentChatMessageRole,
+  type AgentChatMessageEntity,
+  AgentChatMessageRole,
 } from 'src/engine/metadata-modules/agent/agent-chat-message.entity';
 import { AgentToolService } from 'src/engine/metadata-modules/agent/agent-tool.service';
 import { AGENT_CONFIG } from 'src/engine/metadata-modules/agent/constants/agent-config.const';
@@ -137,11 +137,8 @@ export class AgentExecutionService {
 
       this.logger.log(`Generated ${Object.keys(tools).length} tools for agent`);
       
-      // Log MCP tools specifically for debugging
-      const mcpToolNames = Object.keys(tools).filter(name => name.includes('demo-mcp-1_'));
-      if (mcpToolNames.length > 0) {
-        this.logger.log(`MCP tools available: ${mcpToolNames.join(', ')}`);
-      }
+      this.logger.log(`🔧 ALL TOOLS AVAILABLE: ${Object.keys(tools).join(', ')}`);
+      
 
       const registeredModel = this.aiModelRegistryService.getModel(
         aiModel.modelId,

@@ -31,7 +31,22 @@ async function testMcpIntegration() {
   
   try {
     // Note: This would normally be injected via DI
-    const mcpToolRegistry = new McpToolRegistryService();
+    // For testing purposes, we'll mock the TwentyConfigService
+    const mockConfigService = {
+      get: (key: string) => {
+        // Return mock values for testing
+        switch (key) {
+          case 'NESTBOX_AI_INSTANCE_IP':
+            return 'http://localhost:3000';
+          case 'NESTBOX_AI_INSTANCE_API_KEY':
+            return 'mock-api-key';
+          default:
+            return undefined;
+        }
+      }
+    };
+    
+    const mcpToolRegistry = new McpToolRegistryService(mockConfigService as any);
     
     // Test fetching tools for demo-mcp-1
     const tools = await mcpToolRegistry.getMcpToolsForServerIds(['demo-mcp-1']);

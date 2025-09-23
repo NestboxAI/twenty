@@ -90,6 +90,7 @@ export class AgentHandoffExecutorService {
       };
 
       this.logger.log(`🚀 EXECUTING HANDOFF: Running ${targetAgent.name} with model ${registeredModel.model} and ${Object.keys(mcpTools).length} MCP tools`);
+      this.logger.log(`🛠️ TOOLS PASSED TO AI: ${Object.keys(mcpTools).join(', ')}`);
       
       const textResponse = await generateText(aiRequestConfig);
 

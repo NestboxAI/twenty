@@ -1,14 +1,27 @@
+import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
 import { useQuery } from '@apollo/client';
 import { SelectOption } from 'twenty-ui/input';
-import { GET_MCP_TOOLS } from '../graphql/queries/mcpTools';
+import { GET_AGENTS } from '../../object-record/record-group/graphql/queries/getAgents';
+
+export interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export const useMcpToolOptions = () => {
-  const { data, loading, error } = useQuery(GET_MCP_TOOLS);
+  const apolloCoreClient = useApolloCoreClient();
+  const { data, loading, error } = useQuery<{ agents: Agent[] }>(GET_AGENTS, {
+    client: apolloCoreClient,
+  });
 
-  const mcpToolOptions: SelectOption[] = data?.tools?.map(
-    (tool: { label: string; value: string }) => ({
-      label: tool.label,
-      value: tool.value,
+  const mcpToolOptions: SelectOption[] = data?.agents?.map(
+    (agent: Agent) => ({
+      label: agent.name,
+      value: agent.id,
     })
   ) || [];
 

@@ -1,11 +1,15 @@
 export type AgentStreamingEvent = {
-  type: 'text-delta' | 'tool-call' | 'error';
+  type: 'text-delta' | 'tool-call' | 'tool-result' | 'step-start' | 'step-finish' | 'finish' | 'error';
   message: string;
 };
 
 export type AgentStreamingParserCallbacks = {
   onTextDelta?: (message: string) => void;
   onToolCall?: (message: string) => void;
+  onToolResult?: (message: string) => void;
+  onStepStart?: (message: string) => void;
+  onStepFinish?: (message: string) => void;
+  onFinish?: (message: string) => void;
   onError?: (message: string) => void;
   onParseError?: (error: Error, rawLine: string) => void;
 };
@@ -27,6 +31,18 @@ export const parseAgentStreamingChunk = (
             break;
           case 'tool-call':
             callbacks.onToolCall?.(event.message);
+            break;
+          case 'tool-result':
+            callbacks.onToolResult?.(event.message);
+            break;
+          case 'step-start':
+            callbacks.onStepStart?.(event.message);
+            break;
+          case 'step-finish':
+            callbacks.onStepFinish?.(event.message);
+            break;
+          case 'finish':
+            callbacks.onFinish?.(event.message);
             break;
           case 'error':
             callbacks.onError?.(event.message);

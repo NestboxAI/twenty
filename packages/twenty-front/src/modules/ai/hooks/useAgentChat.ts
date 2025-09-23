@@ -7,8 +7,8 @@ import { Key } from 'ts-key-enum';
 import { AgentChatMessageRole } from '@/ai/constants/AgentChatMessageRole';
 import { STREAM_CHAT_QUERY } from '@/ai/rest-api/agent-chat-apollo.api';
 import {
-  type AIChatObjectMetadataAndRecordContext,
-  agentChatObjectMetadataAndRecordContextState,
+    type AIChatObjectMetadataAndRecordContext,
+    agentChatObjectMetadataAndRecordContextState,
 } from '@/ai/states/agentChatObjectMetadataAndRecordContextState';
 import { agentChatSelectedFilesComponentState } from '@/ai/states/agentChatSelectedFilesComponentState';
 import { agentChatUploadedFilesComponentState } from '@/ai/states/agentChatUploadedFilesComponentState';
@@ -24,8 +24,8 @@ import { useApolloClient } from '@apollo/client';
 import { isDefined } from 'twenty-shared/utils';
 import { v4 } from 'uuid';
 import {
-  useGetAgentChatMessagesQuery,
-  useGetAgentChatThreadsQuery,
+    useGetAgentChatMessagesQuery,
+    useGetAgentChatThreadsQuery,
 } from '~/generated-metadata/graphql';
 import { type AgentChatMessage } from '~/generated/graphql';
 import { agentChatInputState } from '../states/agentChatInputState';
@@ -193,6 +193,25 @@ export const useAgentChat = (agentId: string, records?: ObjectRecord[]) => {
                 toolCall: message,
               }));
               scrollToBottom();
+            },
+            onToolResult: (message: string) => {
+              setAgentStreamingMessage((prev) => ({
+                ...prev,
+                toolResult: message,
+              }));
+              scrollToBottom();
+            },
+            onStepStart: (message: string) => {
+              // Log step start for debugging
+              console.log('Step started:', message);
+            },
+            onStepFinish: (message: string) => {
+              // Log step finish for debugging
+              console.log('Step finished:', message);
+            },
+            onFinish: (message: string) => {
+              // Log generation finish for debugging
+              console.log('Generation finished:', message);
             },
             onError: (message: string) => {
               enqueueErrorSnackBar({
