@@ -386,6 +386,7 @@ export class WorkflowVersionStepWorkspaceService {
         WorkflowActionType.CODE,
         WorkflowActionType.HTTP_REQUEST,
         WorkflowActionType.AI_AGENT,
+        WorkflowActionType.NESTBOX_AI_AGENT,
       ].includes(step.type)
     ) {
       return step;
@@ -441,6 +442,9 @@ export class WorkflowVersionStepWorkspaceService {
         if (isDefined(agent)) {
           await this.agentService.deleteOneAgent(agent.id, workspaceId);
         }
+        break;
+      }
+      case WorkflowActionType.NESTBOX_AI_AGENT: {
         break;
       }
     }
@@ -650,6 +654,20 @@ export class WorkflowVersionStepWorkspaceService {
             input: {
               agentId: '',
               prompt: '',
+            },
+          },
+        };
+      }
+      case WorkflowActionType.NESTBOX_AI_AGENT: {
+        return {
+          ...baseStep,
+          name: 'Nestbox AI Agent',
+          type: WorkflowActionType.NESTBOX_AI_AGENT,
+          settings: {
+            ...BASE_STEP_DEFINITION,
+            input: {
+              agentId: '',
+              params: {},
             },
           },
         };

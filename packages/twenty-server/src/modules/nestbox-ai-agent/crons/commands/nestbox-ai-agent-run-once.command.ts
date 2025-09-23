@@ -19,12 +19,9 @@ export class NestboxAiAgentRunOnceCommand extends CommandRunner {
 
   async run(): Promise<void> {
     console.log('🚀 Manually triggering Nestbox AI Agent job once...');
-    
-    await this.messageQueueService.add(
-      NestboxAiAgentCronJob.name,
-      {},
-    );
-    
+
+    await this.messageQueueService.add(NestboxAiAgentCronJob.name, {});
+
     console.log('✅ Nestbox AI Agent job has been queued for execution');
   }
-} 
+}

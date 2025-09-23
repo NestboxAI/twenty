@@ -117,6 +117,8 @@ export class WorkflowExecutorWorkspaceService {
           currentStepId: stepId,
           steps,
           context: getWorkflowRunContext(stepInfos),
+          workflowRunId,
+          workspaceId,
         });
       } catch (error) {
         actionOutput = {
