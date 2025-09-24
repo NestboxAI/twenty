@@ -432,6 +432,27 @@ private async fetchToolsFromMcpServer(url: string, secretKey: string, serverConf
   private validateAndConvertSchemaParams(params: any): any {
     const validatedParams = { ...params };
     
+    // Check for crawl parameter that needs conversion
+    if (params.crawl !== undefined) {
+      if (typeof params.crawl === 'string') {
+        // Convert string crawl values to numbers
+        if (params.crawl === 'true' || params.crawl === '1') {
+          validatedParams.crawl = "1";
+          this.logger.log(`🔄 CONVERTED CRAWL: "${params.crawl}" → 1`);
+        } else if (params.crawl === 'false' || params.crawl === '0') {
+          validatedParams.crawl = "0";
+          this.logger.log(`🔄 CONVERTED CRAWL: "${params.crawl}" → 0`);
+        } else {
+          // Try to parse as number
+          const crawlNum = parseInt(params.crawl, 10);
+          if (!isNaN(crawlNum)) {
+            validatedParams.crawl = crawlNum;
+            this.logger.log(`🔄 CONVERTED CRAWL: "${params.crawl}" → ${crawlNum}`);
+          }
+        }
+      }
+    }
+    
     // Check for output_schema_json parameter that needs conversion
     if (params.output_schema_json && typeof params.output_schema_json === 'string') {
       try {
