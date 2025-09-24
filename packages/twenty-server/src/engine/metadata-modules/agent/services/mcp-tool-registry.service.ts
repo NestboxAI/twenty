@@ -241,7 +241,10 @@ private async fetchToolsFromMcpServer(url: string, secretKey: string, serverConf
 
       const data = await response.json();
       
+      this.logger.log(`📥 MCP SERVER TOOLS LIST RESPONSE:`, JSON.stringify(data, null, 2));
+      
       if (data.error) {
+        this.logger.error(`💥 MCP SERVER TOOLS LIST ERROR:`, JSON.stringify(data.error, null, 2));
         throw new Error(`MCP server error: ${data.error.message}`);
       }
 
@@ -352,12 +355,22 @@ private async fetchToolsFromMcpServer(url: string, secretKey: string, serverConf
       this.logger.log(`📥 MCP TOOL RESPONSE STATUS: ${response.status} ${response.statusText}`);
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        let errorBody = 'No response body';
+        try {
+          errorBody = await response.text();
+          this.logger.error(`📥 MCP TOOL ERROR RESPONSE BODY:`, errorBody);
+        } catch (bodyError) {
+          this.logger.error(`Failed to read error response body:`, bodyError);
+        }
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorBody}`);
       }
 
       const data = await response.json();
       
+      this.logger.log(`📥 MCP TOOL FULL RESPONSE:`, JSON.stringify(data, null, 2));
+      
       if (data.error) {
+        this.logger.error(`💥 MCP TOOL ERROR RESPONSE:`, JSON.stringify(data.error, null, 2));
         throw new Error(`MCP tool execution error: ${data.error.message}`);
       }
 
@@ -451,6 +464,10 @@ private async fetchToolsFromMcpServer(url: string, secretKey: string, serverConf
             type: 'object',
             properties: properties,
           });
+          
+          this.logger.log(`🔄 CONVERTED SCHEMA: Converted simple schema to JSON Schema format`);
+          this.logger.log(`📋 Original:`, params.output_schema_json);
+          this.logger.log(`📋 Converted:`, validatedParams.output_schema_json);
         } else {
           // Already in proper JSON Schema format - keep as string
           validatedParams.output_schema_json = params.output_schema_json;

@@ -8,9 +8,10 @@ export const SendEmailInputZodSchema = z.object({
     .string()
     .uuid()
     .describe(
-      'The UUID of the connected account to send the email from. Provide this only if you have it; otherwise, leave blank.',
+      'The UUID of the connected account to send the email from. Only provide this if you have a specific connected account UUID; otherwise, omit this field entirely.',
     )
-    .optional(),
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
 });
 
 export const SendEmailToolParametersZodSchema = z.object({
