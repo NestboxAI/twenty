@@ -302,9 +302,12 @@ private async fetchToolsFromMcpServer(url: string, secretKey: string, serverConf
     this.logger.log(`📋 Tool parameters:`, JSON.stringify(params, null, 2));
 
     try {
+      // Validate and convert schema parameters if needed
+      const validatedParams = this.validateAndConvertSchemaParams(params);
+      
       // Handle demo tools with direct endpoints
       if (tool.endpoint) {
-        return await this.executeDirectEndpointTool(tool, params);
+        return await this.executeDirectEndpointTool(tool, validatedParams);
       }
 
       // For remote MCP tools, construct the URL dynamically
@@ -329,7 +332,7 @@ private async fetchToolsFromMcpServer(url: string, secretKey: string, serverConf
         method: 'tools/call',
         params: {
           name: tool.name,
-          arguments: params,
+          arguments: validatedParams,
         },
       };
 
@@ -411,6 +414,54 @@ private async fetchToolsFromMcpServer(url: string, secretKey: string, serverConf
       this.logger.error(`Failed to execute direct endpoint tool ${tool.name}:`, error);
       throw new Error(`Direct endpoint tool execution failed: ${error.message}`);
     }
+  }
+
+  private validateAndConvertSchemaParams(params: any): any {
+    const validatedParams = { ...params };
+    
+    // Check for output_schema_json parameter that needs conversion
+    if (params.output_schema_json && typeof params.output_schema_json === 'string') {
+      try {
+        // Try to parse as JSON first - if it's a simple object like {"title":"string"}
+        const parsed = JSON.parse(params.output_schema_json);
+        
+        // Check if it's in the simplified format (e.g., {"title": "string", "description": "string"})
+        if (typeof parsed === 'object' && !parsed.type && !parsed.properties) {
+          // Convert simple format to proper JSON Schema
+          const properties: Record<string, any> = {};
+          for (const [key, value] of Object.entries(parsed)) {
+            if (typeof value === 'string') {
+              if (value === 'array') {
+                properties[key] = { 
+                  type: 'array',
+                  items: { type: 'string' } // Default array item type
+                };
+              } else if (value === 'object') {
+                properties[key] = { 
+                  type: 'object',
+                  properties: {} // Default empty object
+                };
+              } else {
+                properties[key] = { type: value };
+              }
+            }
+          }
+          
+          validatedParams.output_schema_json = JSON.stringify({
+            type: 'object',
+            properties: properties,
+          });
+        } else {
+          // Already in proper JSON Schema format - keep as string
+          validatedParams.output_schema_json = params.output_schema_json;
+        }
+      } catch (error) {
+        this.logger.warn(`⚠️ Failed to parse output_schema_json, keeping as string:`, error.message);
+        // Keep original if parsing fails
+      }
+    }
+    
+    return validatedParams;
   }
 
   private convertMcpSchemaToZod(schema: any): z.ZodType<any> {
