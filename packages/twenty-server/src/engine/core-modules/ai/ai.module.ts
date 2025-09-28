@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AiController } from 'src/engine/core-modules/ai/controllers/ai.controller';
@@ -9,11 +9,14 @@ import { AiService } from 'src/engine/core-modules/ai/services/ai.service';
 import { McpService } from 'src/engine/core-modules/ai/services/mcp.service';
 import { ToolAdapterService } from 'src/engine/core-modules/ai/services/tool-adapter.service';
 import { ToolService } from 'src/engine/core-modules/ai/services/tool.service';
+import { WorkspaceAiSetupService } from 'src/engine/core-modules/ai/services/workspace-ai-setup.service';
 import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
 import { FeatureFlagModule } from 'src/engine/core-modules/feature-flag/feature-flag.module';
 import { RecordTransformerModule } from 'src/engine/core-modules/record-transformer/record-transformer.module';
 import { ToolRegistryService } from 'src/engine/core-modules/tool/services/tool-registry.service';
 import { SendEmailTool } from 'src/engine/core-modules/tool/tools/send-email-tool/send-email-tool';
+import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
+import { AgentModule } from 'src/engine/metadata-modules/agent/agent.module';
 import { ObjectMetadataModule } from 'src/engine/metadata-modules/object-metadata/object-metadata.module';
 import { PermissionsModule } from 'src/engine/metadata-modules/permissions/permissions.module';
 import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
@@ -26,7 +29,7 @@ import { MessagingModule } from 'src/modules/messaging/messaging.module';
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([RoleEntity], 'core'),
+    TypeOrmModule.forFeature([RoleEntity, Workspace], 'core'),
     TokenModule,
     FeatureFlagModule,
     RecordTransformerModule,
@@ -37,6 +40,7 @@ import { MessagingModule } from 'src/modules/messaging/messaging.module';
     TwentyORMModule,
     MessagingModule,
     PermissionsModule,
+    forwardRef(() => AgentModule),
   ],
   controllers: [AiController, McpController],
   providers: [
@@ -47,6 +51,7 @@ import { MessagingModule } from 'src/modules/messaging/messaging.module';
     ToolRegistryService,
     AIBillingService,
     McpService,
+    WorkspaceAiSetupService,
     SendEmailTool,
   ],
   exports: [
@@ -57,6 +62,7 @@ import { MessagingModule } from 'src/modules/messaging/messaging.module';
     ToolAdapterService,
     ToolRegistryService,
     McpService,
+    WorkspaceAiSetupService,
     SendEmailTool,
   ],
 })

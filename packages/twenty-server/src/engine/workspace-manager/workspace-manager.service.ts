@@ -185,10 +185,10 @@ export class WorkspaceManagerService {
   private async initDefaultAgent(workspaceId: string) {
     const agent = await this.agentService.createOneAgent(
       {
-        label: 'Routing Agent',
-        name: 'routing-agent',
-        description: 'Default Routing Agent',
-        prompt: '',
+        label: 'Nestbox Agent',
+        name: 'nestbox-agent',
+        description: 'Your helpful AI assistant for workspace tasks and insights',
+        prompt: 'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses.',
         modelId: 'auto',
         isCustom: false,
       },

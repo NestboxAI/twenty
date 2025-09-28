@@ -8,6 +8,7 @@ import { isDefined } from 'twenty-shared/utils';
 import { WorkspaceActivationStatus } from 'twenty-shared/workspace';
 import { Repository } from 'typeorm';
 
+import { WorkspaceAiSetupService } from 'src/engine/core-modules/ai/services/workspace-ai-setup.service';
 import { BillingEntitlementKey } from 'src/engine/core-modules/billing/enums/billing-entitlement-key.enum';
 import { BillingSubscriptionService } from 'src/engine/core-modules/billing/services/billing-subscription.service';
 import { BillingService } from 'src/engine/core-modules/billing/services/billing.service';
@@ -15,8 +16,8 @@ import { CustomDomainService } from 'src/engine/core-modules/domain-manager/serv
 import { ExceptionHandlerService } from 'src/engine/core-modules/exception-handler/exception-handler.service';
 import { FeatureFlagService } from 'src/engine/core-modules/feature-flag/services/feature-flag.service';
 import {
-  FileWorkspaceFolderDeletionJob,
-  type FileWorkspaceFolderDeletionJobData,
+    FileWorkspaceFolderDeletionJob,
+    type FileWorkspaceFolderDeletionJobData,
 } from 'src/engine/core-modules/file/jobs/file-workspace-folder-deletion.job';
 import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decorators/message-queue.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
@@ -28,15 +29,15 @@ import { User } from 'src/engine/core-modules/user/user.entity';
 import { type ActivateWorkspaceInput } from 'src/engine/core-modules/workspace/dtos/activate-workspace-input';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import {
-  WorkspaceException,
-  WorkspaceExceptionCode,
+    WorkspaceException,
+    WorkspaceExceptionCode,
 } from 'src/engine/core-modules/workspace/workspace.exception';
 import { workspaceValidator } from 'src/engine/core-modules/workspace/workspace.validate';
 import { PermissionFlagType } from 'src/engine/metadata-modules/permissions/constants/permission-flag-type.constants';
 import {
-  PermissionsException,
-  PermissionsExceptionCode,
-  PermissionsExceptionMessage,
+    PermissionsException,
+    PermissionsExceptionCode,
+    PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
 import { PermissionsService } from 'src/engine/metadata-modules/permissions/permissions.service';
 import { WorkspaceCacheStorageService } from 'src/engine/workspace-cache-storage/workspace-cache-storage.service';
@@ -67,6 +68,7 @@ export class WorkspaceService extends TypeOrmQueryService<Workspace> {
     private readonly permissionsService: PermissionsService,
     private readonly customDomainService: CustomDomainService,
     private readonly workspaceCacheStorageService: WorkspaceCacheStorageService,
+    private readonly workspaceAiSetupService: WorkspaceAiSetupService,
     @InjectMessageQueue(MessageQueue.deleteCascadeQueue)
     private readonly messageQueueService: MessageQueueService,
   ) {
@@ -265,6 +267,9 @@ export class WorkspaceService extends TypeOrmQueryService<Workspace> {
       userId: user.id,
     });
     await this.userWorkspaceService.createWorkspaceMember(workspace.id, user);
+
+    // Setup AI functionality for the new workspace
+    await this.workspaceAiSetupService.setupAiForWorkspace(workspace.id);
 
     const appVersion = this.twentyConfigService.get('APP_VERSION');
 

@@ -3,8 +3,8 @@ import { type DataSource } from 'typeorm';
 import { AgentChatMessageRole } from 'src/engine/metadata-modules/agent/agent-chat-message.entity';
 import { USER_WORKSPACE_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-user-workspaces.util';
 import {
-  SEED_APPLE_WORKSPACE_ID,
-  SEED_YCOMBINATOR_WORKSPACE_ID,
+    SEED_APPLE_WORKSPACE_ID,
+    SEED_YCOMBINATOR_WORKSPACE_ID,
 } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-workspaces.util';
 
 const agentTableName = 'agent';
@@ -214,16 +214,16 @@ export const seedAgents = async (
 
   if (workspaceId === SEED_APPLE_WORKSPACE_ID) {
     agentId = AGENT_DATA_SEED_IDS.APPLE_DEFAULT_AGENT;
-    agentName = 'apple-ai-assistant';
-    agentLabel = 'Apple AI Assistant';
+    agentName = 'nestbox-agent';
+    agentLabel = 'Nestbox Agent';
     agentDescription =
-      'AI assistant for Apple workspace to help with tasks, insights, and workflow guidance';
+      'Your helpful AI assistant for workspace tasks and insights';
   } else if (workspaceId === SEED_YCOMBINATOR_WORKSPACE_ID) {
     agentId = AGENT_DATA_SEED_IDS.YCOMBINATOR_DEFAULT_AGENT;
-    agentName = 'yc-ai-assistant';
-    agentLabel = 'YC AI Assistant';
+    agentName = 'nestbox-agent';
+    agentLabel = 'Nestbox Agent';
     agentDescription =
-      'AI assistant for YCombinator workspace to help with tasks, insights, and workflow guidance';
+      'Your helpful AI assistant for workspace tasks and insights';
   } else {
     throw new Error(
       `Unsupported workspace ID for agent seeding: ${workspaceId}`,
@@ -251,7 +251,7 @@ export const seedAgents = async (
         label: agentLabel,
         description: agentDescription,
         prompt:
-          'You are a helpful AI assistant for this workspace. Help users with their tasks, provide insights about their data, and guide them through workflows. Be concise but thorough in your responses.',
+          'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses.',
         modelId: 'auto',
         responseFormat: null,
         workspaceId,
