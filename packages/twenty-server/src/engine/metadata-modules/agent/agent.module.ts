@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AiModule } from 'src/engine/core-modules/ai/ai.module';
@@ -50,7 +50,7 @@ import { McpToolRegistryService } from './services/mcp-tool-registry.service';
       ],
       'core',
     ),
-    forwardRef(() => AiModule),
+    AiModule,
     AgentRoleModule,
     ThrottlerModule,
     AuditModule,

@@ -214,16 +214,16 @@ export const seedAgents = async (
 
   if (workspaceId === SEED_APPLE_WORKSPACE_ID) {
     agentId = AGENT_DATA_SEED_IDS.APPLE_DEFAULT_AGENT;
-    agentName = 'nestbox-agent';
-    agentLabel = 'Nestbox Agent';
+    agentName = 'apple-ai-assistant';
+    agentLabel = 'Apple AI Assistant';
     agentDescription =
-      'Your helpful AI assistant for workspace tasks and insights';
+      'AI assistant for Apple workspace to help with tasks, insights, and workflow guidance';
   } else if (workspaceId === SEED_YCOMBINATOR_WORKSPACE_ID) {
     agentId = AGENT_DATA_SEED_IDS.YCOMBINATOR_DEFAULT_AGENT;
-    agentName = 'nestbox-agent';
-    agentLabel = 'Nestbox Agent';
+    agentName = 'yc-ai-assistant';
+    agentLabel = 'YC AI Assistant';
     agentDescription =
-      'Your helpful AI assistant for workspace tasks and insights';
+      'AI assistant for YCombinator workspace to help with tasks, insights, and workflow guidance';
   } else {
     throw new Error(
       `Unsupported workspace ID for agent seeding: ${workspaceId}`,
@@ -251,7 +251,7 @@ export const seedAgents = async (
         label: agentLabel,
         description: agentDescription,
         prompt:
-          'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses.',
+          'You are a helpful AI assistant for this workspace. Help users with their tasks, provide insights about their data, and guide them through workflows. Be concise but thorough in your responses.',
         modelId: 'auto',
         responseFormat: null,
         workspaceId,

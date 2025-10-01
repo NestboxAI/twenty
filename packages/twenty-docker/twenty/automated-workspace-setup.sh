@@ -56,6 +56,15 @@ automated_workspace_setup() {
             
             echo "✅ API key generated successfully!"
             
+            # Step 3: Setup AI configuration
+            echo "Setting up AI configuration..."
+            
+            if yarn command:prod ai:setup; then
+                echo "✅ AI setup completed successfully!"
+            else
+                echo "⚠️ AI setup failed, but continuing with workspace setup"
+            fi
+            
             # Mark setup as completed
             touch "${SETUP_FLAG_FILE}"
             echo "✅ Initial setup completed and marked as done"

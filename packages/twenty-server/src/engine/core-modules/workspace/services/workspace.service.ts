@@ -8,7 +8,6 @@ import { isDefined } from 'twenty-shared/utils';
 import { WorkspaceActivationStatus } from 'twenty-shared/workspace';
 import { Repository } from 'typeorm';
 
-import { WorkspaceAiSetupService } from 'src/engine/core-modules/ai/services/workspace-ai-setup.service';
 import { BillingEntitlementKey } from 'src/engine/core-modules/billing/enums/billing-entitlement-key.enum';
 import { BillingSubscriptionService } from 'src/engine/core-modules/billing/services/billing-subscription.service';
 import { BillingService } from 'src/engine/core-modules/billing/services/billing.service';
@@ -68,7 +67,6 @@ export class WorkspaceService extends TypeOrmQueryService<Workspace> {
     private readonly permissionsService: PermissionsService,
     private readonly customDomainService: CustomDomainService,
     private readonly workspaceCacheStorageService: WorkspaceCacheStorageService,
-    private readonly workspaceAiSetupService: WorkspaceAiSetupService,
     @InjectMessageQueue(MessageQueue.deleteCascadeQueue)
     private readonly messageQueueService: MessageQueueService,
   ) {
@@ -267,9 +265,6 @@ export class WorkspaceService extends TypeOrmQueryService<Workspace> {
       userId: user.id,
     });
     await this.userWorkspaceService.createWorkspaceMember(workspace.id, user);
-
-    // Setup AI functionality for the new workspace
-    await this.workspaceAiSetupService.setupAiForWorkspace(workspace.id);
 
     const appVersion = this.twentyConfigService.get('APP_VERSION');
 

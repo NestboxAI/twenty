@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { AppModule } from 'src/app.module';
+import { AiSetupCommandModule } from 'src/commands/ai-setup-command.module';
 import { ApiKeyCreateCommandModule } from 'src/commands/apikey-create-command.module';
 import { WorkspaceSignupCommandModule } from 'src/commands/workspace-signup-command.module';
 import { DatabaseCommandModule } from 'src/database/commands/database-command.module';
@@ -25,6 +26,8 @@ import { WorkspaceSyncMetadataCommandsModule } from 'src/engine/workspace-manage
     WorkspaceSignupCommandModule,
     // nestbox: api key creation command module
     ApiKeyCreateCommandModule,
+    // nestbox: ai setup command module
+    AiSetupCommandModule,
   ],
 })
 export class CommandModule {}
