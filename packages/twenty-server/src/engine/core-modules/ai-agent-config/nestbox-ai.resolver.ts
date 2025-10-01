@@ -34,6 +34,15 @@ export class NestboxAgent {
   inputSchema?: any;
 }
 
+@ObjectType('Tool')
+export class Tool {
+  @Field()
+  label: string;
+
+  @Field()
+  value: string;
+}
+
 @Resolver(() => NestboxAgent)
 @UseGuards(WorkspaceAuthGuard)
 @UseFilters(PreventNestToAutoLogGraphqlErrorsFilter)
@@ -55,5 +64,21 @@ export class NestboxAiResolver {
 
       return null;
     }
+  }
+
+  @Query(() => [Tool], { nullable: true })
+  async tools(@AuthWorkspace() workspace: Workspace) {
+    console.log('NestboxAiResolver.tools called');
+
+    return [
+      {
+        label: 'Weather MCP tool',
+        value: 'demo-mcp-1',
+      },
+      {
+        label: 'Contry Info MCP tool',
+        value: 'demo-mcp-2',
+      },
+    ];
   }
 }

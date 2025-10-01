@@ -75,6 +75,7 @@ export const SettingsAgentForm = ({ mode }: { mode: 'create' | 'edit' }) => {
           role: agent.roleId ?? undefined,
           prompt: agent.prompt,
           isCustom: agent.isCustom,
+          mcpTools: (agent as any)?.mcpTools?.selected ?? [],
         });
       } else {
         enqueueErrorSnackBar({
@@ -121,6 +122,7 @@ export const SettingsAgentForm = ({ mode }: { mode: 'create' | 'edit' }) => {
           modelId: formValues.modelId,
           roleId: formValues.role || undefined,
           prompt: formValues.prompt,
+          mcpTools: { selected: formValues.mcpTools },
         };
 
         await createAgent({
@@ -145,6 +147,7 @@ export const SettingsAgentForm = ({ mode }: { mode: 'create' | 'edit' }) => {
             modelId: formValues.modelId,
             roleId: formValues.role || undefined,
             prompt: formValues.prompt,
+            mcpTools: { selected: formValues.mcpTools },
           },
         },
       });

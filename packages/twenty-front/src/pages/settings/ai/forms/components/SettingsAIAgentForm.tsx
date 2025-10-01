@@ -2,12 +2,13 @@ import styled from '@emotion/styled';
 import { useLingui } from '@lingui/react/macro';
 
 import { useAiModelOptions } from '@/ai/hooks/useAiModelOptions';
+import { useMcpToolOptions } from '@/ai/hooks/useMcpToolOptions';
 import { IconPicker } from '@/ui/input/components/IconPicker';
 import { Select } from '@/ui/input/components/Select';
 import { SettingsTextInput } from '@/ui/input/components/SettingsTextInput';
 import { TextArea } from '@/ui/input/components/TextArea';
-import { isDefined } from 'twenty-shared/utils';
 import { useGetRolesQuery } from '~/generated-metadata/graphql';
+import { ChipMultiSelect } from '~/modules/ui/field/input/components/ChipMultiSelect';
 import { computeMetadataNameFromLabel } from '~/pages/settings/data-model/utils/compute-metadata-name-from-label.utils';
 import { type SettingsAIAgentFormValues } from '../../hooks/useSettingsAgentFormState';
 
@@ -49,6 +50,7 @@ export const SettingsAIAgentForm = ({
 
   const modelOptions = useAiModelOptions();
   const { data: rolesData } = useGetRolesQuery();
+  const { mcpToolOptions, isLoading: isLoadingTools } = useMcpToolOptions();
 
   const rolesOptions =
     rolesData?.getRoles?.map((role) => ({
@@ -59,8 +61,9 @@ export const SettingsAIAgentForm = ({
   const noModelsAvailable = modelOptions.length === 0;
 
   const fillNameFromLabel = (label: string) => {
-    isDefined(label) &&
+    if (label && label.trim().length > 0) {
       onFieldChange('name', computeMetadataNameFromLabel(label));
+    }
   };
 
   return (
@@ -137,6 +140,18 @@ export const SettingsAIAgentForm = ({
           minRows={6}
           value={formValues.prompt}
           onChange={(value) => onFieldChange('prompt', value)}
+        />
+      </StyledFormContainer>
+
+      <StyledFormContainer>
+        <ChipMultiSelect
+          options={mcpToolOptions}
+          disabled={isLoadingTools}
+          selectedKeys={formValues.mcpTools || []}
+          onChange={(value) => {
+            onFieldChange('mcpTools', value);
+          }}
+          label={t`Tools`}
         />
       </StyledFormContainer>
     </StyledFormContainer>

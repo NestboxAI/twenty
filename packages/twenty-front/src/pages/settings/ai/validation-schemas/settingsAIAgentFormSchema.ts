@@ -10,6 +10,7 @@ export const settingsAIAgentFormSchema = z.object({
   role: z.string().optional(),
   prompt: zodNonEmptyString,
   isCustom: z.boolean().default(true),
+  mcpTools: z.array(z.string()).default([]),
 });
 
 export type SettingsAIAgentFormValues = z.infer<

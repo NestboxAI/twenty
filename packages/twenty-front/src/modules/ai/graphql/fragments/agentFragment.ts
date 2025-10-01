@@ -10,6 +10,7 @@ export const AGENT_FRAGMENT = gql`
     prompt
     modelId
     responseFormat
+    mcpTools
     roleId
     isCustom
     createdAt

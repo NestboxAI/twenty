@@ -1,11 +1,11 @@
 import { Field, HideField, ObjectType } from '@nestjs/graphql';
 
 import {
-  IsBoolean,
-  IsDateString,
-  IsNotEmpty,
-  IsString,
-  IsUUID,
+    IsBoolean,
+    IsDateString,
+    IsNotEmpty,
+    IsString,
+    IsUUID,
 } from 'class-validator';
 import GraphQLJSON from 'graphql-type-json';
 
@@ -45,6 +45,9 @@ export class AgentDTO {
 
   @Field(() => GraphQLJSON, { nullable: true })
   responseFormat: object;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  mcpTools?: object;
 
   @Field(() => UUIDScalarType, { nullable: true })
   roleId?: string;

@@ -1,11 +1,11 @@
 import { Field, InputType } from '@nestjs/graphql';
 
 import {
-  IsNotEmpty,
-  IsObject,
-  IsOptional,
-  IsString,
-  IsUUID,
+    IsNotEmpty,
+    IsObject,
+    IsOptional,
+    IsString,
+    IsUUID,
 } from 'class-validator';
 import GraphQLJSON from 'graphql-type-json';
 
@@ -58,4 +58,9 @@ export class UpdateAgentInput {
   @IsOptional()
   @Field(() => GraphQLJSON, { nullable: true })
   responseFormat?: object;
+
+  @IsObject()
+  @IsOptional()
+  @Field(() => GraphQLJSON, { nullable: true })
+  mcpTools?: object;
 }

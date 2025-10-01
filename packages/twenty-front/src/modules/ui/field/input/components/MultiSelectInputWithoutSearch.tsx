@@ -1,0 +1,134 @@
+import { useRef } from 'react';
+import { Key } from 'ts-key-enum';
+
+import { type FieldMultiSelectValue } from '@/object-record/record-field/ui/types/FieldMetadata';
+import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
+import { SelectableList } from '@/ui/layout/selectable-list/components/SelectableList';
+
+import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
+import { SelectableListItem } from '@/ui/layout/selectable-list/components/SelectableListItem';
+import { useSelectableList } from '@/ui/layout/selectable-list/hooks/useSelectableList';
+import { selectedItemIdComponentState } from '@/ui/layout/selectable-list/states/selectedItemIdComponentState';
+import { useHotkeysOnFocusedElement } from '@/ui/utilities/hotkey/hooks/useHotkeysOnFocusedElement';
+import { useListenClickOutside } from '@/ui/utilities/pointer-event/hooks/useListenClickOutside';
+import { useRecoilComponentValue } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValue';
+import { useLingui } from '@lingui/react/macro';
+import { isDefined } from 'twenty-shared/utils';
+import { type SelectOption } from 'twenty-ui/input';
+import { MenuItemMultiSelectTag } from 'twenty-ui/navigation';
+
+type MultiSelectInputProps = {
+  selectableListComponentInstanceId: string;
+  values: FieldMultiSelectValue;
+  focusId: string;
+  onCancel?: () => void;
+  options: SelectOption[];
+  onOptionSelected: (value: FieldMultiSelectValue) => void;
+  dropdownWidth?: number;
+};
+
+export const MultiSelectInputWithoutSearch = ({
+  selectableListComponentInstanceId,
+  values,
+  options,
+  focusId,
+  onCancel,
+  onOptionSelected,
+  dropdownWidth,
+}: MultiSelectInputProps) => {
+  const { t } = useLingui();
+
+  const { resetSelectedItem } = useSelectableList(
+    selectableListComponentInstanceId,
+  );
+
+  const selectedItemId = useRecoilComponentValue(
+    selectedItemIdComponentState,
+    selectableListComponentInstanceId,
+  );
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedOptions = options.filter((option) =>
+    values?.includes(option.value),
+  );
+
+  const formatNewSelectedOptions = (value: string) => {
+    const selectedOptionsValues = selectedOptions.map(
+      (selectedOption) => selectedOption.value,
+    );
+    if (!selectedOptionsValues.includes(value)) {
+      return [value, ...selectedOptionsValues];
+    } else {
+      return selectedOptionsValues.filter(
+        (selectedOptionsValue) => selectedOptionsValue !== value,
+      );
+    }
+  };
+
+  useHotkeysOnFocusedElement({
+    keys: Key.Escape,
+    callback: () => {
+      onCancel?.();
+      resetSelectedItem();
+    },
+    focusId,
+    dependencies: [onCancel, resetSelectedItem],
+  });
+
+  useListenClickOutside({
+    refs: [containerRef],
+    callback: (event) => {
+      const weAreNotInAnHTMLInput = !(
+        event.target instanceof HTMLInputElement &&
+        event.target.tagName === 'INPUT'
+      );
+      if (weAreNotInAnHTMLInput && isDefined(onCancel)) {
+        onCancel();
+      }
+      resetSelectedItem();
+    },
+    listenerId: 'MultiSelectFieldInput',
+  });
+
+  const optionIds = options.map((option) => option.value);
+
+  return (
+    <SelectableList
+      selectableListInstanceId={selectableListComponentInstanceId}
+      selectableItemIdArray={optionIds}
+      focusId={focusId}
+    >
+      <DropdownContent
+        ref={containerRef}
+        selectDisabled
+        widthInPixels={dropdownWidth}
+      >
+        <DropdownMenuItemsContainer hasMaxHeight>
+          {options.map((option) => {
+            return (
+              <SelectableListItem
+                key={option.value}
+                itemId={option.value}
+                onEnter={() => {
+                  onOptionSelected(formatNewSelectedOptions(option.value));
+                }}
+              >
+                <MenuItemMultiSelectTag
+                  key={option.value}
+                  selected={values?.includes(option.value) || false}
+                  text={option.label}
+                  color={option.color ?? 'transparent'}
+                  Icon={option.Icon ?? undefined}
+                  onClick={() =>
+                    onOptionSelected(formatNewSelectedOptions(option.value))
+                  }
+                  isKeySelected={selectedItemId === option.value}
+                />
+              </SelectableListItem>
+            );
+          })}
+        </DropdownMenuItemsContainer>
+      </DropdownContent>
+    </SelectableList>
+  );
+};

@@ -136,6 +136,9 @@ export class AgentExecutionService {
         : {};
 
       this.logger.log(`Generated ${Object.keys(tools).length} tools for agent`);
+      
+      this.logger.log(`🔧 ALL TOOLS AVAILABLE: ${Object.keys(tools).join(', ')}`);
+      
 
       const registeredModel = this.aiModelRegistryService.getModel(
         aiModel.modelId,

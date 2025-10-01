@@ -15,8 +15,8 @@ import { CustomDomainService } from 'src/engine/core-modules/domain-manager/serv
 import { ExceptionHandlerService } from 'src/engine/core-modules/exception-handler/exception-handler.service';
 import { FeatureFlagService } from 'src/engine/core-modules/feature-flag/services/feature-flag.service';
 import {
-  FileWorkspaceFolderDeletionJob,
-  type FileWorkspaceFolderDeletionJobData,
+    FileWorkspaceFolderDeletionJob,
+    type FileWorkspaceFolderDeletionJobData,
 } from 'src/engine/core-modules/file/jobs/file-workspace-folder-deletion.job';
 import { InjectMessageQueue } from 'src/engine/core-modules/message-queue/decorators/message-queue.decorator';
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
@@ -28,15 +28,15 @@ import { User } from 'src/engine/core-modules/user/user.entity';
 import { type ActivateWorkspaceInput } from 'src/engine/core-modules/workspace/dtos/activate-workspace-input';
 import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
 import {
-  WorkspaceException,
-  WorkspaceExceptionCode,
+    WorkspaceException,
+    WorkspaceExceptionCode,
 } from 'src/engine/core-modules/workspace/workspace.exception';
 import { workspaceValidator } from 'src/engine/core-modules/workspace/workspace.validate';
 import { PermissionFlagType } from 'src/engine/metadata-modules/permissions/constants/permission-flag-type.constants';
 import {
-  PermissionsException,
-  PermissionsExceptionCode,
-  PermissionsExceptionMessage,
+    PermissionsException,
+    PermissionsExceptionCode,
+    PermissionsExceptionMessage,
 } from 'src/engine/metadata-modules/permissions/permissions.exception';
 import { PermissionsService } from 'src/engine/metadata-modules/permissions/permissions.service';
 import { WorkspaceCacheStorageService } from 'src/engine/workspace-cache-storage/workspace-cache-storage.service';
