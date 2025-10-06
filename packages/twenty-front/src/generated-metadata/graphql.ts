@@ -1,5 +1,5 @@
-import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
+import { gql } from '@apollo/client';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -705,6 +705,7 @@ export type CreateAgentInput = {
   prompt: Scalars['String'];
   responseFormat?: InputMaybe<Scalars['JSON']>;
   roleId?: InputMaybe<Scalars['UUID']>;
+  mcpTools?: InputMaybe<Scalars['JSON']>;
 };
 
 export type CreateApiKeyDto = {
@@ -3817,6 +3818,7 @@ export type UpdateAgentInput = {
   prompt: Scalars['String'];
   responseFormat?: InputMaybe<Scalars['JSON']>;
   roleId?: InputMaybe<Scalars['UUID']>;
+  mcpTools?: InputMaybe<Scalars['JSON']>;
 };
 
 export type UpdateApiKeyDto = {

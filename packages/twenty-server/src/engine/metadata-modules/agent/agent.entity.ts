@@ -52,6 +52,11 @@ export class AgentEntity {
   @Column({ nullable: false, type: 'varchar', default: 'auto' })
   modelId: ModelId;
 
+  // nestbox: added mcpTools column
+  // nestbox: it is part upgrade to 1.7.0
+  @Column({ nullable: true, type: 'jsonb' })
+  mcpTools?: object;
+
   @Column({ nullable: true, type: 'jsonb' })
   responseFormat: object;
 

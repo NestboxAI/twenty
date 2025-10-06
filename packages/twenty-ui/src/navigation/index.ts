@@ -54,7 +54,7 @@ export type { MenuItemBaseProps } from './menu/menu-item/internals/components/St
 export {
   StyledMenuItemBase,
   StyledMenuItemLabel,
-  StyledMenuItemLabelLight, // nestbox: v1.7.0 upgrade patch
+  StyledMenuItemLabelLight,
   StyledNoIconFiller,
   StyledMenuItemLeftContent,
   StyledMenuItemRightContent,

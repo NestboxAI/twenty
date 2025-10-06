@@ -8,6 +8,7 @@ import { MetadataEngineModule } from 'src/engine/metadata-modules/metadata-engin
 import { WorkspaceMetadataCacheModule } from 'src/engine/metadata-modules/workspace-metadata-cache/workspace-metadata-cache.module';
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 
+import { AiAgentConfigModule } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.module';
 import { WorkspaceSchemaFactory } from './workspace-schema.factory';
 
 @Module({
@@ -18,6 +19,7 @@ import { WorkspaceSchemaFactory } from './workspace-schema.factory';
     WorkspaceCacheStorageModule,
     WorkspaceMetadataCacheModule,
     FeatureFlagModule,
+    AiAgentConfigModule, // nestbox: added for upgrade to 1.7.0
   ],
   providers: [WorkspaceSchemaFactory, ScalarsExplorerService],
   exports: [WorkspaceSchemaFactory],

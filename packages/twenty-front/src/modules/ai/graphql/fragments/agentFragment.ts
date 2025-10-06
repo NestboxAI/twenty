@@ -10,6 +10,7 @@ export const AGENT_FRAGMENT = gql`
     prompt
     modelId
     responseFormat
+    mcpTools
     roleId
     isCustom
     modelConfiguration
@@ -17,3 +18,4 @@ export const AGENT_FRAGMENT = gql`
     updatedAt
   }
 `;
+// nestbox: it is part upgrade to 1.7.0 (added mcpTools field)

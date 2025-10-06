@@ -64,4 +64,10 @@ export class UpdateAgentInput {
   @IsOptional()
   @Field(() => GraphQLJSON, { nullable: true })
   modelConfiguration?: ModelConfiguration;
+
+  // nestbox: it is part upgrade to 1.7.0
+  @IsObject()
+  @IsOptional()
+  @Field(() => GraphQLJSON, { nullable: true })
+  mcpTools?: object;
 }

@@ -59,6 +59,7 @@ import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
 import { SubscriptionsModule } from 'src/engine/subscriptions/subscriptions.module';
 import { WorkspaceEventEmitterModule } from 'src/engine/workspace-event-emitter/workspace-event-emitter.module';
 
+import { AiAgentConfigModule } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.module';
 import { AuditModule } from './audit/audit.module';
 import { ClientConfigModule } from './client-config/client-config.module';
 import { FileModule } from './file/file.module';
@@ -134,6 +135,7 @@ import { FileModule } from './file/file.module';
     CoreViewModule,
     PageLayoutModule,
     ImpersonationModule,
+    AiAgentConfigModule // nestbox: added for upgrade to 1.7.0
   ],
   exports: [
     AuditModule,

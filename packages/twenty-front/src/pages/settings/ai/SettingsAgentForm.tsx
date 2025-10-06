@@ -75,6 +75,7 @@ export const SettingsAgentForm = ({ mode }: { mode: 'create' | 'edit' }) => {
           prompt: agent.prompt,
           isCustom: agent.isCustom,
           modelConfiguration: agent.modelConfiguration || {},
+          mcpTools: (agent as any)?.mcpTools?.selected ?? [], // nestbox: it is part upgrade to 1.7.0
         });
       } else {
         enqueueErrorSnackBar({
@@ -122,6 +123,7 @@ export const SettingsAgentForm = ({ mode }: { mode: 'create' | 'edit' }) => {
           roleId: formValues.role,
           prompt: formValues.prompt,
           modelConfiguration: formValues.modelConfiguration,
+          mcpTools: { selected: formValues.mcpTools },
         };
 
         await createAgent({
@@ -147,6 +149,7 @@ export const SettingsAgentForm = ({ mode }: { mode: 'create' | 'edit' }) => {
             roleId: formValues.role,
             prompt: formValues.prompt,
             modelConfiguration: formValues.modelConfiguration,
+            mcpTools: { selected: formValues.mcpTools },
           },
         },
       });
