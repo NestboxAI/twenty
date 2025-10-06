@@ -66,6 +66,7 @@ import { TwoFactorAuthenticationModule } from '../two-factor-authentication/two-
 
 import { AuthResolver } from './auth.resolver';
 
+import { ApiKeyService } from 'src/engine/core-modules/auth/services/api-key.service';
 import { AuthService } from './services/auth.service';
 import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
 
@@ -143,7 +144,8 @@ import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
     UpdateConnectedAccountOnReconnectService,
     TransientTokenService,
     AuthSsoService,
+    ApiKeyService, // nestbox: v1.7.0 upgrade patch
   ],
-  exports: [AccessTokenService, LoginTokenService, RefreshTokenService],
+  exports: [AccessTokenService, LoginTokenService, RefreshTokenService, SignInUpService, ApiKeyService], // nestbox: v1.7.0 upgrade patch
 })
 export class AuthModule {}
