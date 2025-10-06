@@ -42,13 +42,18 @@ export const CommandMenuAskAIPage = () => {
     onCompleted: (data) => {
       if (data.agentChatThreads.length > 0) {
         setCurrentThreadId(data.agentChatThreads[0].id);
+      } else {
+        // nestbox: (it fixes existing twenty issue)
+        // nestbox: No existing threads - set a placeholder thread ID to allow chat to start
+        // nestbox: The actual thread will be created when the first message is sent
+        setCurrentThreadId('new-thread');
       }
     },
   });
 
   const { loading, data } = useGetAgentChatMessagesQuery({
     variables: { threadId: currentThreadId ?? '' },
-    skip: !isDefined(currentThreadId),
+    skip: !isDefined(currentThreadId) || currentThreadId === 'new-thread', // nestbox: applied patch while upgrading to 1.7.0
   });
 
   const isLoading = loading || !currentThreadId || threadsLoading;
