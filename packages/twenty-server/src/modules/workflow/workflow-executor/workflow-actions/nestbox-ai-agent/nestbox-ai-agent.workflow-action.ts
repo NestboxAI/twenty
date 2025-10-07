@@ -107,6 +107,9 @@ export class NestboxAiAgentWorkflowAction implements WorkflowAction {
         adHocCallback: {
           url: callbackUrl,
           eventTypes: ['QUERY_COMPLETED', 'QUERY_FAILED'],
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
         },
       });
 
