@@ -97,18 +97,12 @@ export class NestboxAiAgentWorkflowAction implements WorkflowAction {
       const queryApi = new QueryApi(config);
 
       await queryApi.agentOperationsQueryControllerCreateQuery(agentId, {
-        params: {
-          ...(params || {}),
-          metadata: {
-            callbackUrl,
-            apiToken: apiKeyToken?.token,
-          },
-        },
+        params: params || {},
         adHocCallback: {
           url: callbackUrl,
           eventTypes: ['QUERY_COMPLETED', 'QUERY_FAILED'],
           headers: {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${apiKeyToken?.token}`,
           },
         },
       });
