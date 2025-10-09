@@ -1,21 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { ModelMessage, generateText } from 'ai';
 import { Repository } from 'typeorm';
 
 import { AiModelRegistryService } from 'src/engine/core-modules/ai/services/ai-model-registry.service';
 
+import { McpToolRegistryService } from 'src/engine/metadata-modules/agent/services/mcp-tool-registry.service';
 import { AgentHandoffService } from './agent-handoff.service';
 import { AgentToolGeneratorService } from './agent-tool-generator.service';
 import { AgentEntity } from './agent.entity';
 import { AgentException, AgentExceptionCode } from './agent.exception';
+// nestbox: upgrade to 1.7.0 - Add handoff helper
+import { HandoffExecutorHelperService } from './services/handoff-executor-helper.service';
 
 export type HandoffRequest = {
   fromAgentId: string;
   toAgentId: string;
   workspaceId: string;
-  messages: ModelMessage[];
+  reason: string;
+  context?: string;
 };
 
 @Injectable()
@@ -28,11 +31,14 @@ export class AgentHandoffExecutorService {
     private readonly agentHandoffService: AgentHandoffService,
     private readonly aiModelRegistryService: AiModelRegistryService,
     private readonly agentToolGeneratorService: AgentToolGeneratorService,
+    private readonly mcpToolRegistryService: McpToolRegistryService,
+    // nestbox: upgrade to 1.7.0 - Add handoff helper
+    private readonly handoffExecutorHelperService: HandoffExecutorHelperService,
   ) {}
 
   async executeHandoff(handoffRequest: HandoffRequest) {
     try {
-      const { fromAgentId, toAgentId, workspaceId, messages } = handoffRequest;
+      const { fromAgentId, toAgentId, workspaceId } = handoffRequest;
 
       const canHandoff = await this.agentHandoffService.canHandoffTo({
         fromAgentId,
@@ -52,15 +58,19 @@ export class AgentHandoffExecutorService {
       });
 
       if (!targetAgent) {
+        this.logger.error(`❌ HANDOFF FAILED: Target agent ${toAgentId} not found`);
         throw new AgentException(
           `Target agent ${toAgentId} not found`,
           AgentExceptionCode.AGENT_NOT_FOUND,
         );
       }
 
-      const registeredModel =
-        await this.aiModelRegistryService.resolveModelForAgent(targetAgent);
+      this.logger.log(`✅ HANDOFF TARGET FOUND: ${targetAgent.name} (${targetAgent.id}) with model ${targetAgent.modelId}`);
 
+      const registeredModel = this.aiModelRegistryService.getModel(
+        targetAgent.modelId,
+      );
+      
       if (!registeredModel) {
         throw new AgentException(
           `Model ${targetAgent.modelId} not found in registry`,
@@ -68,32 +78,19 @@ export class AgentHandoffExecutorService {
         );
       }
 
-      const tools = await this.agentToolGeneratorService.generateToolsForAgent(
-        toAgentId,
-        workspaceId,
-      );
+      // nestbox: upgrade to 1.7.0 - Generate MCP tools for the target agent if configured
+      const mcpTools = await this.handoffExecutorHelperService.generateMcpToolsForAgent(targetAgent);
 
       const aiRequestConfig = {
         system: targetAgent.prompt,
-        messages,
-        tools,
+        prompt: this.handoffExecutorHelperService.createHandoffPrompt(handoffRequest),
         model: registeredModel.model,
+        tools: mcpTools,
+        maxSteps: 5,
       };
 
-      const textResponse = await generateText(aiRequestConfig);
-
-      this.logger.log(
-        `Successfully executed handoff to agent ${toAgentId} with response length: ${textResponse.text.length}`,
-      );
-
-      return {
-        success: true,
-        message: `Successfully executed handoff to agent ${targetAgent.name}`,
-        result: {
-          response: textResponse.text,
-          targetAgentName: targetAgent.name,
-        },
-      };
+      // nestbox: upgrade to 1.7.0 - Execute AI generation with fallback
+      return await this.handoffExecutorHelperService.executeAiGeneration(aiRequestConfig);
     } catch (error) {
       this.logger.error(
         `Handoff execution failed: ${error.message}`,
@@ -102,9 +99,12 @@ export class AgentHandoffExecutorService {
 
       return {
         success: false,
-        message: `Failed to execute handoff to agent ${handoffRequest.toAgentId}`,
+        newAgentId: handoffRequest.toAgentId,
+        newAgentName: 'Unknown',
         error: error.message,
       };
     }
   }
+
+  // nestbox: upgrade to 1.7.0 - Methods moved to HandoffExecutorHelperService
 }

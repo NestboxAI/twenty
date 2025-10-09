@@ -26,6 +26,7 @@ export const settingsAIAgentFormSchema = z.object({
         .optional(),
     })
     .optional(),
+    mcpTools: z.array(z.string()).default([]), // nestbox: it is part upgrade to 1.7.0
 });
 
 export type SettingsAIAgentFormValues = z.infer<

@@ -18,6 +18,7 @@ export const useSettingsAgentFormState = (mode: 'create' | 'edit') => {
     prompt: '',
     isCustom: true,
     modelConfiguration: {},
+    mcpTools: [] // nestbox: it is part upgrade to 1.7.0
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,6 +53,7 @@ export const useSettingsAgentFormState = (mode: 'create' | 'edit') => {
         prompt: '',
         isCustom: true,
         modelConfiguration: {},
+        mcpTools: [], // nestbox: it is part upgrade to 1.7.0
       });
     }
   };

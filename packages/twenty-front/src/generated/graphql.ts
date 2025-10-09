@@ -57,6 +57,7 @@ export type Agent = {
   id: Scalars['UUID'];
   isCustom: Scalars['Boolean'];
   label: Scalars['String'];
+  mcpTools?: Maybe<Scalars['JSON']>;
   modelConfiguration?: Maybe<Scalars['JSON']>;
   modelId: Scalars['String'];
   name: Scalars['String'];
@@ -699,6 +700,7 @@ export type CreateAgentInput = {
   description?: InputMaybe<Scalars['String']>;
   icon?: InputMaybe<Scalars['String']>;
   label: Scalars['String'];
+  mcpTools?: InputMaybe<Scalars['JSON']>;
   modelConfiguration?: InputMaybe<Scalars['JSON']>;
   modelId: Scalars['String'];
   name?: InputMaybe<Scalars['String']>;
@@ -2495,6 +2497,17 @@ export type NativeModelCapabilities = {
   webSearch?: Maybe<Scalars['Boolean']>;
 };
 
+export type NestboxAgent = {
+  __typename?: 'NestboxAgent';
+  createdAt: Scalars['String'];
+  description: Scalars['String'];
+  id: Scalars['ID'];
+  inputSchema?: Maybe<Scalars['JSON']>;
+  name: Scalars['String'];
+  type: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
 export type NumberChartConfiguration = {
   __typename?: 'NumberChartConfiguration';
   aggregateFieldMetadataId: Scalars['UUID'];
@@ -2808,6 +2821,7 @@ export type Query = {
   agentChatMessages: Array<AgentChatMessage>;
   agentChatThread: AgentChatThread;
   agentChatThreads: Array<AgentChatThread>;
+  agents?: Maybe<Array<NestboxAgent>>;
   apiKey?: Maybe<ApiKey>;
   apiKeys: Array<ApiKey>;
   billingPortalSession: BillingSessionOutput;
@@ -3589,6 +3603,7 @@ export type UpdateAgentInput = {
   icon?: InputMaybe<Scalars['String']>;
   id: Scalars['UUID'];
   label: Scalars['String'];
+  mcpTools?: InputMaybe<Scalars['JSON']>;
   modelConfiguration?: InputMaybe<Scalars['JSON']>;
   modelId: Scalars['String'];
   name: Scalars['String'];

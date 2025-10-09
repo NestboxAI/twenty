@@ -21,6 +21,11 @@ import { WorkspacePermissionsCacheModule } from 'src/engine/metadata-modules/wor
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 import { WorkflowToolsModule } from 'src/modules/workflow/workflow-tools/workflow-tools.module';
 
+import { McpToolRegistryService } from 'src/engine/metadata-modules/agent/services/mcp-tool-registry.service';
+// nestbox: upgrade to 1.7.0 - Add new services
+import { HandoffExecutorHelperService } from 'src/engine/metadata-modules/agent/services/handoff-executor-helper.service';
+import { McpToolRegistryCleanService } from 'src/engine/metadata-modules/agent/services/mcp-tool-registry-clean.service';
+import { McpToolsHandlerService } from 'src/engine/metadata-modules/agent/services/mcp-tools-handler.service';
 import { AgentChatMessagePartEntity } from './agent-chat-message-part.entity';
 import { AgentChatMessageEntity } from './agent-chat-message.entity';
 import { AgentChatThreadEntity } from './agent-chat-thread.entity';
@@ -81,6 +86,11 @@ import { AgentService } from './agent.service';
     AgentTitleGenerationService,
     AgentHandoffExecutorService,
     AgentHandoffService,
+    McpToolRegistryService,
+    // nestbox: upgrade to 1.7.0 - Add new services
+    McpToolsHandlerService,
+    HandoffExecutorHelperService,
+    McpToolRegistryCleanService,
   ],
   exports: [
     AgentService,
