@@ -11,6 +11,8 @@ import { PermissionFlagType } from 'src/engine/metadata-modules/permissions/cons
 import { PermissionsService } from 'src/engine/metadata-modules/permissions/permissions.service';
 import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
 import { WorkflowToolWorkspaceService as WorkflowToolService } from 'src/modules/workflow/workflow-tools/services/workflow-tool.workspace-service';
+// nestbox: upgrade to 1.7.0 - Add MCP tools support
+import { McpToolsHandlerService } from './services/mcp-tools-handler.service';
 
 @Injectable()
 export class AgentToolGeneratorService {
@@ -24,6 +26,8 @@ export class AgentToolGeneratorService {
     private readonly workflowToolService: WorkflowToolService,
     private readonly permissionsService: PermissionsService,
     private readonly agentService: AgentService,
+    // nestbox: upgrade to 1.7.0 - Add MCP tools handler
+    private readonly mcpToolsHandlerService: McpToolsHandlerService,
   ) {}
 
   async generateToolsForAgent(
@@ -34,10 +38,17 @@ export class AgentToolGeneratorService {
 
     try {
       const agent = await this.agentService.findOneAgent(agentId, workspaceId);
+      
       const actionTools = await this.toolAdapterService.getTools();
 
       tools = { ...actionTools };
 
+      // nestbox: upgrade to 1.7.0 - Generate MCP tools
+      const mcpTools = await this.mcpToolsHandlerService.generateMcpToolsForAgent(agent);
+      tools = { ...tools, ...mcpTools };
+      
+
+      
       const roleId = agent.roleId;
 
       if (!roleId) {

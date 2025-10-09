@@ -26,6 +26,8 @@ export class AgentHandoffToolService {
 
     const handoffTools = handoffs.reduce<ToolSet>((tools, handoff) => {
       const toolName = `handoff_to_${camelCase(handoff.toAgent.name)}`;
+      
+      console.log(`🔄 Creating handoff tool: ${toolName} -> ${handoff.toAgent.name} (${handoff.toAgent.id})`);
 
       tools[toolName] = {
         description:
@@ -36,21 +38,33 @@ export class AgentHandoffToolService {
             handoff.toAgent.name,
           ),
         inputSchema: AGENT_HANDOFF_SCHEMA,
-        execute: async ({ input }) => {
-          const result = await this.agentHandoffExecutorService.executeHandoff({
-            fromAgentId: agentId,
-            toAgentId: handoff.toAgent.id,
-            workspaceId,
-            messages: input.messages,
-          });
+        execute: async (params) => {
+          console.log(`🔄🔄🔄 HANDOFF TOOL EXECUTED: ${toolName} 🔄🔄🔄`);
+          console.log(`🔄 Handoff tool params:`, JSON.stringify(params, null, 2));
+          
+          try {
+            const result = await this.agentHandoffExecutorService.executeHandoff({
+              fromAgentId: agentId,
+              toAgentId: handoff.toAgent.id,
+              workspaceId,
+              reason: params.loadingMessage || 'Handoff to specialized agent',
+              context: JSON.stringify(params.input?.messages || []),
+            });
 
-          return result;
+            console.log(`🔄 Handoff result:`, JSON.stringify(result, null, 2));
+            return result;
+          } catch (error) {
+            console.error(`🔄 Handoff error:`, error);
+            throw error;
+          }
         },
       };
 
       return tools;
     }, {});
 
+    console.log(`🔄 Generated ${Object.keys(handoffTools).length} handoff tools:`, Object.keys(handoffTools));
+    
     return handoffTools;
   }
 }
