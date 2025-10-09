@@ -55,6 +55,15 @@ RUN apk add --no-cache postgresql-client
 
 COPY ./packages/twenty-docker/twenty/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
+
+# nestbox-ai specific script to setup the workspace
+COPY ./packages/twenty-docker/twenty/automated-workspace-setup.sh /app/automated-workspace-setup.sh
+RUN chmod +x /app/automated-workspace-setup.sh
+
+# oauth integration specific script to setup the cron jobs
+COPY ./packages/twenty-docker/twenty/automated-oauth-integration-setup.sh /app/automated-oauth-integration-setup.sh
+RUN chmod +x /app/automated-oauth-integration-setup.sh
+
 WORKDIR /app/packages/twenty-server
 
 ARG REACT_APP_SERVER_BASE_URL

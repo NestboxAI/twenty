@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+# Source the automated workspace setup script
+. /app/automated-workspace-setup.sh
+
+# Source the automated oauth integration setup script
+. /app/automated-oauth-integration-setup.sh
+
 setup_and_migrate_db() {
     if [ "${DISABLE_DB_MIGRATIONS}" = "true" ]; then
         echo "Database setup and migrations are disabled, skipping..."
@@ -49,6 +55,12 @@ register_background_jobs() {
 
 setup_and_migrate_db
 register_background_jobs
+
+# Run automated workspace setup (only on first time)
+automated_workspace_setup
+
+# Run automated oauth integration setup (only on first time)
+automated_oauth_integration_cron_setup
 
 # Continue with the original Docker command
 exec "$@"
