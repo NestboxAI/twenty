@@ -60,10 +60,6 @@ RUN chmod +x /app/entrypoint.sh
 COPY ./packages/twenty-docker/twenty/automated-workspace-setup.sh /app/automated-workspace-setup.sh
 RUN chmod +x /app/automated-workspace-setup.sh
 
-# nestbox-ai specific script to setup the cron jobs
-COPY ./packages/twenty-docker/twenty/automated-cron-setup.sh /app/automated-cron-setup.sh
-RUN chmod +x /app/automated-cron-setup.sh
-
 # oauth integration specific script to setup the cron jobs
 COPY ./packages/twenty-docker/twenty/automated-oauth-integration-setup.sh /app/automated-oauth-integration-setup.sh
 RUN chmod +x /app/automated-oauth-integration-setup.sh

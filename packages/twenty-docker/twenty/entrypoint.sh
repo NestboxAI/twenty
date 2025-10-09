@@ -4,9 +4,6 @@ set -e
 # Source the automated workspace setup script
 . /app/automated-workspace-setup.sh
 
-# Source the automated cron setup script
-. /app/automated-cron-setup.sh
-
 # Source the automated oauth integration setup script
 . /app/automated-oauth-integration-setup.sh
 
@@ -61,9 +58,6 @@ register_background_jobs
 
 # Run automated workspace setup (only on first time)
 automated_workspace_setup
-
-# Run automated cron setup (only on first time)
-automated_cron_setup
 
 # Run automated oauth integration setup (only on first time)
 automated_oauth_integration_cron_setup
