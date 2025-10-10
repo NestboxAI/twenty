@@ -50,7 +50,6 @@ export type SelectProps<Value extends SelectValue> = {
   callToActionButton?: CallToActionButton;
   dropdownOffset?: DropdownOffset;
   hasRightElement?: boolean;
-  isDropdownInModal?: boolean;
 };
 
 const StyledContainer = styled.div<{ fullWidth?: boolean }>`
@@ -90,7 +89,6 @@ export const Select = <Value extends SelectValue>({
   callToActionButton,
   dropdownOffset,
   hasRightElement,
-  isDropdownInModal,
 }: SelectProps<Value>) => {
   const selectContainerRef = useRef<HTMLDivElement>(null);
 
@@ -161,7 +159,6 @@ export const Select = <Value extends SelectValue>({
           dropdownPlacement="bottom-start"
           dropdownOffset={dropdownOffset}
           onOpen={handleDropdownOpen}
-          isDropdownInModal={isDropdownInModal}
           clickableComponent={
             <SelectControl
               selectedOption={selectedOption}
