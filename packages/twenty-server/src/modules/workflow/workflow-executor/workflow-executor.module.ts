@@ -12,6 +12,7 @@ import { EmptyActionModule } from 'src/modules/workflow/workflow-executor/workfl
 import { FilterActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/filter/filter-action.module';
 import { FormActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/form/form-action.module';
 import { IteratorActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/iterator/iterator-action.module';
+import { NestboxAiAgentActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/nestbox-ai-agent/nestbox-ai-agent-action.module';
 import { RecordCRUDActionModule } from 'src/modules/workflow/workflow-executor/workflow-actions/record-crud/record-crud-action.module';
 import { ToolExecutorWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/tool-executor-workflow-action';
 import { WorkflowExecutorWorkspaceService } from 'src/modules/workflow/workflow-executor/workspace-services/workflow-executor.workspace-service';
@@ -29,6 +30,7 @@ import { WorkflowRunModule } from 'src/modules/workflow/workflow-runner/workflow
     IteratorActionModule,
     AiAgentActionModule,
     EmptyActionModule,
+    NestboxAiAgentActionModule,
     FeatureFlagModule,
     AiModule,
   ],

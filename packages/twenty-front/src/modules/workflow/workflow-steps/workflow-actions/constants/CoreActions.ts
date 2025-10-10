@@ -2,7 +2,7 @@ import { type WorkflowActionType } from '@/workflow/types/Workflow';
 
 export const CORE_ACTIONS: Array<{
   label: string;
-  type: Extract<WorkflowActionType, 'CODE' | 'SEND_EMAIL' | 'HTTP_REQUEST'>;
+  type: Extract<WorkflowActionType, 'CODE' | 'SEND_EMAIL' | 'HTTP_REQUEST' | 'NESTBOX_AI_AGENT'>;
   icon: string;
 }> = [
   {
@@ -20,4 +20,9 @@ export const CORE_ACTIONS: Array<{
     type: 'HTTP_REQUEST',
     icon: 'IconWorld',
   },
+  {
+    label: 'Nestbox AI Agent',
+    type: 'NESTBOX_AI_AGENT',
+    icon: 'IconBrain',
+  }
 ];

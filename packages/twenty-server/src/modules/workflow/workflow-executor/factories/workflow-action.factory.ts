@@ -12,6 +12,7 @@ import { EmptyWorkflowAction } from 'src/modules/workflow/workflow-executor/work
 import { FilterWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/filter/filter.workflow-action';
 import { FormWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/form/form.workflow-action';
 import { IteratorWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/iterator/iterator.workflow-action';
+import { NestboxAiAgentWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/nestbox-ai-agent/nestbox-ai-agent.workflow-action';
 import { CreateRecordWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/record-crud/create-record.workflow-action';
 import { DeleteRecordWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/record-crud/delete-record.workflow-action';
 import { FindRecordsWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/record-crud/find-records.workflow-action';
@@ -33,6 +34,7 @@ export class WorkflowActionFactory {
     private readonly toolExecutorWorkflowAction: ToolExecutorWorkflowAction,
     private readonly aiAgentWorkflowAction: AiAgentWorkflowAction,
     private readonly emptyWorkflowAction: EmptyWorkflowAction,
+    private readonly nestboxAiAgentWorkflowAction: NestboxAiAgentWorkflowAction,
   ) {}
 
   get(stepType: WorkflowActionType): WorkflowAction {
@@ -61,6 +63,8 @@ export class WorkflowActionFactory {
         return this.aiAgentWorkflowAction;
       case WorkflowActionType.EMPTY:
         return this.emptyWorkflowAction;
+      case WorkflowActionType.NESTBOX_AI_AGENT:
+        return this.nestboxAiAgentWorkflowAction;
       default:
         throw new WorkflowStepExecutorException(
           `Workflow step executor not found for step type '${stepType}'`,

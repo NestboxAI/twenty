@@ -1,6 +1,6 @@
 // nestbox: it is part upgrade to 1.7.0
 import { type OutputSchemaField } from '@/ai/constants/OutputFieldTypeOptions';
-// import { type WorkflowNestboxAiAgentAction } from '@/workflow/types/Workflow';
+import { WorkflowNestboxAiAgentAction } from '@/workflow/types/Workflow';
 import { OutputSchemaV2 } from '@/workflow/workflow-variables/types/StepOutputSchemaV2';
 import { useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
@@ -10,8 +10,8 @@ import { getFieldIcon } from '../utils/getFieldIcon';
 
 export const useNestboxAiAgentOutputSchema = (
   outputSchema?: OutputSchemaV2,
-  // onActionUpdate?: (action: WorkflowNestboxAiAgentAction) => void,
-  // action?: WorkflowNestboxAiAgentAction,
+  onActionUpdate?: (action: WorkflowNestboxAiAgentAction) => void,
+  action?: WorkflowNestboxAiAgentAction,
   readonly?: boolean,
 ) => {
   const [outputFields, setOutputFields] = useState<OutputSchemaField[]>(
@@ -46,15 +46,15 @@ export const useNestboxAiAgentOutputSchema = (
         {},
       );
 
-      // if (isDefined(onActionUpdate) && isDefined(action)) {
-      //   onActionUpdate({
-      //     ...action,
-      //     settings: {
-      //       ...action.settings,
-      //       outputSchema: newOutputSchema,
-      //     },
-      //   });
-      // }
+      if (isDefined(onActionUpdate) && isDefined(action)) {
+        onActionUpdate({
+          ...action,
+          settings: {
+            ...action.settings,
+            outputSchema: newOutputSchema,
+          },
+        });
+      }
     },
     500,
   );
