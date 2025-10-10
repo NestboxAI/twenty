@@ -19,5 +19,5 @@ export const CORE_ACTIONS: Array<{
     label: 'HTTP Request',
     type: 'HTTP_REQUEST',
     icon: 'IconWorld',
-  }
+  },
 ];
