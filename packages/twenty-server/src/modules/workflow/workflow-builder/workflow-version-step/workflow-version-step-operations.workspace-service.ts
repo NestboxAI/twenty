@@ -93,6 +93,20 @@ export class WorkflowVersionStepOperationsWorkspaceService {
         }
         break;
       }
+      case WorkflowActionType.NESTBOX_AI_AGENT: {
+        if (!isDefined(step.settings.input.agentId)) {
+          break;
+        }
+
+        const agent = await this.agentRepository.findOne({
+          where: { id: step.settings.input.agentId, workspaceId },
+        });
+
+        if (isDefined(agent)) {
+          await this.agentRepository.delete({ id: agent.id, workspaceId });
+        }
+        break;
+      }
     }
   }
 
@@ -324,6 +338,22 @@ export class WorkflowVersionStepOperationsWorkspaceService {
               input: {
                 agentId: '',
                 prompt: '',
+              },
+            },
+          },
+        };
+      }
+      case WorkflowActionType.NESTBOX_AI_AGENT: {
+        return {
+          builtStep: {
+            ...baseStep,
+            name: 'Nestbox AI Agent',
+            type: WorkflowActionType.NESTBOX_AI_AGENT,
+            settings: {
+              ...BASE_STEP_DEFINITION,
+              input: {
+                agentId: '',
+                params: {},
               },
             },
           },

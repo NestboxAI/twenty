@@ -1,7 +1,7 @@
 // nestbox: it is part upgrade to 1.7.0
 import { type OutputSchemaField } from '@/ai/constants/OutputFieldTypeOptions';
 import { WorkflowNestboxAiAgentAction } from '@/workflow/types/Workflow';
-import { OutputSchemaV2 } from '@/workflow/workflow-variables/types/StepOutputSchemaV2';
+import { type BaseOutputSchemaDeprecated } from '@/workflow/workflow-variables/types/BaseOutputSchemaV2';
 import { useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 import { useDebouncedCallback } from 'use-debounce';
@@ -9,7 +9,7 @@ import { v4 } from 'uuid';
 import { getFieldIcon } from '../utils/getFieldIcon';
 
 export const useNestboxAiAgentOutputSchema = (
-  outputSchema?: OutputSchemaV2,
+  outputSchema?: BaseOutputSchemaDeprecated,
   onActionUpdate?: (action: WorkflowNestboxAiAgentAction) => void,
   action?: WorkflowNestboxAiAgentAction,
   readonly?: boolean,
@@ -19,7 +19,6 @@ export const useNestboxAiAgentOutputSchema = (
       id: v4(),
       name,
       type: field.type,
-      description: field.description,
     })),
   );
 
@@ -29,7 +28,7 @@ export const useNestboxAiAgentOutputSchema = (
         return;
       }
 
-      const newOutputSchema = fields.reduce<OutputSchemaV2>(
+      const newOutputSchema = fields.reduce<BaseOutputSchemaDeprecated>(
         (schema, field) => {
           if (isDefined(field.name)) {
             (schema as Record<string, any>)[field.name] = {

@@ -10,7 +10,7 @@ import { WorkflowStepHeader } from '@/workflow/workflow-steps/components/Workflo
 import { useWorkflowActionHeader } from '@/workflow/workflow-steps/workflow-actions/hooks/useWorkflowActionHeader';
 import { WorkflowOutputSchemaBuilder } from '@/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder';
 import { WorkflowVariablePicker } from '@/workflow/workflow-variables/components/WorkflowVariablePicker';
-import type { BaseOutputSchema } from '@/workflow/workflow-variables/types/StepOutputSchema';
+import { type BaseOutputSchemaDeprecated } from '@/workflow/workflow-variables/types/BaseOutputSchemaV2';
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { isDefined } from 'twenty-shared/utils';
@@ -52,7 +52,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
 
   const { handleOutputSchemaChange, outputFields } =
     useNestboxAiAgentOutputSchema(
-      action.settings.outputSchema as BaseOutputSchema,
+      action.settings.outputSchema as BaseOutputSchemaDeprecated,
       actionOptions.readonly === true
         ? undefined
         : actionOptions.onActionUpdate,

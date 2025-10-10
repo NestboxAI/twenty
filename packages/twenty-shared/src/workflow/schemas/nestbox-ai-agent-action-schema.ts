@@ -1,15 +1,14 @@
-import { baseWorkflowActionSettingsSchema } from '@/workflow/schemas/base-workflow-action-settings-schema';
 import { z } from 'zod';
 import { baseWorkflowActionSchema } from './base-workflow-action-schema';
+import { baseWorkflowActionSettingsSchema } from './base-workflow-action-settings-schema';
 
 export const workflowNestboxAiAgentActionSettingsSchema =
-baseWorkflowActionSettingsSchema.extend({
-  input: z.object({
-    agentId: z.string().optional(),
-    params: z.record(z.any(), z.any()).optional(),
-    prompt: z.string().optional(),
-  }),
-});
+  baseWorkflowActionSettingsSchema.extend({
+    input: z.object({
+      agentId: z.string().optional(),
+      params: z.record(z.string(), z.any()).optional(),
+    }),
+  });
 
 export const workflowNestboxAiAgentActionSchema =
   baseWorkflowActionSchema.extend({

@@ -29,8 +29,7 @@ export class NestboxAiAgentWorkflowAction implements WorkflowAction {
     currentStepId,
     steps,
     context,
-    workflowRunId,
-    workspaceId,
+    runInfo: { workflowRunId, workspaceId },
   }: WorkflowActionInput): Promise<WorkflowActionOutput> {
     const step = steps.find((s) => s.id === currentStepId);
 
@@ -56,18 +55,20 @@ export class NestboxAiAgentWorkflowAction implements WorkflowAction {
     if (!agentId) {
       return { error: 'Agent ID is required' };
     }
-
     try {
       const basePath = this.twentyConfigService.get('NESTBOX_AI_INSTANCE_IP');
       const apiKey = this.twentyConfigService.get(
         'NESTBOX_AI_INSTANCE_API_KEY',
       );
       const callbackUrl = `${this.twentyConfigService.get('SERVER_URL')}/nestbox-ai-agent/callback?workflowRunId=${workflowRunId}&workspaceId=${workspaceId}&stepId=${currentStepId}`;
-      // const callbackUrl = `https://ajouu-2607-fea8-501-e900-8cd3-80f9-b485-dbe1.a.free.pinggy.link/nestbox-ai-agent/callback?workflowRunId=${workflowRunId}&workspaceId=${workspaceId}&stepId=${currentStepId}`;
+      // ssh -p 443 -R0:localhost:3000 qr@free.pinggy.io
+      // const callbackUrl = `https://jxrkk-2607-fea8-501-e900-5cf4-1a04-eb37-fe7d.a.free.pinggy.link/nestbox-ai-agent/callback?workflowRunId=${workflowRunId}&workspaceId=${workspaceId}&stepId=${currentStepId}`;
 
-      this.logger.log('basePath', basePath);
-      this.logger.log('apiKey', apiKey);
-      this.logger.log('callbackUrl', callbackUrl);
+      // add emojis to logs to make them more fun
+      this.logger.log('🤖 Executing Nestbox AI Agent Action');
+      this.logger.log('🌐 basePath', basePath);
+      this.logger.log('🔑 apiKey', apiKey);
+      this.logger.log('🔗 callbackUrl', callbackUrl);
 
       const config = new Config({
         basePath,
@@ -107,12 +108,11 @@ export class NestboxAiAgentWorkflowAction implements WorkflowAction {
         adHocCallback: {
           url: callbackUrl,
           eventTypes: ['QUERY_COMPLETED', 'QUERY_FAILED'],
+          headers: {
+            Authorization: `Bearer ${apiKeyToken?.token}`,
+          },
         },
       });
-
-      this.logger.log('basePath', basePath);
-      this.logger.log('apiKey', apiKey);
-      this.logger.log('callbackUrl', callbackUrl);
 
       return { pendingEvent: true };
     } catch (error) {
