@@ -157,6 +157,7 @@ export class WorkflowSchemaWorkspaceService {
         WorkflowActionType.CODE,
         WorkflowActionType.HTTP_REQUEST,
         WorkflowActionType.AI_AGENT,
+        WorkflowActionType.NESTBOX_AI_AGENT,
       ].includes(step.type)
     ) {
       return step;

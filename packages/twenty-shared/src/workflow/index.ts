@@ -36,6 +36,10 @@ export { workflowHttpRequestActionSettingsSchema } from './schemas/http-request-
 export { workflowIteratorActionSchema } from './schemas/iterator-action-schema';
 export { workflowIteratorActionSettingsSchema } from './schemas/iterator-action-settings-schema';
 export { workflowManualTriggerSchema } from './schemas/manual-trigger-schema';
+export {
+  workflowNestboxAiAgentActionSettingsSchema,
+  workflowNestboxAiAgentActionSchema,
+} from './schemas/nestbox-ai-agent-action-schema';
 export { objectRecordSchema } from './schemas/object-record-schema';
 export { workflowSendEmailActionSchema } from './schemas/send-email-action-schema';
 export { workflowSendEmailActionSettingsSchema } from './schemas/send-email-action-settings-schema';

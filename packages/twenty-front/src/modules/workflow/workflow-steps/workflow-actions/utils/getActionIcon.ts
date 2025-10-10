@@ -14,6 +14,7 @@ export const getActionIcon = (actionType: WorkflowActionType) => {
     case 'FILTER':
       return 'IconFilter';
     case 'AI_AGENT':
+    case 'NESTBOX_AI_AGENT':
       return AI_ACTIONS.find((item) => item.type === actionType)?.icon;
     case 'CODE':
     case 'HTTP_REQUEST':
