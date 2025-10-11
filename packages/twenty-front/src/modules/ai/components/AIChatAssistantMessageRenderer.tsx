@@ -2,7 +2,6 @@ import { ReasoningSummaryDisplay } from '@/ai/components/ReasoningSummaryDisplay
 import { IconDotsVertical } from 'twenty-ui/display';
 
 import { LazyMarkdownRenderer } from '@/ai/components/LazyMarkdownRenderer';
-import { ToolStepRenderer } from '@/ai/components/ToolStepRenderer';
 import { keyframes, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
@@ -84,15 +83,8 @@ export const AIChatAssistantMessageRenderer = ({
       default:
         {
           if (isToolUIPart(part)) {
-            const { output, input, type } = part;
-            return (
-              <ToolStepRenderer
-                key={index}
-                input={input}
-                output={output}
-                toolName={type.split('-')[1]}
-              />
-            );
+            // Skip rendering tool execution details
+            return null;
           }
         }
         return null;
