@@ -2,9 +2,11 @@
 // Clean MCP tool registry service with minimal logging and no hardcoded configs
 
 import { Injectable, Logger } from '@nestjs/common';
+
 import { type ToolSet } from 'ai';
-import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { z } from 'zod';
+
+import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 
 export interface McpServerConfig {
   id: string;
@@ -56,14 +58,21 @@ export class McpToolRegistryCleanService {
             );
           }
 
-          const toolKey = this.generateSafeToolName(serverId, sanitizedToolName);
+          const toolKey = this.generateSafeToolName(
+            serverId,
+            sanitizedToolName,
+          );
 
           const executeFunction = async (args: any, options: any) => {
             try {
               const result = await this.executeMcpTool(tool, args);
+
               return result;
             } catch (error) {
-              this.logger.error(`Tool execute error: ${toolKey} failed:`, error);
+              this.logger.error(
+                `Tool execute error: ${toolKey} failed:`,
+                error,
+              );
               throw error;
             }
           };
@@ -81,7 +90,10 @@ export class McpToolRegistryCleanService {
           `Successfully loaded ${tools.length} tools from server ${serverId}`,
         );
       } catch (error) {
-        this.logger.error(`Failed to load tools from MCP server ${serverId}:`, error);
+        this.logger.error(
+          `Failed to load tools from MCP server ${serverId}:`,
+          error,
+        );
       }
     }
 
@@ -106,28 +118,43 @@ export class McpToolRegistryCleanService {
     const lastFetch = this.lastFetchTime.get(serverId) || 0;
     const now = Date.now();
 
-    if (cached && (now - lastFetch) < this.CACHE_TTL) {
-      this.logger.log(`✅ Using cached MCP tools for server ${serverId} (${cached.length} tools)`);
+    if (cached && now - lastFetch < this.CACHE_TTL) {
+      this.logger.log(
+        `✅ Using cached MCP tools for server ${serverId} (${cached.length} tools)`,
+      );
+
       return cached;
     }
 
     const basePath = this.twentyConfigService.get('NESTBOX_AI_INSTANCE_IP');
-    const secretKey = this.twentyConfigService.get('NESTBOX_AI_INSTANCE_API_KEY');
+    const secretKey = this.twentyConfigService.get(
+      'NESTBOX_AI_INSTANCE_API_KEY',
+    );
     const url = `${basePath}/agents/${serverId}/mcp`;
 
     this.logger.log(`🔄 CACHE MISS: Fetching MCP tools from server: (${url})`);
 
     try {
-      const tools = await this.fetchToolsFromMcpServer(url, secretKey, serverConfig, serverId);
+      const tools = await this.fetchToolsFromMcpServer(
+        url,
+        secretKey,
+        serverConfig,
+        serverId,
+      );
 
       // Cache the results
       this.mcpToolsCache.set(serverId, tools);
       this.lastFetchTime.set(serverId, now);
-      this.logger.log(`💾 CACHED: Stored ${tools.length} tools for server ${serverId}`);
+      this.logger.log(
+        `💾 CACHED: Stored ${tools.length} tools for server ${serverId}`,
+      );
 
       return tools;
     } catch (error) {
-      this.logger.error(`Failed to fetch tools from MCP server ${serverId}:`, error);
+      this.logger.error(
+        `Failed to fetch tools from MCP server ${serverId}:`,
+        error,
+      );
       throw error;
     }
   }
@@ -135,13 +162,14 @@ export class McpToolRegistryCleanService {
   private generateSafeToolName(serverId: string, toolName: string): string {
     const prefix = serverId.substring(0, 8);
     const baseName = `${prefix}_${toolName}`;
-    
+
     if (baseName.length <= this.MAX_TOOL_NAME_LENGTH) {
       return baseName;
     }
-    
+
     const maxToolNameLength = this.MAX_TOOL_NAME_LENGTH - prefix.length - 1;
     const truncatedToolName = toolName.substring(0, maxToolNameLength);
+
     return `${prefix}_${truncatedToolName}`;
   }
 
@@ -155,7 +183,7 @@ export class McpToolRegistryCleanService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${secretKey}`,
+        Authorization: `Bearer ${secretKey}`,
       },
       body: JSON.stringify({
         jsonrpc: '2.0',
@@ -172,18 +200,18 @@ export class McpToolRegistryCleanService {
     }
 
     const data = await response.json();
-    
+
     this.logger.log(
       `📥 MCP SERVER TOOLS LIST RESPONSE:`,
       JSON.stringify(data, null, 2),
     );
-    
+
     if (data.error) {
       throw new Error(`MCP server error: ${data.error.message}`);
     }
 
     const tools = data.result?.tools || [];
-    
+
     const mappedTools = tools.map((tool: any) => ({
       name: tool.name,
       description: tool.description,
@@ -198,7 +226,7 @@ export class McpToolRegistryCleanService {
     );
 
     this.logger.log(`Fetched ${tools.length} tools from MCP server ${url}`);
-    
+
     return mappedTools;
   }
 
@@ -209,7 +237,9 @@ export class McpToolRegistryCleanService {
     this.logger.log(`📋 Tool parameters:`, JSON.stringify(params, null, 2));
 
     const basePath = this.twentyConfigService.get('NESTBOX_AI_INSTANCE_IP');
-    const secretKey = this.twentyConfigService.get('NESTBOX_AI_INSTANCE_API_KEY');
+    const secretKey = this.twentyConfigService.get(
+      'NESTBOX_AI_INSTANCE_API_KEY',
+    );
     const url = `${basePath}/agents/${tool.serverId}/mcp`;
 
     this.logger.log(`📍 Using remote MCP URL: ${url}`);
@@ -239,7 +269,8 @@ export class McpToolRegistryCleanService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${secretKey}`,
+        Authorization: `Bearer ${secretKey}`,
+        'Request-Timeout': '180',
       },
       body: JSON.stringify(requestBody),
     });
@@ -253,19 +284,17 @@ export class McpToolRegistryCleanService {
     }
 
     const data = await response.json();
-    
+
     this.logger.log(
       `📥 MCP TOOL FULL RESPONSE:`,
       JSON.stringify(data, null, 2),
     );
-    
+
     if (data.error) {
       throw new Error(`MCP tool error: ${data.error.message}`);
     }
 
-    this.logger.log(
-      `✅ MCP TOOL SUCCESS: ${tool.name} executed successfully`,
-    );
+    this.logger.log(`✅ MCP TOOL SUCCESS: ${tool.name} executed successfully`);
     this.logger.log(`📊 Tool result:`, JSON.stringify(data.result, null, 2));
 
     return data.result;
@@ -276,34 +305,51 @@ export class McpToolRegistryCleanService {
 
     // Handle special conversions for specific tools
     if (tool.name === 'staging-website-data-extraction' && params.crawl) {
-      if (params.crawl === 'true' || params.crawl === true || params.crawl === '1') {
+      if (
+        params.crawl === 'true' ||
+        params.crawl === true ||
+        params.crawl === '1'
+      ) {
         validatedParams.crawl = '1';
         this.logger.log(`🔄 CONVERTED CRAWL: "${params.crawl}" → 1`);
-      } else if (params.crawl === 'false' || params.crawl === false || params.crawl === '0') {
+      } else if (
+        params.crawl === 'false' ||
+        params.crawl === false ||
+        params.crawl === '0'
+      ) {
         validatedParams.crawl = '0';
         this.logger.log(`🔄 CONVERTED CRAWL: "${params.crawl}" → 0`);
-      } else if (typeof params.crawl === 'string' && /^\d+$/.test(params.crawl)) {
+      } else if (
+        typeof params.crawl === 'string' &&
+        /^\d+$/.test(params.crawl)
+      ) {
         const crawlNum = parseInt(params.crawl, 10);
+
         validatedParams.crawl = params.crawl;
-        this.logger.log(
-          `🔄 CONVERTED CRAWL: "${params.crawl}" → ${crawlNum}`,
-        );
+        this.logger.log(`🔄 CONVERTED CRAWL: "${params.crawl}" → ${crawlNum}`);
       }
     }
 
     // Convert simple schema to JSON Schema format if needed
-    if (params.output_schema_json && typeof params.output_schema_json === 'string') {
+    if (
+      params.output_schema_json &&
+      typeof params.output_schema_json === 'string'
+    ) {
       try {
         const parsed = JSON.parse(params.output_schema_json);
+
         if (parsed && typeof parsed === 'object' && !parsed.type) {
           const jsonSchema = {
             type: 'object',
             properties: Object.keys(parsed).reduce((acc, key) => {
               const value = parsed[key];
+
               acc[key] = { type: value === 'integer' ? 'integer' : 'string' };
+
               return acc;
             }, {} as any),
           };
+
           validatedParams.output_schema_json = JSON.stringify(jsonSchema);
           this.logger.log(
             `🔄 CONVERTED SCHEMA: Converted simple schema to JSON Schema format`,
@@ -327,14 +373,18 @@ export class McpToolRegistryCleanService {
     const zodFields: Record<string, z.ZodTypeAny> = {};
 
     if (schema.properties) {
-      for (const [key, prop] of Object.entries(schema.properties as Record<string, any>)) {
+      for (const [key, prop] of Object.entries(
+        schema.properties as Record<string, any>,
+      )) {
         let zodType: z.ZodTypeAny;
 
         switch (prop.type) {
           case 'string':
             zodType = z.string();
-            if (prop.minLength) zodType = (zodType as z.ZodString).min(prop.minLength);
-            if (prop.maxLength) zodType = (zodType as z.ZodString).max(prop.maxLength);
+            if (prop.minLength)
+              zodType = (zodType as z.ZodString).min(prop.minLength);
+            if (prop.maxLength)
+              zodType = (zodType as z.ZodString).max(prop.maxLength);
             break;
           case 'number':
           case 'integer':
@@ -359,6 +409,7 @@ export class McpToolRegistryCleanService {
         }
 
         const isRequired = schema.required && schema.required.includes(key);
+
         if (!isRequired) {
           zodType = zodType.optional();
         }
