@@ -26,7 +26,8 @@ interface AiSetupOptions {
 
 @Command({
   name: 'ai:setup',
-  description: 'Setup AI functionality for workspace (enables AI feature flag, creates default agent, custom tools agent, and handoff relationship)',
+  description:
+    'Setup AI functionality for workspace (enables AI feature flag, creates default agent, custom tools agent, and handoff relationship)',
 })
 @Injectable()
 export class AiSetupCommand extends CommandRunner {
@@ -66,20 +67,27 @@ export class AiSetupCommand extends CommandRunner {
 
   @Option({
     flags: '--agent-description [agentDescription]',
-    description: 'Agent description (default: Your helpful AI assistant for workspace tasks and insights)',
+    description:
+      'Agent description (default: Your helpful AI assistant for workspace tasks and insights)',
     required: false,
   })
   parseAgentDescription(value: string): string {
-    return value || 'Your helpful AI assistant for workspace tasks and insights';
+    return (
+      value || 'Your helpful AI assistant for workspace tasks and insights'
+    );
   }
 
   @Option({
     flags: '--agent-prompt [agentPrompt]',
-    description: 'Agent system prompt (default: standard helpful assistant prompt)',
+    description:
+      'Agent system prompt (default: standard helpful assistant prompt)',
     required: false,
   })
   parseAgentPrompt(value: string): string {
-    return value || 'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses.';
+    return (
+      value ||
+      'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses.'
+    );
   }
 
   @Option({
@@ -102,7 +110,8 @@ export class AiSetupCommand extends CommandRunner {
 
   @Option({
     flags: '--custom-agent-description [customAgentDescription]',
-    description: 'Custom agent description (default: Custom AI agent with tool capabilities for advanced tasks)',
+    description:
+      'Custom agent description (default: Custom AI agent with tool capabilities for advanced tasks)',
     required: false,
   })
   parseCustomAgentDescription(value: string): string {
@@ -111,17 +120,18 @@ export class AiSetupCommand extends CommandRunner {
 
   @Option({
     flags: '--custom-agent-prompt [customAgentPrompt]',
-    description: 'Custom agent system prompt (default: specialized tools prompt)',
+    description:
+      'Custom agent system prompt (default: specialized tools prompt)',
     required: false,
   })
   parseCustomAgentPrompt(value: string): string {
-    return value || 'You are a specialized AI assistant with access to custom tools and capabilities. You can perform advanced tasks, execute workflows, and use various tools to help users accomplish complex objectives. Always be precise, thorough, and leverage your tools effectively.';
+    return (
+      value ||
+      'You are a specialized AI assistant with access to custom tools and capabilities. You can perform advanced tasks, execute workflows, and use various tools to help users accomplish complex objectives. Always be precise, thorough, and leverage your tools effectively.'
+    );
   }
 
-  async run(
-    passedParams: string[],
-    options: AiSetupOptions,
-  ): Promise<void> {
+  async run(passedParams: string[], options: AiSetupOptions): Promise<void> {
     try {
       this.logger.log('Starting AI setup process...');
 
@@ -132,10 +142,14 @@ export class AiSetupCommand extends CommandRunner {
       });
 
       if (!workspace) {
-        throw new Error('No workspace found. Please create a workspace first using workspace:signup command.');
+        throw new Error(
+          'No workspace found. Please create a workspace first using workspace:signup command.',
+        );
       }
 
-      this.logger.log(`Found workspace: ${workspace.displayName} (${workspace.id})`);
+      this.logger.log(
+        `Found workspace: ${workspace.displayName} (${workspace.id})`,
+      );
 
       // Check if AI is already enabled
       const isAiEnabled = await this.featureFlagService.isFeatureEnabled(
@@ -146,7 +160,10 @@ export class AiSetupCommand extends CommandRunner {
       if (isAiEnabled && workspace.defaultAgentId) {
         // Check if custom agent and handoff already exist
         const existingHandoffs = await this.agentHandoffRepository.find({
-          where: { fromAgentId: workspace.defaultAgentId, workspaceId: workspace.id },
+          where: {
+            fromAgentId: workspace.defaultAgentId,
+            workspaceId: workspace.id,
+          },
           relations: ['toAgent'],
         });
 
@@ -154,20 +171,29 @@ export class AiSetupCommand extends CommandRunner {
           this.logger.log('='.repeat(60));
           this.logger.log('AI ALREADY SETUP WITH HANDOFF');
           this.logger.log('='.repeat(60));
-          this.logger.log(`AI is already enabled for workspace "${workspace.displayName}"`);
+          this.logger.log(
+            `AI is already enabled for workspace "${workspace.displayName}"`,
+          );
           this.logger.log(`Default agent ID: ${workspace.defaultAgentId}`);
           this.logger.log(`Existing handoffs: ${existingHandoffs.length}`);
           existingHandoffs.forEach((handoff, index) => {
-            this.logger.log(`  ${index + 1}. → ${handoff.toAgent.name} (${handoff.toAgent.id})`);
+            this.logger.log(
+              `  ${index + 1}. → ${handoff.toAgent.name} (${handoff.toAgent.id})`,
+            );
           });
-          this.logger.log('Skipping AI setup. AI functionality with handoffs is already configured.');
+          this.logger.log(
+            'Skipping AI setup. AI functionality with handoffs is already configured.',
+          );
           this.logger.log('='.repeat(60));
+
           return;
         } else {
           this.logger.log('='.repeat(60));
           this.logger.log('AI PARTIALLY SETUP - ADDING HANDOFF');
           this.logger.log('='.repeat(60));
-          this.logger.log(`AI is enabled but no handoffs found. Adding custom agent and handoff...`);
+          this.logger.log(
+            `AI is enabled but no handoffs found. Adding custom agent and handoff...`,
+          );
           this.logger.log('='.repeat(60));
         }
       }
@@ -182,7 +208,9 @@ export class AiSetupCommand extends CommandRunner {
         // Use existing default agent
         defaultAgent = { id: workspace.defaultAgentId };
         isPartialSetup = true;
-        this.logger.log(`✅ Using existing default agent: ${workspace.defaultAgentId}`);
+        this.logger.log(
+          `✅ Using existing default agent: ${workspace.defaultAgentId}`,
+        );
       } else {
         // Step 1: Enable AI feature flag
         await this.enableAiFeatureFlag(workspace.id);
@@ -201,17 +229,29 @@ export class AiSetupCommand extends CommandRunner {
       const role = await this.getRole(workspace.id);
 
       // Step 6: Create custom agent with tools capability
-      const customAgent = await this.createCustomAgent(workspace.id, role?.id, options);
+      const customAgent = await this.createCustomAgent(
+        workspace.id,
+        role?.id,
+        options,
+      );
 
       // Step 7: Create handoff relationship from default agent to custom agent
-      const handoff = await this.createAgentHandoff(workspace.id, defaultAgent.id, customAgent.id);
+      const handoff = await this.createAgentHandoff(
+        workspace.id,
+        defaultAgent.id,
+        customAgent.id,
+      );
 
       const setupEnd = performance.now();
 
       this.logger.log('='.repeat(60));
-      this.logger.log(isPartialSetup ? 'AI HANDOFF SETUP SUCCESSFUL' : 'AI SETUP SUCCESSFUL');
+      this.logger.log(
+        isPartialSetup ? 'AI HANDOFF SETUP SUCCESSFUL' : 'AI SETUP SUCCESSFUL',
+      );
       this.logger.log('='.repeat(60));
-      this.logger.log(`Setup completed in ${Math.round(setupEnd - setupStart)}ms`);
+      this.logger.log(
+        `Setup completed in ${Math.round(setupEnd - setupStart)}ms`,
+      );
       this.logger.log('');
       this.logger.log('WORKSPACE DETAILS');
       this.logger.log('='.repeat(60));
@@ -224,8 +264,12 @@ export class AiSetupCommand extends CommandRunner {
       this.logger.log(`Agent ID: ${defaultAgent.id}`);
       if (!isPartialSetup) {
         this.logger.log(`Agent Name: ${options.agentName || 'nestbox-agent'}`);
-        this.logger.log(`Agent Label: ${options.agentLabel || 'Nestbox Agent'}`);
-        this.logger.log(`Agent Description: ${options.agentDescription || 'Your helpful AI assistant for workspace tasks and insights'}`);
+        this.logger.log(
+          `Agent Label: ${options.agentLabel || 'Nestbox Agent'}`,
+        );
+        this.logger.log(
+          `Agent Description: ${options.agentDescription || 'Your helpful AI assistant for workspace tasks and insights'}`,
+        );
         this.logger.log(`Set as Default Agent: ✅`);
       } else {
         this.logger.log(`Using Existing Default Agent: ✅`);
@@ -235,19 +279,29 @@ export class AiSetupCommand extends CommandRunner {
       this.logger.log('CUSTOM AGENT DETAILS');
       this.logger.log('='.repeat(60));
       this.logger.log(`Agent ID: ${customAgent.id}`);
-      this.logger.log(`Agent Name: ${options.customAgentName || 'custom-tools-agent'}`);
-      this.logger.log(`Agent Label: ${options.customAgentLabel || 'Custom Tools Agent'}`);
-      this.logger.log(`Agent Description: ${options.customAgentDescription || 'Custom AI agent with tool capabilities for advanced tasks'}`);
+      this.logger.log(
+        `Agent Name: ${options.customAgentName || 'custom-tools-agent'}`,
+      );
+      this.logger.log(
+        `Agent Label: ${options.customAgentLabel || 'Custom Tools Agent'}`,
+      );
+      this.logger.log(
+        `Agent Description: ${options.customAgentDescription || 'Custom AI agent with tool capabilities for advanced tasks'}`,
+      );
       this.logger.log(`Custom Agent (Tools Enabled): ✅`);
       this.logger.log(`Role: ${role?.label || 'No role assigned'}`);
       this.logger.log('');
       this.logger.log('HANDOFF CONFIGURATION');
       this.logger.log('='.repeat(60));
       this.logger.log(`Handoff ID: ${handoff.id}`);
-      this.logger.log(`From Agent: Default Agent → To Agent: ${options.customAgentName || 'custom-tools-agent'}`);
+      this.logger.log(
+        `From Agent: Default Agent → To Agent: ${options.customAgentName || 'custom-tools-agent'}`,
+      );
       this.logger.log(`Handoff Enabled: ✅`);
       this.logger.log('');
-      this.logger.log('AI functionality with agent handoff is now ready for use!');
+      this.logger.log(
+        'AI functionality with agent handoff is now ready for use!',
+      );
       this.logger.log('='.repeat(60));
     } catch (error) {
       this.logger.error('Failed to setup AI:', error.message);
@@ -261,9 +315,14 @@ export class AiSetupCommand extends CommandRunner {
         [FeatureFlagKey.IS_AI_ENABLED],
         workspaceId,
       );
-      this.logger.log(`✅ AI feature flag enabled for workspace ${workspaceId}`);
+      this.logger.log(
+        `✅ AI feature flag enabled for workspace ${workspaceId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to enable AI feature flag for workspace ${workspaceId}:`, error.message);
+      this.logger.error(
+        `Failed to enable AI feature flag for workspace ${workspaceId}:`,
+        error.message,
+      );
       throw error;
     }
   }
@@ -282,20 +341,31 @@ export class AiSetupCommand extends CommandRunner {
         const anyRole = await this.roleRepository.findOne({
           where: { workspaceId },
         });
-        
+
         if (anyRole) {
-          this.logger.warn(`Member role not found for workspace ${workspaceId}, using role ${anyRole.label}`);
+          this.logger.warn(
+            `Member role not found for workspace ${workspaceId}, using role ${anyRole.label}`,
+          );
+
           return anyRole;
         }
 
-        this.logger.warn(`No roles found for workspace ${workspaceId}, agent will be created without role`);
+        this.logger.warn(
+          `No roles found for workspace ${workspaceId}, agent will be created without role`,
+        );
+
         return null;
       }
 
       this.logger.log(`✅ Found member role for agent: ${role.label}`);
+
       return role;
     } catch (error) {
-      this.logger.error(`Failed to get member role for workspace ${workspaceId}:`, error.message);
+      this.logger.error(
+        `Failed to get member role for workspace ${workspaceId}:`,
+        error.message,
+      );
+
       return null;
     }
   }
@@ -310,9 +380,13 @@ export class AiSetupCommand extends CommandRunner {
         {
           label: options.agentLabel || 'Nestbox Agent',
           name: options.agentName || 'nestbox-agent',
-          description: options.agentDescription || 'Your helpful AI assistant for workspace tasks and insights',
-          prompt: options.agentPrompt || 'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses.',
-          modelId: 'auto',
+          description:
+            options.agentDescription ||
+            'Your helpful AI assistant for workspace tasks and insights',
+          prompt:
+            options.agentPrompt ||
+            'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses.',
+          modelId: 'gpt-4o',
           isCustom: false,
           ...(roleId && { roleId }),
         },
@@ -320,14 +394,21 @@ export class AiSetupCommand extends CommandRunner {
       );
 
       this.logger.log(`✅ Agent created with ID: ${agent.id}`);
+
       return agent;
     } catch (error) {
-      this.logger.error(`Failed to create agent for workspace ${workspaceId}:`, error.message);
+      this.logger.error(
+        `Failed to create agent for workspace ${workspaceId}:`,
+        error.message,
+      );
       throw error;
     }
   }
 
-  private async setDefaultAgent(workspaceId: string, agentId: string): Promise<void> {
+  private async setDefaultAgent(
+    workspaceId: string,
+    agentId: string,
+  ): Promise<void> {
     try {
       await this.workspaceRepository.update(workspaceId, {
         defaultAgentId: agentId,
@@ -335,7 +416,10 @@ export class AiSetupCommand extends CommandRunner {
 
       this.logger.log(`✅ Default agent set for workspace: ${agentId}`);
     } catch (error) {
-      this.logger.error(`Failed to set default agent for workspace ${workspaceId}:`, error.message);
+      this.logger.error(
+        `Failed to set default agent for workspace ${workspaceId}:`,
+        error.message,
+      );
       throw error;
     }
   }
@@ -350,9 +434,13 @@ export class AiSetupCommand extends CommandRunner {
         {
           label: options.customAgentLabel || 'Custom Tools Agent',
           name: options.customAgentName || 'custom-tools-agent',
-          description: options.customAgentDescription || 'Custom AI agent with tool capabilities for advanced tasks',
-          prompt: options.customAgentPrompt || 'You are a specialized AI assistant with access to custom tools and capabilities. You can perform advanced tasks, execute workflows, and use various tools to help users accomplish complex objectives. Always be precise, thorough, and leverage your tools effectively.',
-          modelId: 'auto',
+          description:
+            options.customAgentDescription ||
+            'Custom AI agent with tool capabilities for advanced tasks',
+          prompt:
+            options.customAgentPrompt ||
+            'You are a specialized AI assistant with access to custom tools and capabilities. You can perform advanced tasks, execute workflows, and use various tools to help users accomplish complex objectives. Always be precise, thorough, and leverage your tools effectively.',
+          modelId: 'gpt-4o',
           isCustom: true, // This is the key difference - allows tools
           ...(roleId && { roleId }),
         },
@@ -360,9 +448,13 @@ export class AiSetupCommand extends CommandRunner {
       );
 
       this.logger.log(`✅ Custom agent created with ID: ${customAgent.id}`);
+
       return customAgent;
     } catch (error) {
-      this.logger.error(`Failed to create custom agent for workspace ${workspaceId}:`, error.message);
+      this.logger.error(
+        `Failed to create custom agent for workspace ${workspaceId}:`,
+        error.message,
+      );
       throw error;
     }
   }
@@ -377,13 +469,20 @@ export class AiSetupCommand extends CommandRunner {
         fromAgentId,
         toAgentId,
         workspaceId,
-        description: 'Handoff from default agent to custom tools agent for advanced tasks requiring tool capabilities',
+        description:
+          'Handoff from default agent to custom tools agent for advanced tasks requiring tool capabilities',
       });
 
-      this.logger.log(`✅ Agent handoff created: ${fromAgentId} → ${toAgentId}`);
+      this.logger.log(
+        `✅ Agent handoff created: ${fromAgentId} → ${toAgentId}`,
+      );
+
       return handoff;
     } catch (error) {
-      this.logger.error(`Failed to create agent handoff for workspace ${workspaceId}:`, error.message);
+      this.logger.error(
+        `Failed to create agent handoff for workspace ${workspaceId}:`,
+        error.message,
+      );
       throw error;
     }
   }
