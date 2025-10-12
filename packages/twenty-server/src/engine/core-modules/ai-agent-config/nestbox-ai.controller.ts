@@ -45,7 +45,7 @@ export class NestboxAiAgentController {
       stepInfo: {
         status: isError ? StepStatus.FAILED : StepStatus.SUCCESS,
         result: body?.data || {},
-        error: isError ? body : undefined,
+        error: isError ? JSON.stringify(body) : undefined,
       },
     });
 
