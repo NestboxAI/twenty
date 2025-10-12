@@ -385,7 +385,7 @@ export class AiSetupCommand extends CommandRunner {
             'Your helpful AI assistant for workspace tasks and insights',
           prompt:
             options.agentPrompt ||
-            'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses.',
+            'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses. Handoff to a specialized agent when advanced tools or capabilities are needed.',
           modelId: 'gpt-4o',
           isCustom: false,
           ...(roleId && { roleId }),
