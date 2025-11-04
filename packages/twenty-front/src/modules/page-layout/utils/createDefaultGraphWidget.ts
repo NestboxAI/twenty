@@ -1,89 +1,125 @@
-import { AggregateOperations } from '@/object-record/record-table/constants/AggregateOperations';
-import { v4 as uuidv4 } from 'uuid';
-import { GraphOrderBy, GraphType } from '~/generated-metadata/graphql';
+import { assertUnreachable, isDefined } from 'twenty-shared/utils';
+import { type ThemeColor } from 'twenty-ui/theme';
 import {
+  AggregateOperations,
+  AxisNameDisplay,
+  GraphOrderBy,
+  GraphType,
   type GridPosition,
   type PageLayoutWidget,
   type WidgetConfiguration,
   WidgetType,
 } from '~/generated/graphql';
 
+import { type GraphWidgetFieldSelection } from '@/page-layout/types/GraphWidgetFieldSelection';
+
 const createDefaultGraphConfiguration = (
   graphType: GraphType,
-): WidgetConfiguration => {
-  const placeholderFieldId1 = uuidv4();
-  const placeholderFieldId2 = uuidv4();
-
+  fieldSelection?: GraphWidgetFieldSelection,
+): WidgetConfiguration | null => {
   switch (graphType) {
-    case GraphType.NUMBER:
+    case GraphType.AGGREGATE:
+      if (!isDefined(fieldSelection?.aggregateFieldMetadataId)) {
+        return null;
+      }
       return {
-        graphType: GraphType.NUMBER,
+        __typename: 'AggregateChartConfiguration',
+        graphType: GraphType.AGGREGATE,
+        aggregateFieldMetadataId: fieldSelection.aggregateFieldMetadataId,
         aggregateOperation: AggregateOperations.COUNT,
-        aggregateFieldMetadataId: placeholderFieldId1,
+        displayDataLabel: true,
       };
 
     case GraphType.PIE:
+      return null;
+
+    case GraphType.VERTICAL_BAR:
+      if (
+        !isDefined(fieldSelection?.aggregateFieldMetadataId) ||
+        !isDefined(fieldSelection?.groupByFieldMetadataIdX)
+      ) {
+        return null;
+      }
       return {
-        graphType: GraphType.PIE,
-        aggregateOperation: AggregateOperations.COUNT,
-        aggregateFieldMetadataId: placeholderFieldId1,
-        groupByFieldMetadataId: placeholderFieldId2,
-        orderBy: GraphOrderBy.VALUE_DESC,
+        __typename: 'BarChartConfiguration',
+        graphType: GraphType.VERTICAL_BAR,
+        displayDataLabel: false,
+        color: 'blue' satisfies ThemeColor,
+        primaryAxisGroupByFieldMetadataId:
+          fieldSelection.groupByFieldMetadataIdX,
+        aggregateFieldMetadataId: fieldSelection.aggregateFieldMetadataId,
+        aggregateOperation: AggregateOperations.SUM,
+        primaryAxisOrderBy: GraphOrderBy.FIELD_ASC,
+        axisNameDisplay: AxisNameDisplay.BOTH,
       };
 
-    case GraphType.BAR:
+    case GraphType.HORIZONTAL_BAR:
+      if (
+        !isDefined(fieldSelection?.aggregateFieldMetadataId) ||
+        !isDefined(fieldSelection?.groupByFieldMetadataIdX)
+      ) {
+        return null;
+      }
       return {
-        graphType: GraphType.BAR,
-        aggregateOperation: AggregateOperations.COUNT,
-        aggregateFieldMetadataId: placeholderFieldId1,
-        groupByFieldMetadataIdX: placeholderFieldId2,
-        orderByX: GraphOrderBy.FIELD_ASC,
+        __typename: 'BarChartConfiguration',
+        graphType: GraphType.HORIZONTAL_BAR,
+        displayDataLabel: false,
+        color: 'blue' satisfies ThemeColor,
+        primaryAxisGroupByFieldMetadataId:
+          fieldSelection.groupByFieldMetadataIdX,
+        aggregateFieldMetadataId: fieldSelection.aggregateFieldMetadataId,
+        aggregateOperation: AggregateOperations.SUM,
+        primaryAxisOrderBy: GraphOrderBy.FIELD_ASC,
+        axisNameDisplay: AxisNameDisplay.BOTH,
       };
 
     case GraphType.LINE:
-      return {
-        graphType: GraphType.LINE,
-        aggregateOperation: AggregateOperations.COUNT,
-        aggregateFieldMetadataId: placeholderFieldId1,
-        groupByFieldMetadataIdX: placeholderFieldId2,
-        orderByX: GraphOrderBy.FIELD_ASC,
-      };
+      return null;
 
     case GraphType.GAUGE:
-      return {
-        graphType: GraphType.GAUGE,
-        aggregateOperation: AggregateOperations.COUNT,
-        aggregateFieldMetadataId: placeholderFieldId1,
-        aggregateOperationTotal: AggregateOperations.COUNT,
-        aggregateFieldMetadataIdTotal: placeholderFieldId2,
-      };
+      return null;
 
     default:
-      return {
-        graphType: GraphType.NUMBER,
-        aggregateOperation: AggregateOperations.COUNT,
-        aggregateFieldMetadataId: placeholderFieldId1,
-      };
+      assertUnreachable(graphType);
   }
 };
 
-export const createDefaultGraphWidget = (
-  id: string,
-  pageLayoutTabId: string,
-  title: string,
-  graphType: GraphType,
-  gridPosition: GridPosition,
-  objectMetadataId?: string | null,
-): PageLayoutWidget => {
+type CreateDefaultGraphWidgetParams = {
+  id: string;
+  pageLayoutTabId: string;
+  title: string;
+  graphType: GraphType;
+  gridPosition: GridPosition;
+  objectMetadataId?: string | null;
+  fieldSelection?: GraphWidgetFieldSelection;
+};
+
+export const createDefaultGraphWidget = ({
+  id,
+  pageLayoutTabId,
+  title,
+  graphType,
+  gridPosition,
+  objectMetadataId,
+  fieldSelection,
+}: CreateDefaultGraphWidgetParams): PageLayoutWidget => {
+  const resolvedObjectMetadataId =
+    fieldSelection?.objectMetadataId ?? objectMetadataId ?? null;
+
+  const configuration = createDefaultGraphConfiguration(
+    graphType,
+    fieldSelection,
+  );
+
   return {
     __typename: 'PageLayoutWidget',
     id,
     pageLayoutTabId,
     title,
     type: WidgetType.GRAPH,
-    configuration: createDefaultGraphConfiguration(graphType),
+    configuration,
     gridPosition,
-    objectMetadataId: objectMetadataId ?? null,
+    objectMetadataId: resolvedObjectMetadataId,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,

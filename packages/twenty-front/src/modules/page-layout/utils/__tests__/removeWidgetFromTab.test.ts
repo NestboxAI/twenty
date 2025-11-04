@@ -1,5 +1,5 @@
-import { AggregateOperations } from '@/object-record/record-table/constants/AggregateOperations';
 import {
+  AggregateOperations,
   GraphOrderBy,
   GraphType,
   WidgetType,
@@ -22,9 +22,10 @@ describe('removeWidgetFromTab', () => {
           title: 'Widget 1',
           type: WidgetType.GRAPH,
           configuration: {
-            graphType: GraphType.NUMBER,
+            graphType: GraphType.AGGREGATE,
             aggregateOperation: AggregateOperations.COUNT,
             aggregateFieldMetadataId: 'id',
+            displayDataLabel: false,
           },
           gridPosition: { row: 0, column: 0, rowSpan: 2, columnSpan: 2 },
           objectMetadataId: null,
@@ -44,6 +45,7 @@ describe('removeWidgetFromTab', () => {
             aggregateFieldMetadataId: 'id',
             groupByFieldMetadataId: 'status',
             orderBy: GraphOrderBy.VALUE_DESC,
+            displayDataLabel: false,
           },
           gridPosition: { row: 2, column: 0, rowSpan: 2, columnSpan: 2 },
           objectMetadataId: null,

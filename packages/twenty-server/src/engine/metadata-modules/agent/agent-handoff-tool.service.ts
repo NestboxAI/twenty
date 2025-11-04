@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 
 import { type ToolSet } from 'ai';
 
-import { AgentHandoffExecutorService } from 'src/engine/metadata-modules/agent/agent-handoff-executor.service';
+import {
+  AgentExecutionContext,
+  AgentHandoffExecutorService,
+  HandoffRequest,
+} from 'src/engine/metadata-modules/agent/agent-handoff-executor.service';
 import { AgentHandoffService } from 'src/engine/metadata-modules/agent/agent-handoff.service';
 import { AGENT_HANDOFF_DESCRIPTION_TEMPLATE } from 'src/engine/metadata-modules/agent/constants/agent-handoff-description.const';
 import { AGENT_HANDOFF_SCHEMA } from 'src/engine/metadata-modules/agent/constants/agent-handoff-schema.const';
@@ -18,6 +22,7 @@ export class AgentHandoffToolService {
   public async generateHandoffTools(
     agentId: string,
     workspaceId: string,
+    executionContext: AgentExecutionContext,
   ): Promise<ToolSet> {
     const handoffs = await this.agentHandoffService.getAgentHandoffs({
       fromAgentId: agentId,
@@ -26,7 +31,7 @@ export class AgentHandoffToolService {
 
     const handoffTools = handoffs.reduce<ToolSet>((tools, handoff) => {
       const toolName = `handoff_to_${camelCase(handoff.toAgent.name)}`;
-      
+
       console.log(`🔄 Creating handoff tool: ${toolName} -> ${handoff.toAgent.name} (${handoff.toAgent.id})`);
 
       tools[toolName] = {
@@ -38,25 +43,22 @@ export class AgentHandoffToolService {
             handoff.toAgent.name,
           ),
         inputSchema: AGENT_HANDOFF_SCHEMA,
-        execute: async (params) => {
+        execute: async ({ input }) => {
           console.log(`🔄🔄🔄 HANDOFF TOOL EXECUTED: ${toolName} 🔄🔄🔄`);
-          console.log(`🔄 Handoff tool params:`, JSON.stringify(params, null, 2));
-          
-          try {
-            const result = await this.agentHandoffExecutorService.executeHandoff({
-              fromAgentId: agentId,
-              toAgentId: handoff.toAgent.id,
-              workspaceId,
-              reason: params.loadingMessage || 'Handoff to specialized agent',
-              context: JSON.stringify(params.input?.messages || []),
-            });
+          console.log(`🔄 Handoff tool params:`, JSON.stringify(input, null, 2));
 
-            console.log(`🔄 Handoff result:`, JSON.stringify(result, null, 2));
-            return result;
-          } catch (error) {
-            console.error(`🔄 Handoff error:`, error);
-            throw error;
-          }
+          const handoffRequest: HandoffRequest = {
+            fromAgentId: agentId,
+            toAgentId: handoff.toAgent.id,
+            workspaceId,
+            messages: input.messages,
+            isStreaming: true, // Tools are executed during streaming
+          };
+
+          return this.agentHandoffExecutorService.executeHandoff(
+            handoffRequest,
+            executionContext,
+          );
         },
       };
 
@@ -64,7 +66,7 @@ export class AgentHandoffToolService {
     }, {});
 
     console.log(`🔄 Generated ${Object.keys(handoffTools).length} handoff tools:`, Object.keys(handoffTools));
-    
+
     return handoffTools;
   }
 }

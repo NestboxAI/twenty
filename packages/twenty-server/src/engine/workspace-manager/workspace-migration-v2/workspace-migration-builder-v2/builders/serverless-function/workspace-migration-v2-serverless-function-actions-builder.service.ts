@@ -1,54 +1,77 @@
 import { Injectable } from '@nestjs/common';
 
-import { FlatServerlessFunction } from 'src/engine/metadata-modules/serverless-function/types/flat-serverless-function.type';
-import { compareTwoFlatServerlessFunction } from 'src/engine/metadata-modules/serverless-function/utils/compare-two-flat-serverless-function.util';
+import { ALL_METADATA_NAME } from 'twenty-shared/metadata';
+
+import { findFlatEntityByIdInFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps.util';
+import { UpdateServerlessFunctionAction } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/builders/serverless-function/types/workspace-migration-serverless-function-action-v2.type';
 import {
-  FlatEntityUpdateValidationArgs,
-  FlatEntityValidationArgs,
-  FlatEntityValidationReturnType,
+  ValidateAndBuildArgs,
+  ValidateAndBuildReturnType,
   WorkspaceEntityMigrationBuilderV2Service,
 } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/services/workspace-entity-migration-builder-v2.service';
-import {
-  UpdateServerlessFunctionAction,
-  WorkspaceMigrationServerlessFunctionActionV2,
-} from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/workspace-migration-serverless-function-action-v2.type';
-import {
-  FlatServerlessFunctionValidatorService,
-  ServerlessFunctionRelatedFlatEntityMaps,
-} from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/validators/services/flat-serverless-function-validator.service';
+import { FlatEntityUpdateValidationArgs } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/flat-entity-update-validation-args.type';
+import { FlatEntityValidationArgs } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/flat-entity-validation-args.type';
+import { FlatEntityValidationReturnType } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/flat-entity-validation-result.type';
+import { FlatServerlessFunctionValidatorService } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/validators/services/flat-serverless-function-validator.service';
 
 @Injectable()
 export class WorkspaceMigrationV2ServerlessFunctionActionsBuilderService extends WorkspaceEntityMigrationBuilderV2Service<
-  FlatServerlessFunction,
-  WorkspaceMigrationServerlessFunctionActionV2,
-  ServerlessFunctionRelatedFlatEntityMaps
+  typeof ALL_METADATA_NAME.serverlessFunction
 > {
   constructor(
     private readonly flatServerlessFunctionValidatorService: FlatServerlessFunctionValidatorService,
   ) {
-    super();
+    super(ALL_METADATA_NAME.serverlessFunction);
   }
 
-  protected async validateFlatEntityCreation({
-    dependencyOptimisticFlatEntityMaps,
-    flatEntityToValidate: flatServerlessFunctionToValidate,
-    optimisticFlatEntityMaps: optimisticFlatServerlessFunctionMaps,
-  }: FlatEntityValidationArgs<
-    FlatServerlessFunction,
-    ServerlessFunctionRelatedFlatEntityMaps
-  >): Promise<
+  public async validateAndBuild(
+    args: ValidateAndBuildArgs<typeof ALL_METADATA_NAME.serverlessFunction>,
+  ): Promise<
+    ValidateAndBuildReturnType<typeof ALL_METADATA_NAME.serverlessFunction>
+  > {
+    const { to: toFlatEntityMaps } = args;
+    const baseResult = await super.validateAndBuild(args);
+
+    if (baseResult.status === 'fail') {
+      return baseResult;
+    }
+
+    const updatedActions = baseResult.actions.updated.map((action) => {
+      if (action.type !== 'update_serverless_function') {
+        return action;
+      }
+
+      const toServerlessFunction = findFlatEntityByIdInFlatEntityMaps({
+        flatEntityId: action.serverlessFunctionId,
+        flatEntityMaps: toFlatEntityMaps,
+      });
+
+      return {
+        ...action,
+        code: toServerlessFunction?.code,
+      };
+    });
+
+    return {
+      ...baseResult,
+      actions: {
+        ...baseResult.actions,
+        updated: updatedActions,
+      },
+    };
+  }
+
+  protected async validateFlatEntityCreation(
+    args: FlatEntityValidationArgs<typeof ALL_METADATA_NAME.serverlessFunction>,
+  ): Promise<
     FlatEntityValidationReturnType<
-      WorkspaceMigrationServerlessFunctionActionV2,
-      FlatServerlessFunction
+      typeof ALL_METADATA_NAME.serverlessFunction,
+      'created'
     >
   > {
     const validationResult =
       await this.flatServerlessFunctionValidatorService.validateFlatServerlessFunctionCreation(
-        {
-          flatServerlessFunctionToValidate,
-          optimisticFlatServerlessFunctionMaps,
-          dependencyOptimisticFlatEntityMaps,
-        },
+        args,
       );
 
     if (validationResult.errors.length > 0) {
@@ -57,6 +80,11 @@ export class WorkspaceMigrationV2ServerlessFunctionActionsBuilderService extends
         ...validationResult,
       };
     }
+
+    const {
+      flatEntityToValidate: flatServerlessFunctionToValidate,
+      dependencyOptimisticFlatEntityMaps,
+    } = args;
 
     return {
       status: 'success',
@@ -64,29 +92,21 @@ export class WorkspaceMigrationV2ServerlessFunctionActionsBuilderService extends
         type: 'create_serverless_function',
         serverlessFunction: flatServerlessFunctionToValidate,
       },
+      dependencyOptimisticFlatEntityMaps,
     };
   }
 
-  protected async validateFlatEntityDeletion({
-    dependencyOptimisticFlatEntityMaps,
-    flatEntityToValidate: flatServerlessFunctionToValidate,
-    optimisticFlatEntityMaps: optimisticFlatServerlessFunctionMaps,
-  }: FlatEntityValidationArgs<
-    FlatServerlessFunction,
-    ServerlessFunctionRelatedFlatEntityMaps
-  >): Promise<
+  protected async validateFlatEntityDeletion(
+    args: FlatEntityValidationArgs<typeof ALL_METADATA_NAME.serverlessFunction>,
+  ): Promise<
     FlatEntityValidationReturnType<
-      WorkspaceMigrationServerlessFunctionActionV2,
-      FlatServerlessFunction
+      typeof ALL_METADATA_NAME.serverlessFunction,
+      'deleted'
     >
   > {
     const validationResult =
       this.flatServerlessFunctionValidatorService.validateFlatServerlessFunctionDeletion(
-        {
-          flatServerlessFunctionToValidate,
-          optimisticFlatServerlessFunctionMaps,
-          dependencyOptimisticFlatEntityMaps,
-        },
+        args,
       );
 
     if (validationResult.errors.length > 0) {
@@ -95,6 +115,11 @@ export class WorkspaceMigrationV2ServerlessFunctionActionsBuilderService extends
         ...validationResult,
       };
     }
+
+    const {
+      flatEntityToValidate: flatServerlessFunctionToValidate,
+      dependencyOptimisticFlatEntityMaps,
+    } = args;
 
     return {
       status: 'success',
@@ -102,43 +127,23 @@ export class WorkspaceMigrationV2ServerlessFunctionActionsBuilderService extends
         type: 'delete_serverless_function',
         serverlessFunctionId: flatServerlessFunctionToValidate.id,
       },
+      dependencyOptimisticFlatEntityMaps,
     };
   }
 
-  protected async validateFlatEntityUpdate({
-    dependencyOptimisticFlatEntityMaps,
-    flatEntityUpdate: {
-      from: fromFlatServerlessFunction,
-      to: toFlatServerlessFunction,
-    },
-    optimisticFlatEntityMaps: optimisticFlatServerlessFunctionMaps,
-  }: FlatEntityUpdateValidationArgs<
-    FlatServerlessFunction,
-    ServerlessFunctionRelatedFlatEntityMaps
-  >): Promise<
-    | FlatEntityValidationReturnType<
-        WorkspaceMigrationServerlessFunctionActionV2,
-        FlatServerlessFunction
-      >
-    | undefined
+  protected async validateFlatEntityUpdate(
+    args: FlatEntityUpdateValidationArgs<
+      typeof ALL_METADATA_NAME.serverlessFunction
+    >,
+  ): Promise<
+    FlatEntityValidationReturnType<
+      typeof ALL_METADATA_NAME.serverlessFunction,
+      'updated'
+    >
   > {
-    const serverlessFunctionUpdatedProperties =
-      compareTwoFlatServerlessFunction({
-        fromFlatServerlessFunction,
-        toFlatServerlessFunction,
-      });
-
-    if (serverlessFunctionUpdatedProperties.length === 0) {
-      return undefined;
-    }
-
     const validationResult =
       this.flatServerlessFunctionValidatorService.validateFlatServerlessFunctionUpdate(
-        {
-          flatServerlessFunctionToValidate: toFlatServerlessFunction,
-          optimisticFlatServerlessFunctionMaps,
-          dependencyOptimisticFlatEntityMaps,
-        },
+        args,
       );
 
     if (validationResult.errors.length > 0) {
@@ -148,16 +153,22 @@ export class WorkspaceMigrationV2ServerlessFunctionActionsBuilderService extends
       };
     }
 
+    const {
+      dependencyOptimisticFlatEntityMaps,
+      flatEntityId,
+      flatEntityUpdates,
+    } = args;
+
     const updateServerlessFunctionAction: UpdateServerlessFunctionAction = {
       type: 'update_serverless_function',
-      serverlessFunctionId: toFlatServerlessFunction.id,
-      updates: serverlessFunctionUpdatedProperties,
-      code: toFlatServerlessFunction.code,
+      serverlessFunctionId: flatEntityId,
+      updates: flatEntityUpdates,
     };
 
     return {
       status: 'success',
       action: updateServerlessFunctionAction,
+      dependencyOptimisticFlatEntityMaps,
     };
   }
 }

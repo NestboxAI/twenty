@@ -7,6 +7,7 @@ import {
   type workflowCreateRecordActionSchema,
   type workflowCronTriggerSchema,
   type workflowDatabaseEventTriggerSchema,
+  type workflowDelayActionSchema,
   type workflowDeleteRecordActionSchema,
   type workflowEmptyActionSchema,
   type workflowFilterActionSchema,
@@ -23,6 +24,7 @@ import {
   type workflowSendEmailActionSchema,
   type workflowTriggerSchema,
   type workflowUpdateRecordActionSchema,
+  type workflowUpsertRecordActionSchema,
   type workflowWebhookTriggerSchema,
 } from 'twenty-shared/workflow';
 import { type z } from 'zod';
@@ -40,9 +42,13 @@ export type WorkflowUpdateRecordAction = z.infer<
 export type WorkflowDeleteRecordAction = z.infer<
   typeof workflowDeleteRecordActionSchema
 >;
+export type WorkflowUpsertRecordAction = z.infer<
+  typeof workflowUpsertRecordActionSchema
+>;
 export type WorkflowFindRecordsAction = z.infer<
   typeof workflowFindRecordsActionSchema
 >;
+export type WorkflowDelayAction = z.infer<typeof workflowDelayActionSchema>;
 export type WorkflowFilterAction = z.infer<typeof workflowFilterActionSchema>;
 export type WorkflowFormAction = z.infer<typeof workflowFormActionSchema>;
 export type WorkflowHttpRequestAction = z.infer<
@@ -64,18 +70,19 @@ export type WorkflowAction =
   | WorkflowCreateRecordAction
   | WorkflowUpdateRecordAction
   | WorkflowDeleteRecordAction
+  | WorkflowUpsertRecordAction
   | WorkflowFindRecordsAction
   | WorkflowFilterAction
   | WorkflowFormAction
   | WorkflowHttpRequestAction
   | WorkflowAiAgentAction
   | WorkflowIteratorAction
-  | WorkflowEmptyAction
-  | WorkflowNestboxAiAgentAction;
+  | WorkflowNestboxAiAgentAction
+  | WorkflowDelayAction
+  | WorkflowEmptyAction;
 
 export type WorkflowActionType = WorkflowAction['type'];
 export type WorkflowStep = WorkflowAction;
-export type WorkflowStepType = WorkflowStep['type'];
 
 export type WorkflowDatabaseEventTrigger = z.infer<
   typeof workflowDatabaseEventTriggerSchema
@@ -137,7 +144,9 @@ export type Workflow = {
   __typename: 'Workflow';
   id: string;
   name: string;
-  versions: Array<WorkflowVersion>;
+  versions: Array<
+    Pick<WorkflowVersion, 'id' | 'status' | 'name' | 'createdAt'>
+  >;
   lastPublishedVersionId: string;
   statuses: Array<WorkflowStatus> | null;
 };

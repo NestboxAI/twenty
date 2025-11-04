@@ -19,6 +19,11 @@ export const getFlatFieldMetadataMock = <T extends FieldMetadataType>(
   const createdAt = '2024-01-01T00:00:00.000Z' as unknown as Date;
 
   return {
+    calendarViewIds: [],
+    viewFilterIds: [],
+    viewGroupIds: [],
+    kanbanAggregateOperationViewIds: [],
+    viewFieldIds: [],
     createdAt,
     updatedAt: createdAt,
     defaultValue: null,
@@ -40,9 +45,8 @@ export const getFlatFieldMetadataMock = <T extends FieldMetadataType>(
     standardId: null,
     standardOverrides: null,
     workspaceId: faker.string.uuid(),
-    flatRelationTargetFieldMetadata: null,
+    applicationId: faker.string.uuid(),
     relationTargetFieldMetadataId: null,
-    flatRelationTargetObjectMetadata: null,
     relationTargetObjectMetadataId: null,
     ...overrides,
   };

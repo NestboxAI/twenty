@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-import { UUIDScalarType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/scalars';
+// import { UUIDScalarType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/scalars';
 
 @ObjectType()
 export class AuthToken {
@@ -17,35 +17,35 @@ export class ApiKeyToken {
   token: string;
 }
 
-@ObjectType()
-export class AuthTokenPair {
-  @Field(() => AuthToken)
-  accessOrWorkspaceAgnosticToken: AuthToken;
+// @ObjectType()
+// export class AuthTokenPair {
+//   @Field(() => AuthToken)
+//   accessOrWorkspaceAgnosticToken: AuthToken;
 
-  @Field(() => AuthToken)
-  refreshToken: AuthToken;
-}
+//   @Field(() => AuthToken)
+//   refreshToken: AuthToken;
+// }
 
-@ObjectType()
-export class AuthTokens {
-  @Field(() => AuthTokenPair)
-  tokens: AuthTokenPair;
-}
+// @ObjectType()
+// export class AuthTokens {
+//   @Field(() => AuthTokenPair)
+//   tokens: AuthTokenPair;
+// }
 
-@ObjectType()
-export class PasswordResetToken {
-  @Field(() => String)
-  passwordResetToken: string;
+// @ObjectType()
+// export class PasswordResetToken {
+//   @Field(() => String)
+//   passwordResetToken: string;
 
-  @Field(() => Date)
-  passwordResetTokenExpiresAt: Date;
+//   @Field(() => Date)
+//   passwordResetTokenExpiresAt: Date;
 
-  @Field(() => UUIDScalarType)
-  workspaceId: string;
-}
+//   @Field(() => UUIDScalarType)
+//   workspaceId: string;
+// }
 
-@ObjectType()
-export class WorkspaceAgnosticToken {
-  @Field(() => AuthToken)
-  token: AuthToken;
-}
+// @ObjectType()
+// export class WorkspaceAgnosticToken {
+//   @Field(() => AuthToken)
+//   token: AuthToken;
+// }

@@ -6,11 +6,11 @@ import { FormTextFieldInput } from '@/object-record/record-field/ui/form-types/c
 import { Select } from '@/ui/input/components/Select';
 import { type WorkflowNestboxAiAgentAction } from '@/workflow/types/Workflow';
 import { WorkflowStepBody } from '@/workflow/workflow-steps/components/WorkflowStepBody';
-import { WorkflowStepHeader } from '@/workflow/workflow-steps/components/WorkflowStepHeader';
+import { SidePanelHeader } from '@/command-menu/components/SidePanelHeader';
 import { useWorkflowActionHeader } from '@/workflow/workflow-steps/workflow-actions/hooks/useWorkflowActionHeader';
 import { WorkflowOutputSchemaBuilder } from '@/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder';
 import { WorkflowVariablePicker } from '@/workflow/workflow-variables/components/WorkflowVariablePicker';
-import { type BaseOutputSchemaDeprecated } from '@/workflow/workflow-variables/types/BaseOutputSchemaV2';
+import { type BaseOutputSchemaV2 as BaseOutputSchemaDeprecated } from 'twenty-shared/workflow';
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { isDefined } from 'twenty-shared/utils';
@@ -267,7 +267,7 @@ export const WorkflowEditActionNestboxAiAgent = ({
 
   return (
     <>
-      <WorkflowStepHeader
+      <SidePanelHeader
         onTitleChange={(newName: string) => {
           if (actionOptions.readonly === true) return;
           actionOptions.onActionUpdate?.({ ...action, name: newName });

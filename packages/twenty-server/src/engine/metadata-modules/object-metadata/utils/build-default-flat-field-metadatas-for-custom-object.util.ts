@@ -7,11 +7,12 @@ import {
   BASE_OBJECT_STANDARD_FIELD_IDS,
   CUSTOM_OBJECT_STANDARD_FIELD_IDS,
 } from 'src/engine/workspace-manager/workspace-sync-metadata/constants/standard-field-ids';
+import { createDeterministicUuid } from 'src/engine/workspace-manager/workspace-sync-metadata/utils/create-deterministic-uuid.util';
 import { getTsVectorColumnExpressionFromFields } from 'src/engine/workspace-manager/workspace-sync-metadata/utils/get-ts-vector-column-expression.util';
 
 type BuildDefaultFlatFieldMetadataForCustomObjectArgs = {
   workspaceId: string;
-  flatObjectMetadata: Pick<FlatObjectMetadata, 'id'>;
+  flatObjectMetadata: Pick<FlatObjectMetadata, 'id' | 'applicationId'>;
 };
 
 export type DefaultFlatFieldForCustomObjectMaps = ReturnType<
@@ -20,16 +21,23 @@ export type DefaultFlatFieldForCustomObjectMaps = ReturnType<
 // This could be replaced totally by an import schema + its transpilation when it's ready
 export const buildDefaultFlatFieldMetadatasForCustomObject = ({
   workspaceId,
-  flatObjectMetadata: { id: objectMetadataId },
+  flatObjectMetadata: { id: objectMetadataId, applicationId },
 }: BuildDefaultFlatFieldMetadataForCustomObjectArgs) => {
   const createdAt = new Date();
   const idField: FlatFieldMetadata<FieldMetadataType.UUID> = {
     type: FieldMetadataType.UUID,
     id: v4(),
+    viewFieldIds: [],
+    viewGroupIds: [],
+    kanbanAggregateOperationViewIds: [],
+    calendarViewIds: [],
     isLabelSyncedWithName: false,
     isUnique: true,
     objectMetadataId,
-    universalIdentifier: BASE_OBJECT_STANDARD_FIELD_IDS.id,
+    universalIdentifier: createDeterministicUuid([
+      objectMetadataId,
+      BASE_OBJECT_STANDARD_FIELD_IDS.id,
+    ]),
     workspaceId,
     standardId: BASE_OBJECT_STANDARD_FIELD_IDS.id,
     name: 'id',
@@ -42,26 +50,33 @@ export const buildDefaultFlatFieldMetadatasForCustomObject = ({
     isSystem: true,
     isUIReadOnly: true,
     defaultValue: 'uuid',
+    viewFilterIds: [],
 
     createdAt,
     updatedAt: createdAt,
-    flatRelationTargetFieldMetadata: null,
-    flatRelationTargetObjectMetadata: null,
     options: null,
     standardOverrides: null,
     relationTargetFieldMetadataId: null,
     relationTargetObjectMetadataId: null,
     settings: null,
     morphId: null,
+    applicationId: applicationId ?? null,
   };
 
   const nameField: FlatFieldMetadata<FieldMetadataType.TEXT> = {
     type: FieldMetadataType.TEXT,
     id: v4(),
+    viewFieldIds: [],
+    viewGroupIds: [],
+    kanbanAggregateOperationViewIds: [],
+    calendarViewIds: [],
     isLabelSyncedWithName: false,
     isUnique: false,
     objectMetadataId,
-    universalIdentifier: CUSTOM_OBJECT_STANDARD_FIELD_IDS.name,
+    universalIdentifier: createDeterministicUuid([
+      objectMetadataId,
+      CUSTOM_OBJECT_STANDARD_FIELD_IDS.name,
+    ]),
     workspaceId,
     standardId: CUSTOM_OBJECT_STANDARD_FIELD_IDS.name,
     name: 'name',
@@ -74,26 +89,33 @@ export const buildDefaultFlatFieldMetadatasForCustomObject = ({
     isSystem: false,
     isUIReadOnly: false,
     defaultValue: "''",
+    viewFilterIds: [],
 
     createdAt,
     updatedAt: createdAt,
-    flatRelationTargetFieldMetadata: null,
-    flatRelationTargetObjectMetadata: null,
     options: null,
     standardOverrides: null,
     relationTargetFieldMetadataId: null,
     relationTargetObjectMetadataId: null,
     settings: null,
     morphId: null,
+    applicationId: applicationId ?? null,
   };
 
   const createdAtField: FlatFieldMetadata<FieldMetadataType.DATE_TIME> = {
     type: FieldMetadataType.DATE_TIME,
     id: v4(),
+    viewFieldIds: [],
+    viewGroupIds: [],
+    kanbanAggregateOperationViewIds: [],
+    calendarViewIds: [],
     isLabelSyncedWithName: false,
     isUnique: false,
     objectMetadataId,
-    universalIdentifier: BASE_OBJECT_STANDARD_FIELD_IDS.createdAt,
+    universalIdentifier: createDeterministicUuid([
+      objectMetadataId,
+      BASE_OBJECT_STANDARD_FIELD_IDS.createdAt,
+    ]),
     workspaceId,
     standardId: BASE_OBJECT_STANDARD_FIELD_IDS.createdAt,
     name: 'createdAt',
@@ -106,26 +128,33 @@ export const buildDefaultFlatFieldMetadatasForCustomObject = ({
     isSystem: false,
     isUIReadOnly: true,
     defaultValue: 'now',
+    viewFilterIds: [],
 
     createdAt,
     updatedAt: createdAt,
-    flatRelationTargetFieldMetadata: null,
-    flatRelationTargetObjectMetadata: null,
     options: null,
     standardOverrides: null,
     relationTargetFieldMetadataId: null,
     relationTargetObjectMetadataId: null,
     settings: null,
     morphId: null,
+    applicationId: applicationId ?? null,
   };
 
   const updatedAtField: FlatFieldMetadata<FieldMetadataType.DATE_TIME> = {
     type: FieldMetadataType.DATE_TIME,
     id: v4(),
+    viewFieldIds: [],
+    viewGroupIds: [],
+    kanbanAggregateOperationViewIds: [],
+    calendarViewIds: [],
     isLabelSyncedWithName: false,
     isUnique: false,
     objectMetadataId,
-    universalIdentifier: BASE_OBJECT_STANDARD_FIELD_IDS.updatedAt,
+    universalIdentifier: createDeterministicUuid([
+      objectMetadataId,
+      BASE_OBJECT_STANDARD_FIELD_IDS.updatedAt,
+    ]),
     workspaceId,
     standardId: BASE_OBJECT_STANDARD_FIELD_IDS.updatedAt,
     name: 'updatedAt',
@@ -138,26 +167,33 @@ export const buildDefaultFlatFieldMetadatasForCustomObject = ({
     isSystem: false,
     isUIReadOnly: true,
     defaultValue: 'now',
+    viewFilterIds: [],
 
     createdAt,
     updatedAt: createdAt,
-    flatRelationTargetFieldMetadata: null,
-    flatRelationTargetObjectMetadata: null,
     options: null,
     standardOverrides: null,
     relationTargetFieldMetadataId: null,
     relationTargetObjectMetadataId: null,
     settings: null,
     morphId: null,
+    applicationId: applicationId ?? null,
   };
 
   const deletedAtField: FlatFieldMetadata<FieldMetadataType.DATE_TIME> = {
     type: FieldMetadataType.DATE_TIME,
     id: v4(),
+    viewFieldIds: [],
+    viewGroupIds: [],
+    kanbanAggregateOperationViewIds: [],
+    calendarViewIds: [],
     isLabelSyncedWithName: false,
     isUnique: false,
     objectMetadataId,
-    universalIdentifier: BASE_OBJECT_STANDARD_FIELD_IDS.deletedAt,
+    universalIdentifier: createDeterministicUuid([
+      objectMetadataId,
+      BASE_OBJECT_STANDARD_FIELD_IDS.deletedAt,
+    ]),
     workspaceId,
     standardId: BASE_OBJECT_STANDARD_FIELD_IDS.deletedAt,
     name: 'deletedAt',
@@ -170,26 +206,33 @@ export const buildDefaultFlatFieldMetadatasForCustomObject = ({
     isSystem: false,
     isUIReadOnly: true,
     defaultValue: null,
+    viewFilterIds: [],
 
     createdAt,
     updatedAt: createdAt,
-    flatRelationTargetFieldMetadata: null,
-    flatRelationTargetObjectMetadata: null,
     options: null,
     standardOverrides: null,
     relationTargetFieldMetadataId: null,
     relationTargetObjectMetadataId: null,
     settings: null,
     morphId: null,
+    applicationId: applicationId ?? null,
   };
 
   const createdByField: FlatFieldMetadata<FieldMetadataType.ACTOR> = {
     type: FieldMetadataType.ACTOR,
     id: v4(),
+    viewFieldIds: [],
+    viewGroupIds: [],
+    kanbanAggregateOperationViewIds: [],
+    calendarViewIds: [],
     isLabelSyncedWithName: false,
     isUnique: false,
     objectMetadataId,
-    universalIdentifier: CUSTOM_OBJECT_STANDARD_FIELD_IDS.createdBy,
+    universalIdentifier: createDeterministicUuid([
+      objectMetadataId,
+      CUSTOM_OBJECT_STANDARD_FIELD_IDS.createdBy,
+    ]),
     workspaceId,
     standardId: CUSTOM_OBJECT_STANDARD_FIELD_IDS.createdBy,
     name: 'createdBy',
@@ -202,26 +245,32 @@ export const buildDefaultFlatFieldMetadatasForCustomObject = ({
     isSystem: false,
     isUIReadOnly: true,
     defaultValue: { name: "''", source: "'MANUAL'" },
-
+    viewFilterIds: [],
     createdAt,
     updatedAt: createdAt,
-    flatRelationTargetFieldMetadata: null,
-    flatRelationTargetObjectMetadata: null,
     options: null,
     standardOverrides: null,
     relationTargetFieldMetadataId: null,
     relationTargetObjectMetadataId: null,
     settings: null,
     morphId: null,
+    applicationId: applicationId ?? null,
   };
 
   const positionField: FlatFieldMetadata<FieldMetadataType.POSITION> = {
     type: FieldMetadataType.POSITION,
     id: v4(),
+    viewFieldIds: [],
+    viewGroupIds: [],
+    kanbanAggregateOperationViewIds: [],
+    calendarViewIds: [],
     isLabelSyncedWithName: false,
     isUnique: false,
     objectMetadataId,
-    universalIdentifier: CUSTOM_OBJECT_STANDARD_FIELD_IDS.position,
+    universalIdentifier: createDeterministicUuid([
+      objectMetadataId,
+      CUSTOM_OBJECT_STANDARD_FIELD_IDS.position,
+    ]),
     workspaceId,
     standardId: CUSTOM_OBJECT_STANDARD_FIELD_IDS.position,
     name: 'position',
@@ -234,26 +283,33 @@ export const buildDefaultFlatFieldMetadatasForCustomObject = ({
     isSystem: true,
     isUIReadOnly: true,
     defaultValue: 0,
+    viewFilterIds: [],
 
     createdAt,
     updatedAt: createdAt,
-    flatRelationTargetFieldMetadata: null,
-    flatRelationTargetObjectMetadata: null,
     options: null,
     standardOverrides: null,
     relationTargetFieldMetadataId: null,
     relationTargetObjectMetadataId: null,
     settings: null,
     morphId: null,
+    applicationId: applicationId ?? null,
   };
 
   const searchVectorField: FlatFieldMetadata<FieldMetadataType.TS_VECTOR> = {
     type: FieldMetadataType.TS_VECTOR,
+    viewFieldIds: [],
+    viewGroupIds: [],
+    kanbanAggregateOperationViewIds: [],
+    calendarViewIds: [],
     id: v4(),
     isLabelSyncedWithName: false,
     isUnique: false,
     objectMetadataId,
-    universalIdentifier: CUSTOM_OBJECT_STANDARD_FIELD_IDS.searchVector,
+    universalIdentifier: createDeterministicUuid([
+      objectMetadataId,
+      CUSTOM_OBJECT_STANDARD_FIELD_IDS.searchVector,
+    ]),
     workspaceId,
     standardId: CUSTOM_OBJECT_STANDARD_FIELD_IDS.searchVector,
     name: 'searchVector',
@@ -266,11 +322,10 @@ export const buildDefaultFlatFieldMetadatasForCustomObject = ({
     isSystem: true,
     isUIReadOnly: true,
     defaultValue: null,
+    viewFilterIds: [],
 
     createdAt,
     updatedAt: createdAt,
-    flatRelationTargetFieldMetadata: null,
-    flatRelationTargetObjectMetadata: null,
     options: null,
     standardOverrides: null,
     relationTargetFieldMetadataId: null,
@@ -280,6 +335,7 @@ export const buildDefaultFlatFieldMetadatasForCustomObject = ({
       generatedType: 'STORED',
     },
     morphId: null,
+    applicationId: applicationId ?? null,
   };
 
   return {

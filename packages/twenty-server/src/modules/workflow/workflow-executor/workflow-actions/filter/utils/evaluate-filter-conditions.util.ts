@@ -8,23 +8,47 @@ import {
   type StepFilter,
   type StepFilterGroup,
   ViewFilterOperand,
+  type ViewFilterOperandDeprecated,
 } from 'twenty-shared/types';
+import { convertViewFilterOperandToCoreOperand as convertViewFilterOperandDeprecated } from 'twenty-shared/utils';
+import { parseBooleanFromStringValue } from 'twenty-shared/workflow';
 
 import { parseAndEvaluateRelativeDateFilter } from 'src/modules/workflow/workflow-executor/workflow-actions/filter/utils/parse-and-evaluate-relative-date-filter.util';
 
-type ResolvedFilter = Omit<StepFilter, 'value' | 'stepOutputKey'> & {
+type ResolvedFilterWithPotentiallyDeprecatedOperand = Omit<
+  StepFilter,
+  'value' | 'stepOutputKey' | 'operand'
+> & {
   rightOperand: unknown;
   leftOperand: unknown;
+  operand: ViewFilterOperand | ViewFilterOperandDeprecated;
 };
 
-function evaluateFilter(filter: ResolvedFilter): boolean {
+type ResolvedFilter = Omit<
+  StepFilter,
+  'value' | 'stepOutputKey' | 'operand'
+> & {
+  rightOperand: unknown;
+  leftOperand: unknown;
+  operand: ViewFilterOperand;
+};
+
+function evaluateFilter(
+  filter: ResolvedFilterWithPotentiallyDeprecatedOperand,
+): boolean {
+  const filterWithConvertedOperand = {
+    ...filter,
+    operand: convertViewFilterOperandDeprecated(filter.operand),
+  };
+
   switch (filter.type) {
     case 'NUMBER':
     case 'NUMERIC':
-      return evaluateNumberFilter(filter);
+    case 'number':
+      return evaluateNumberFilter(filterWithConvertedOperand);
     case 'DATE':
     case 'DATE_TIME':
-      return evaluateDateFilter(filter);
+      return evaluateDateFilter(filterWithConvertedOperand);
     case 'TEXT':
     case 'MULTI_SELECT':
     case 'FULL_NAME':
@@ -33,20 +57,22 @@ function evaluateFilter(filter: ResolvedFilter): boolean {
     case 'ADDRESS':
     case 'LINKS':
     case 'ARRAY':
+    case 'array':
     case 'RAW_JSON':
-      return evaluateTextAndArrayFilter(filter);
+      return evaluateTextAndArrayFilter(filterWithConvertedOperand);
     case 'SELECT':
-      return evaluateSelectFilter(filter);
+      return evaluateSelectFilter(filterWithConvertedOperand);
     case 'BOOLEAN':
-      return evaluateBooleanFilter(filter);
+    case 'boolean':
+      return evaluateBooleanFilter(filterWithConvertedOperand);
     case 'UUID':
-      return evaluateUuidFilter(filter);
+      return evaluateUuidFilter(filterWithConvertedOperand);
     case 'RELATION':
-      return evaluateRelationFilter(filter);
+      return evaluateRelationFilter(filterWithConvertedOperand);
     case 'CURRENCY':
-      return evaluateCurrencyFilter(filter);
+      return evaluateCurrencyFilter(filterWithConvertedOperand);
     default:
-      return evaluateDefaultFilter(filter);
+      return evaluateDefaultFilter(filterWithConvertedOperand);
   }
 }
 
@@ -146,7 +172,10 @@ function isNotEmptyTextOrArray(value: unknown): boolean {
 function evaluateBooleanFilter(filter: ResolvedFilter): boolean {
   switch (filter.operand) {
     case ViewFilterOperand.IS:
-      return Boolean(filter.leftOperand) === Boolean(filter.rightOperand);
+      return (
+        parseBooleanFromStringValue(filter.leftOperand) ===
+        parseBooleanFromStringValue(filter.rightOperand)
+      );
     default:
       throw new Error(
         `Operand ${filter.operand} not supported for boolean filter`,
@@ -241,6 +270,10 @@ function evaluateRelationFilter(filter: ResolvedFilter): boolean {
       return leftValue === rightValue;
     case ViewFilterOperand.IS_NOT:
       return leftValue !== rightValue;
+    case ViewFilterOperand.IS_EMPTY:
+      return !isNonEmptyString(leftValue);
+    case ViewFilterOperand.IS_NOT_EMPTY:
+      return isNonEmptyString(leftValue);
     default:
       throw new Error(
         `Operand ${filter.operand} not supported for relation filter`,

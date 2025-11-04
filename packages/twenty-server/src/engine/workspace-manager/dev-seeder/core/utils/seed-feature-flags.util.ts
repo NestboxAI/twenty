@@ -1,6 +1,7 @@
 import { type DataSource } from 'typeorm';
 
 import { FeatureFlagKey } from 'src/engine/core-modules/feature-flag/enums/feature-flag-key.enum';
+import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-workspaces.util';
 
 const tableName = 'featureFlag';
 
@@ -41,6 +42,11 @@ export const seedFeatureFlags = async (
         value: true,
       },
       {
+        key: FeatureFlagKey.IS_APPLICATION_ENABLED,
+        workspaceId: workspaceId,
+        value: true,
+      },
+      {
         key: FeatureFlagKey.IS_IMAP_SMTP_CALDAV_ENABLED,
         workspaceId: workspaceId,
         value: true,
@@ -53,7 +59,12 @@ export const seedFeatureFlags = async (
       {
         key: FeatureFlagKey.IS_WORKSPACE_MIGRATION_V2_ENABLED,
         workspaceId: workspaceId,
-        value: true,
+        value: workspaceId === SEED_APPLE_WORKSPACE_ID,
+      },
+      {
+        key: FeatureFlagKey.IS_COMMON_API_ENABLED,
+        workspaceId: workspaceId,
+        value: false,
       },
       {
         key: FeatureFlagKey.IS_PAGE_LAYOUT_ENABLED,
@@ -61,22 +72,12 @@ export const seedFeatureFlags = async (
         value: true,
       },
       {
-        key: FeatureFlagKey.IS_WORKFLOW_ITERATOR_ENABLED,
-        workspaceId: workspaceId,
-        value: false,
-      },
-      {
-        key: FeatureFlagKey.IS_DATABASE_EVENT_TRIGGER_ENABLED,
+        key: FeatureFlagKey.IS_RECORD_PAGE_LAYOUT_ENABLED,
         workspaceId: workspaceId,
         value: false,
       },
       {
         key: FeatureFlagKey.IS_CALENDAR_VIEW_ENABLED,
-        workspaceId: workspaceId,
-        value: true,
-      },
-      {
-        key: FeatureFlagKey.IS_GROUP_BY_ENABLED,
         workspaceId: workspaceId,
         value: true,
       },

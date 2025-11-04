@@ -2,7 +2,7 @@ import { useRecoilCallback } from 'recoil';
 
 import { contextStoreCurrentViewIdComponentState } from '@/context-store/states/contextStoreCurrentViewIdComponentState';
 import { useRecoilComponentCallbackState } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentCallbackState';
-import { usePersistViewGroupRecords } from '@/views/hooks/internal/usePersistViewGroupRecords';
+import { usePersistViewGroupRecords } from '@/views/hooks/internal/usePersistViewGroup';
 import { useGetViewFromPrefetchState } from '@/views/hooks/useGetViewFromPrefetchState';
 import { type ViewGroup } from '@/views/types/ViewGroup';
 import { isDefined } from 'twenty-shared/utils';
@@ -10,8 +10,7 @@ import { isDeeplyEqual } from '~/utils/isDeeplyEqual';
 import { isUndefinedOrNull } from '~/utils/isUndefinedOrNull';
 
 export const useSaveCurrentViewGroups = () => {
-  const { createViewGroupRecords, updateViewGroupRecords } =
-    usePersistViewGroupRecords();
+  const { createViewGroups, updateViewGroups } = usePersistViewGroupRecords();
 
   const { getViewFromPrefetchState } = useGetViewFromPrefetchState();
 
@@ -62,15 +61,21 @@ export const useSaveCurrentViewGroups = () => {
           return;
         }
 
-        await updateViewGroupRecords([
-          { ...viewGroupToSave, id: existingField.id },
+        await updateViewGroups([
+          {
+            input: {
+              id: existingField.id,
+              update: {
+                isVisible: viewGroupToSave.isVisible,
+                position: viewGroupToSave.position,
+                fieldMetadataId: viewGroupToSave.fieldMetadataId,
+                fieldValue: viewGroupToSave.fieldValue,
+              },
+            },
+          },
         ]);
       },
-    [
-      currentViewIdCallbackState,
-      getViewFromPrefetchState,
-      updateViewGroupRecords,
-    ],
+    [currentViewIdCallbackState, getViewFromPrefetchState, updateViewGroups],
   );
 
   const saveViewGroups = useRecoilCallback(
@@ -84,7 +89,7 @@ export const useSaveCurrentViewGroups = () => {
           return;
         }
 
-        const view = await getViewFromPrefetchState(currentViewId);
+        const view = getViewFromPrefetchState(currentViewId);
 
         if (isUndefinedOrNull(view)) {
           return;
@@ -118,7 +123,17 @@ export const useSaveCurrentViewGroups = () => {
               return undefined;
             }
 
-            return { ...viewGroupToSave, id: existingField.id };
+            return {
+              input: {
+                id: existingField.id,
+                update: {
+                  isVisible: viewGroupToSave.isVisible,
+                  position: viewGroupToSave.position,
+                  fieldMetadataId: viewGroupToSave.fieldMetadataId,
+                  fieldValue: viewGroupToSave.fieldValue,
+                },
+              },
+            };
           })
           .filter(isDefined);
 
@@ -131,15 +146,22 @@ export const useSaveCurrentViewGroups = () => {
         );
 
         await Promise.all([
-          createViewGroupRecords({ viewGroupsToCreate, viewId: view.id }),
-          updateViewGroupRecords(viewGroupsToUpdate),
+          createViewGroups(
+            viewGroupsToCreate.map(({ __typename, ...viewGroup }) => ({
+              input: {
+                ...viewGroup,
+                viewId: view.id,
+              },
+            })),
+          ),
+          updateViewGroups(viewGroupsToUpdate),
         ]);
       },
     [
-      createViewGroupRecords,
+      createViewGroups,
       currentViewIdCallbackState,
       getViewFromPrefetchState,
-      updateViewGroupRecords,
+      updateViewGroups,
     ],
   );
 

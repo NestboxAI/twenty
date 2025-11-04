@@ -4,6 +4,7 @@ import {
 } from '~/generated-metadata/graphql';
 import {
   AggregateOperations,
+  AxisNameDisplay,
   GraphOrderBy,
   GraphType,
 } from '~/generated/graphql';
@@ -49,11 +50,13 @@ describe('extractFieldMetadataIdsFromWidget', () => {
     const widget = createMockWidget({
       configuration: {
         __typename: 'BarChartConfiguration' as const,
-        graphType: GraphType.BAR,
+        graphType: GraphType.VERTICAL_BAR,
         aggregateFieldMetadataId: 'field-1',
         aggregateOperation: AggregateOperations.COUNT,
-        groupByFieldMetadataIdX: 'field-2',
-        orderByX: GraphOrderBy.FIELD_ASC,
+        primaryAxisGroupByFieldMetadataId: 'field-2',
+        primaryAxisOrderBy: GraphOrderBy.FIELD_ASC,
+        axisNameDisplay: AxisNameDisplay.BOTH,
+        displayDataLabel: false,
       },
       objectMetadataId: 'object-1',
     });
@@ -69,12 +72,14 @@ describe('extractFieldMetadataIdsFromWidget', () => {
     const widget = createMockWidget({
       configuration: {
         __typename: 'BarChartConfiguration' as const,
-        graphType: GraphType.BAR,
+        graphType: GraphType.VERTICAL_BAR,
         aggregateFieldMetadataId: 'field-1',
         aggregateOperation: AggregateOperations.COUNT,
-        groupByFieldMetadataIdX: 'field-2',
-        groupByFieldMetadataIdY: 'field-3',
-        orderByX: GraphOrderBy.FIELD_ASC,
+        primaryAxisGroupByFieldMetadataId: 'field-2',
+        secondaryAxisGroupByFieldMetadataId: 'field-3',
+        primaryAxisOrderBy: GraphOrderBy.FIELD_ASC,
+        axisNameDisplay: AxisNameDisplay.BOTH,
+        displayDataLabel: false,
       },
       objectMetadataId: 'object-1',
     });
@@ -94,8 +99,10 @@ describe('extractFieldMetadataIdsFromWidget', () => {
         graphType: GraphType.LINE,
         aggregateFieldMetadataId: 'field-1',
         aggregateOperation: AggregateOperations.SUM,
-        groupByFieldMetadataIdX: 'field-2',
-        orderByX: GraphOrderBy.FIELD_DESC,
+        primaryAxisGroupByFieldMetadataId: 'field-2',
+        primaryAxisOrderBy: GraphOrderBy.FIELD_DESC,
+        axisNameDisplay: AxisNameDisplay.BOTH,
+        displayDataLabel: false,
       },
       objectMetadataId: 'object-1',
     });
@@ -116,6 +123,7 @@ describe('extractFieldMetadataIdsFromWidget', () => {
         aggregateOperation: AggregateOperations.COUNT,
         groupByFieldMetadataId: 'field-2',
         orderBy: GraphOrderBy.FIELD_ASC,
+        displayDataLabel: false,
       },
       objectMetadataId: 'object-1',
     });
@@ -127,13 +135,14 @@ describe('extractFieldMetadataIdsFromWidget', () => {
     expect(result).toContain('field-2');
   });
 
-  it('should extract field IDs from NumberChartConfiguration', () => {
+  it('should extract field IDs from AggregateChartConfiguration', () => {
     const widget = createMockWidget({
       configuration: {
-        __typename: 'NumberChartConfiguration' as const,
-        graphType: GraphType.NUMBER,
+        __typename: 'AggregateChartConfiguration' as const,
+        graphType: GraphType.AGGREGATE,
         aggregateFieldMetadataId: 'field-1',
         aggregateOperation: AggregateOperations.AVG,
+        displayDataLabel: false,
       },
       objectMetadataId: 'object-1',
     });
@@ -151,29 +160,29 @@ describe('extractFieldMetadataIdsFromWidget', () => {
         graphType: GraphType.GAUGE,
         aggregateFieldMetadataId: 'field-1',
         aggregateOperation: AggregateOperations.SUM,
-        aggregateFieldMetadataIdTotal: 'field-2',
-        aggregateOperationTotal: AggregateOperations.COUNT,
+        displayDataLabel: false,
       },
       objectMetadataId: 'object-1',
     });
 
     const result = extractFieldMetadataIdsFromWidget(widget);
 
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(1);
     expect(result).toContain('field-1');
-    expect(result).toContain('field-2');
   });
 
   it('should not include undefined optional fields', () => {
     const widget = createMockWidget({
       configuration: {
         __typename: 'BarChartConfiguration' as const,
-        graphType: GraphType.BAR,
+        graphType: GraphType.VERTICAL_BAR,
         aggregateFieldMetadataId: 'field-1',
         aggregateOperation: AggregateOperations.COUNT,
-        groupByFieldMetadataIdX: 'field-2',
-        groupByFieldMetadataIdY: undefined,
-        orderByX: GraphOrderBy.FIELD_ASC,
+        primaryAxisGroupByFieldMetadataId: 'field-2',
+        secondaryAxisGroupByFieldMetadataId: undefined,
+        primaryAxisOrderBy: GraphOrderBy.FIELD_ASC,
+        axisNameDisplay: AxisNameDisplay.BOTH,
+        displayDataLabel: false,
       },
       objectMetadataId: 'object-1',
     });

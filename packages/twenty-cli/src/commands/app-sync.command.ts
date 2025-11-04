@@ -1,33 +1,42 @@
 import chalk from 'chalk';
+import { CURRENT_EXECUTION_DIRECTORY } from '../constants/current-execution-directory';
 import { ApiService } from '../services/api.service';
-import { resolveAppPath } from '../utils/app-path-resolver';
-import { syncApp } from '../utils/app-sync';
+import { ApiResponse } from '../types/config.types';
+import { loadManifest } from '../utils/app-manifest-loader';
 
 export class AppSyncCommand {
   private apiService = new ApiService();
 
-  async execute(options: { path?: string }): Promise<void> {
+  // TODO improve typing
+  async execute(
+    appPath: string = CURRENT_EXECUTION_DIRECTORY,
+  ): Promise<ApiResponse<any>> {
     try {
-      const appPath = await resolveAppPath(options.path);
-
       console.log(chalk.blue('🚀 Syncing Twenty Application'));
       console.log(chalk.gray(`📁 App Path: ${appPath}`));
       console.log('');
 
-      const result = await syncApp(appPath, this.apiService);
+      const { manifest, packageJson, yarnLock } = await loadManifest(appPath);
+
+      const result = await this.apiService.syncApplication({
+        manifest,
+        packageJson,
+        yarnLock,
+      });
 
       if (!result.success) {
         console.error(chalk.red('❌ Sync failed:'), result.error);
-        process.exit(1);
+      } else {
+        console.log(chalk.green('✅ Application synced successfully'));
       }
 
-      console.log(chalk.green('✅ Application synced successfully'));
+      return result;
     } catch (error) {
       console.error(
         chalk.red('Sync failed:'),
         error instanceof Error ? error.message : error,
       );
-      process.exit(1);
+      throw error;
     }
   }
 }

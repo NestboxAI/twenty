@@ -1,7 +1,8 @@
 // nestbox: it is part upgrade to 1.7.0
 import { type OutputSchemaField } from '@/ai/constants/OutputFieldTypeOptions';
+import { type InputSchemaPropertyType } from '@/workflow/types/InputSchema';
 import { WorkflowNestboxAiAgentAction } from '@/workflow/types/Workflow';
-import { type BaseOutputSchemaDeprecated } from '@/workflow/workflow-variables/types/BaseOutputSchemaV2';
+import { type BaseOutputSchemaV2 as BaseOutputSchemaDeprecated } from 'twenty-shared/workflow';
 import { useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 import { useDebouncedCallback } from 'use-debounce';
@@ -15,7 +16,12 @@ export const useNestboxAiAgentOutputSchema = (
   readonly?: boolean,
 ) => {
   const [outputFields, setOutputFields] = useState<OutputSchemaField[]>(
-    Object.entries(outputSchema || {}).map(([name, field]) => ({
+    Object.entries(
+      (outputSchema ?? {}) as Record<
+        string,
+        { type: InputSchemaPropertyType; description?: string }
+      >,
+    ).map(([name, field]) => ({
       id: v4(),
       name,
       type: field.type,

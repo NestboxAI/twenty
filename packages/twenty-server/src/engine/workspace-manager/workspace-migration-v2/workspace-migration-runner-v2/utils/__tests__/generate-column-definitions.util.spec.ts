@@ -42,7 +42,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: enumField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       expect(columns).toHaveLength(1);
@@ -54,6 +54,7 @@ describe('Generate Column Definitions', () => {
         type: `"${mockSchemaName}"."_person_status_enum"`,
         isArray: false,
         isNullable: true,
+        isPrimary: false,
         isUnique: false,
         default: 'NULL',
       });
@@ -85,7 +86,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: multiSelectField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       expect(columns).toHaveLength(1);
@@ -97,6 +98,7 @@ describe('Generate Column Definitions', () => {
         type: `"${mockSchemaName}"."_person_tags_enum"`,
         isArray: true,
         isNullable: true,
+        isPrimary: false,
         isUnique: false,
         default: 'NULL',
       });
@@ -115,7 +117,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: relationField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       // Relations without join columns must return empty array
@@ -136,7 +138,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: relationField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       expect(columns).toHaveLength(1);
@@ -147,6 +149,7 @@ describe('Generate Column Definitions', () => {
         name: 'companyId',
         type: 'uuid',
         isNullable: true,
+        isPrimary: false,
         isUnique: false,
         default: null,
         isArray: false,
@@ -166,7 +169,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: addressField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       expect(columns).toHaveLength(8);
@@ -187,6 +190,7 @@ describe('Generate Column Definitions', () => {
       // All composite columns must inherit parent nullable constraint
       columns.forEach((column) => {
         expect(column.isNullable).toBe(true);
+        expect(column.isPrimary).toBe(false);
         expect(column.isUnique).toBe(false);
         expect(column.default).toBe('NULL');
       });
@@ -206,7 +210,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: currencyField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       expect(columns).toHaveLength(2);
@@ -219,6 +223,7 @@ describe('Generate Column Definitions', () => {
         name: 'priceAmountMicros',
         type: 'numeric',
         isNullable: true,
+        isPrimary: false,
         isUnique: false,
         default: "'100000000'::numeric",
       });
@@ -227,6 +232,7 @@ describe('Generate Column Definitions', () => {
         name: 'priceCurrencyCode',
         type: 'text',
         isNullable: true,
+        isPrimary: false,
         isUnique: false,
         default: "'USD'::text",
       });
@@ -245,7 +251,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: textField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       expect(columns).toStrictEqual([
@@ -253,6 +259,7 @@ describe('Generate Column Definitions', () => {
           name: 'description',
           type: 'text',
           isNullable: true,
+          isPrimary: false,
           isUnique: false,
           default: 'NULL',
           isArray: false,
@@ -271,7 +278,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: booleanField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       expect(columns).toStrictEqual([
@@ -279,6 +286,7 @@ describe('Generate Column Definitions', () => {
           name: 'isActive',
           type: 'boolean',
           isNullable: true,
+          isPrimary: false,
           isUnique: false,
           default: "'true'::boolean",
           isArray: false,
@@ -298,7 +306,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: textField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       expect(columns).toStrictEqual([
@@ -306,6 +314,7 @@ describe('Generate Column Definitions', () => {
           name: 'content',
           type: 'text',
           isNullable: true,
+          isPrimary: false,
           isUnique: false,
           default: 'NULL',
           isArray: false,
@@ -323,7 +332,7 @@ describe('Generate Column Definitions', () => {
 
       const columns = generateColumnDefinitions({
         flatFieldMetadata: uuidField,
-        flatObjectMetadataWithoutFields: mockObjectMetadata,
+        flatObjectMetadata: mockObjectMetadata,
       });
 
       expect(columns).toStrictEqual([
@@ -331,6 +340,7 @@ describe('Generate Column Definitions', () => {
           name: 'uuid',
           type: 'uuid',
           isNullable: true,
+          isPrimary: false,
           isUnique: false,
           default: 'NULL',
           isArray: false,

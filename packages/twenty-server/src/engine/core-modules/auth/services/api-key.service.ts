@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 import { ApiKeyToken } from 'src/engine/core-modules/auth/dto/token.entity';
-import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
 import { JwtTokenTypeEnum } from 'src/engine/core-modules/auth/types/auth-context.type';
+import { JwtWrapperService } from 'src/engine/core-modules/jwt/services/jwt-wrapper.service';
 
 @Injectable()
 export class ApiKeyService {

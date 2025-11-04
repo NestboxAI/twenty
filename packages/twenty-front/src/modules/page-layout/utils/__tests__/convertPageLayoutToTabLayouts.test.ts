@@ -1,12 +1,12 @@
-import { AggregateOperations } from '@/object-record/record-table/constants/AggregateOperations';
 import { type PageLayout } from '@/page-layout/types/PageLayout';
 import { convertPageLayoutToTabLayouts } from '@/page-layout/utils/convertPageLayoutToTabLayouts';
 import {
+  AggregateOperations,
   GraphOrderBy,
   GraphType,
   PageLayoutType,
   WidgetType,
-} from '~/generated-metadata/graphql';
+} from '~/generated/graphql';
 
 describe('convertPageLayoutToTabLayouts', () => {
   it('should convert page layout to tab layouts', () => {
@@ -29,9 +29,10 @@ describe('convertPageLayoutToTabLayouts', () => {
               title: 'Widget 1',
               type: WidgetType.GRAPH,
               configuration: {
-                graphType: GraphType.NUMBER,
+                graphType: GraphType.AGGREGATE,
                 aggregateOperation: AggregateOperations.COUNT,
                 aggregateFieldMetadataId: 'id',
+                displayDataLabel: false,
               },
               gridPosition: { row: 0, column: 0, rowSpan: 2, columnSpan: 2 },
               objectMetadataId: 'object-metadata-1',
@@ -51,6 +52,7 @@ describe('convertPageLayoutToTabLayouts', () => {
                 aggregateFieldMetadataId: 'id',
                 groupByFieldMetadataId: 'status',
                 orderBy: GraphOrderBy.VALUE_DESC,
+                displayDataLabel: false,
               },
               gridPosition: { row: 2, column: 0, rowSpan: 2, columnSpan: 2 },
               objectMetadataId: 'object-metadata-1',
@@ -74,12 +76,12 @@ describe('convertPageLayoutToTabLayouts', () => {
     expect(result).toEqual({
       'tab-1': {
         desktop: [
-          { i: 'widget-1', x: 0, y: 0, w: 2, h: 2 },
-          { i: 'widget-2', x: 0, y: 2, w: 2, h: 2 },
+          { i: 'widget-1', x: 0, y: 0, w: 2, h: 2, minW: 2, minH: 2 },
+          { i: 'widget-2', x: 0, y: 2, w: 2, h: 2, minW: 3, minH: 4 },
         ],
         mobile: [
-          { i: 'widget-1', x: 0, y: 0, w: 1, h: 2 },
-          { i: 'widget-2', x: 0, y: 2, w: 1, h: 2 },
+          { i: 'widget-1', x: 0, y: 0, w: 1, h: 2, minW: 2, minH: 2 },
+          { i: 'widget-2', x: 0, y: 2, w: 1, h: 2, minW: 3, minH: 4 },
         ],
       },
     });

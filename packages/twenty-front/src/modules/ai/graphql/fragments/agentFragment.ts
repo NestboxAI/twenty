@@ -14,6 +14,7 @@ export const AGENT_FRAGMENT = gql`
     roleId
     isCustom
     modelConfiguration
+    applicationId
     createdAt
     updatedAt
   }
