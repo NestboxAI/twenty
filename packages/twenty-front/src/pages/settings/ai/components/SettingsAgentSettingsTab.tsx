@@ -2,6 +2,8 @@ import styled from '@emotion/styled';
 import { useLingui } from '@lingui/react/macro';
 
 import { useAiModelOptions } from '@/ai/hooks/useAiModelOptions';
+import { useMcpToolOptions } from '@/ai/hooks/useMcpToolOptions';
+import { ChipMultiSelect } from '@/ui/field/input/components/ChipMultiSelect';
 import { IconPicker } from '@/ui/input/components/IconPicker';
 import { Select } from '@/ui/input/components/Select';
 import { SettingsTextInput } from '@/ui/input/components/SettingsTextInput';
@@ -61,6 +63,7 @@ export const SettingsAgentSettingsTab = ({
   const { openModal } = useModal();
 
   const modelOptions = useAiModelOptions();
+  const { mcpToolOptions, isLoading: isLoadingTools } = useMcpToolOptions();
 
   const noModelsAvailable = modelOptions.length === 0;
 
@@ -148,6 +151,19 @@ export const SettingsAgentSettingsTab = ({
           value={formValues.prompt}
           onChange={(value) => onFieldChange('prompt', value)}
           disabled={disabled}
+        />
+      </StyledFormContainer>
+
+      {/* nestbox: it is part upgrade to 1.8.13 */}
+      <StyledFormContainer>
+        <ChipMultiSelect
+          options={mcpToolOptions}
+          disabled={isLoadingTools}
+          selectedKeys={formValues.mcpTools || []}
+          onChange={(value) => {
+            onFieldChange('mcpTools', value);
+          }}
+          label='Tools'
         />
       </StyledFormContainer>
 

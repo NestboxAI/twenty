@@ -120,7 +120,7 @@ export class AgentChatService {
     return this.messageRepository.find({
       where: { threadId },
       order: { createdAt: 'ASC' },
-      relations: ['parts', 'files'], // nestbox: applied patch while upgrading to 1.7.0 (it fixes existing twenty issue)
+      relations: ['parts'],
     });
   }
 

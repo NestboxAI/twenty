@@ -162,43 +162,43 @@ export class AiSetupCommand extends CommandRunner {
       // if (isAiEnabled && workspace.defaultAgentId) {
         if (isAiEnabled) {
         // Check if custom agent and handoff already exist
-        const existingHandoffs = await this.agentHandoffRepository.find({
-          where: {
-            // fromAgentId: workspace.defaultAgentId,
-            workspaceId: workspace.id,
-          },
-          relations: ['toAgent'],
-        });
+        // const existingHandoffs = await this.agentHandoffRepository.find({
+        //   where: {
+        //     // fromAgentId: workspace.defaultAgentId,
+        //     workspaceId: workspace.id,
+        //   },
+        //   relations: ['toAgent'],
+        // });
 
-        if (existingHandoffs.length > 0) {
-          this.logger.log('='.repeat(60));
-          this.logger.log('AI ALREADY SETUP WITH HANDOFF');
-          this.logger.log('='.repeat(60));
-          this.logger.log(
-            `AI is already enabled for workspace "${workspace.displayName}"`,
-          );
-          // this.logger.log(`Default agent ID: ${workspace.defaultAgentId}`);
-          this.logger.log(`Existing handoffs: ${existingHandoffs.length}`);
-          existingHandoffs.forEach((handoff, index) => {
-            this.logger.log(
-              `  ${index + 1}. → ${handoff.toAgent.name} (${handoff.toAgent.id})`,
-            );
-          });
-          this.logger.log(
-            'Skipping AI setup. AI functionality with handoffs is already configured.',
-          );
-          this.logger.log('='.repeat(60));
+        // if (existingHandoffs.length > 0) {
+        //   this.logger.log('='.repeat(60));
+        //   this.logger.log('AI ALREADY SETUP WITH HANDOFF');
+        //   this.logger.log('='.repeat(60));
+        //   this.logger.log(
+        //     `AI is already enabled for workspace "${workspace.displayName}"`,
+        //   );
+        //   // this.logger.log(`Default agent ID: ${workspace.defaultAgentId}`);
+        //   this.logger.log(`Existing handoffs: ${existingHandoffs.length}`);
+        //   existingHandoffs.forEach((handoff, index) => {
+        //     this.logger.log(
+        //       `  ${index + 1}. → ${handoff.toAgent.name} (${handoff.toAgent.id})`,
+        //     );
+        //   });
+        //   this.logger.log(
+        //     'Skipping AI setup. AI functionality with handoffs is already configured.',
+        //   );
+        //   this.logger.log('='.repeat(60));
 
-          return;
-        } else {
-          this.logger.log('='.repeat(60));
-          this.logger.log('AI PARTIALLY SETUP - ADDING HANDOFF');
-          this.logger.log('='.repeat(60));
-          this.logger.log(
-            `AI is enabled but no handoffs found. Adding custom agent and handoff...`,
-          );
-          this.logger.log('='.repeat(60));
-        }
+        //   return;
+        // } else {
+        //   this.logger.log('='.repeat(60));
+        //   this.logger.log('AI PARTIALLY SETUP - ADDING HANDOFF');
+        //   this.logger.log('='.repeat(60));
+        //   this.logger.log(
+        //     `AI is enabled but no handoffs found. Adding custom agent and handoff...`,
+        //   );
+        //   this.logger.log('='.repeat(60));
+        // }
       }
 
       const setupStart = performance.now();
@@ -226,18 +226,18 @@ export class AiSetupCommand extends CommandRunner {
         defaultAgent = await this.createAgent(workspace.id, role?.id, options);
 
         // Step 4: Set as default agent
-        await this.setDefaultAgent(workspace.id, defaultAgent.id);
+        // await this.setDefaultAgent(workspace.id, defaultAgent.id);
       }
 
       // Step 5: Get admin role for custom agent (needed for both full and partial setup)
       const role = await this.getRole(workspace.id);
 
       // Step 6: Create custom agent with tools capability
-      const customAgent = await this.createCustomAgent(
-        workspace.id,
-        role?.id,
-        options,
-      );
+      // const customAgent = await this.createCustomAgent(
+      //   workspace.id,
+      //   role?.id,
+      //   options,
+      // );
 
       // Step 7: Create handoff relationship from default agent to custom agent
       // const handoff = await this.createAgentHandoff(
@@ -279,15 +279,13 @@ export class AiSetupCommand extends CommandRunner {
         this.logger.log(
           `Agent Description: ${options.agentDescription || 'Your helpful AI assistant for workspace tasks and insights'}`,
         );
-        this.logger.log(`Set as Default Agent: ✅`);
       } else {
-        this.logger.log(`Using Existing Default Agent: ✅`);
       }
       this.logger.log(`Role: ${role?.label || 'No role assigned'}`);
       this.logger.log('');
       this.logger.log('CUSTOM AGENT DETAILS');
       this.logger.log('='.repeat(60));
-      this.logger.log(`Agent ID: ${customAgent.id}`);
+      // this.logger.log(`Agent ID: ${customAgent.id}`);
       this.logger.log(
         `Agent Name: ${options.customAgentName || 'custom-tools-agent'}`,
       );
@@ -297,20 +295,8 @@ export class AiSetupCommand extends CommandRunner {
       this.logger.log(
         `Agent Description: ${options.customAgentDescription || 'Custom AI agent with tool capabilities for advanced tasks'}`,
       );
-      this.logger.log(`Custom Agent (Tools Enabled): ✅`);
-      this.logger.log(`Role: ${role?.label || 'No role assigned'}`);
-      this.logger.log('');
-      this.logger.log('HANDOFF CONFIGURATION');
-      this.logger.log('='.repeat(60));
       // this.logger.log(`Handoff ID: ${handoff.id}`);
-      this.logger.log(
-        `From Agent: Default Agent → To Agent: ${options.customAgentName || 'custom-tools-agent'}`,
-      );
-      this.logger.log(`Handoff Enabled: ✅`);
       this.logger.log('');
-      this.logger.log(
-        'AI functionality with agent handoff is now ready for use!',
-      );
       this.logger.log('='.repeat(60));
     } catch (error) {
       this.logger.error('Failed to setup AI:', error.message);
@@ -449,7 +435,7 @@ export class AiSetupCommand extends CommandRunner {
           prompt:
             options.customAgentPrompt ||
             'You are a specialized AI assistant with access to custom tools and capabilities. You can perform advanced tasks, execute workflows, and use various tools to help users accomplish complex objectives. Always be precise, thorough, and leverage your tools effectively.',
-          modelId: 'gpt-4o',
+          modelId: 'auto',
           isCustom: true, // This is the key difference - allows tools
           ...(roleId && { roleId }),
         },
