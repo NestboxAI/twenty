@@ -5,6 +5,7 @@ import { FormMultiSelectFieldInput } from '@/object-record/record-field/ui/form-
 import { FormNumberFieldInput } from '@/object-record/record-field/ui/form-types/components/FormNumberFieldInput';
 import { FormTextFieldInput } from '@/object-record/record-field/ui/form-types/components/FormTextFieldInput';
 import { Select } from '@/ui/input/components/Select';
+import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
 import { type WorkflowNestboxAiAgentAction } from '@/workflow/types/Workflow';
 import { WorkflowStepBody } from '@/workflow/workflow-steps/components/WorkflowStepBody';
 import { WorkflowStepFooter } from '@/workflow/workflow-steps/components/WorkflowStepFooter';
@@ -285,6 +286,8 @@ export const WorkflowEditActionNestboxAiAgent = ({
             dropdownId="select-nestbox-agent"
             label={`Select Agent`}
             options={agentOptions}
+            withSearchInput
+            dropdownWidth={GenericDropdownContentWidth.ExtraLarge}
             value={action.settings.input.agentId || ''}
             onChange={(value) => handleFieldChange('agentId', value)}
             disabled={actionOptions.readonly || noAgentsAvailable}
