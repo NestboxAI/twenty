@@ -1,4 +1,5 @@
 import { useNestboxAiAgentOutputSchema } from '@/ai/hooks/useNestboxAiAgentOutputSchema';
+import { SidePanelHeader } from '@/command-menu/components/SidePanelHeader';
 import { FormBooleanFieldInput } from '@/object-record/record-field/ui/form-types/components/FormBooleanFieldInput';
 import { FormMultiSelectFieldInput } from '@/object-record/record-field/ui/form-types/components/FormMultiSelectFieldInput';
 import { FormNumberFieldInput } from '@/object-record/record-field/ui/form-types/components/FormNumberFieldInput';
@@ -6,14 +7,14 @@ import { FormTextFieldInput } from '@/object-record/record-field/ui/form-types/c
 import { Select } from '@/ui/input/components/Select';
 import { type WorkflowNestboxAiAgentAction } from '@/workflow/types/Workflow';
 import { WorkflowStepBody } from '@/workflow/workflow-steps/components/WorkflowStepBody';
-import { SidePanelHeader } from '@/command-menu/components/SidePanelHeader';
+import { WorkflowStepFooter } from '@/workflow/workflow-steps/components/WorkflowStepFooter';
 import { useWorkflowActionHeader } from '@/workflow/workflow-steps/workflow-actions/hooks/useWorkflowActionHeader';
 import { WorkflowOutputSchemaBuilder } from '@/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder';
 import { WorkflowVariablePicker } from '@/workflow/workflow-variables/components/WorkflowVariablePicker';
-import { type BaseOutputSchemaV2 as BaseOutputSchemaDeprecated } from 'twenty-shared/workflow';
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { isDefined } from 'twenty-shared/utils';
+import { type BaseOutputSchemaV2 as BaseOutputSchemaDeprecated } from 'twenty-shared/workflow';
 import { useIcons } from 'twenty-ui/display';
 import { type SelectOption } from 'twenty-ui/input';
 import { RightDrawerSkeletonLoader } from '~/loading/components/RightDrawerSkeletonLoader';
@@ -302,6 +303,9 @@ export const WorkflowEditActionNestboxAiAgent = ({
           readonly={actionOptions.readonly}
         />
       </WorkflowStepBody>
+      {!actionOptions.readonly && action.id && (
+        <WorkflowStepFooter stepId={action.id} />
+      )}
     </>
   );
 };
