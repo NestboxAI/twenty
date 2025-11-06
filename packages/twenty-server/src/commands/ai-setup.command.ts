@@ -208,7 +208,7 @@ export class AiSetupCommand extends CommandRunner {
 
       // Check if we're doing a partial setup (AI enabled but no handoffs)
       // if (isAiEnabled && workspace.defaultAgentId) {
-        if (isAiEnabled) {
+      if (isAiEnabled) {
         // Use existing default agent
         // defaultAgent = { id: workspace.defaultAgentId };
         isPartialSetup = true;
@@ -324,35 +324,22 @@ export class AiSetupCommand extends CommandRunner {
 
   private async getRole(workspaceId: string): Promise<RoleEntity | null> {
     try {
+      // Look for Admin role that can be assigned to agents
       const role = await this.roleRepository.findOne({
         where: {
           workspaceId,
-          label: 'Member',
+          label: 'Admin',
         },
       });
 
       if (!role) {
-        // Try to find any role for this workspace as fallback
-        const anyRole = await this.roleRepository.findOne({
-          where: { workspaceId },
-        });
-
-        if (anyRole) {
-          this.logger.warn(
-            `Member role not found for workspace ${workspaceId}, using role ${anyRole.label}`,
-          );
-
-          return anyRole;
-        }
-
         this.logger.warn(
-          `No roles found for workspace ${workspaceId}, agent will be created without role`,
+          `Admin role not found for workspace ${workspaceId}, agent will be created without role`,
         );
-
         return null;
       }
 
-      this.logger.log(`✅ Found member role for agent: ${role.label}`);
+      this.logger.log(`✅ Found Admin role for agent: ${role.label}`);
 
       return role;
     } catch (error) {
@@ -381,9 +368,9 @@ export class AiSetupCommand extends CommandRunner {
           prompt:
             options.agentPrompt ||
             'You are a helpful AI assistant for this workspace. You can help users with their tasks, provide insights about their data, answer questions, and guide them through workflows. Always be concise, clear, and helpful in your responses. Handoff to a specialized agent when advanced tools or capabilities are needed.',
-          modelId: 'gpt-4o',
-          isCustom: false,
-          ...(roleId && { roleId }),
+          modelId: 'auto',
+          isCustom: true,
+          // ...(roleId && { roleId }),
         },
         workspaceId,
       );
