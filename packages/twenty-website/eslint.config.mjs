@@ -11,6 +11,7 @@ import unicornPlugin from 'eslint-plugin-unicorn';
 import unusedImportsPlugin from 'eslint-plugin-unused-imports';
 import jsoncParser from 'jsonc-eslint-parser';
 
+
 export default [
   // Base JavaScript configuration
   js.configs.recommended,

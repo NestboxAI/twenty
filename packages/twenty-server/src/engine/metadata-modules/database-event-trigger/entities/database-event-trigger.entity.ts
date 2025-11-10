@@ -25,9 +25,9 @@ export const DATABASE_EVENT_TRIGGER_ENTITY_RELATION_PROPERTIES = [
 
 @Entity('databaseEventTrigger')
 @Index('IDX_DATABASE_EVENT_TRIGGER_WORKSPACE_ID', ['workspaceId'])
-export class DatabaseEventTrigger
+export class DatabaseEventTriggerEntity
   extends SyncableEntity
-  implements Required<DatabaseEventTrigger>
+  implements Required<DatabaseEventTriggerEntity>
 {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -43,8 +43,8 @@ export class DatabaseEventTrigger
   @JoinColumn({ name: 'serverlessFunctionId' })
   serverlessFunction: Relation<ServerlessFunctionEntity>;
 
-  @Column({ nullable: true, type: 'uuid' })
-  serverlessFunctionId: string | null;
+  @Column({ nullable: false, type: 'uuid' })
+  serverlessFunctionId: string;
 
   @Column({ nullable: false, type: 'uuid' })
   workspaceId: string;

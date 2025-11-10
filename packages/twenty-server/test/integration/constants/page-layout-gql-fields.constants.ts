@@ -26,13 +26,15 @@ export const PAGE_LAYOUT_WIDGET_CONFIGURATION_FIELDS = `
     graphType
     aggregateFieldMetadataId
     aggregateOperation
-    groupByFieldMetadataIdX
-    orderByX
-    groupByFieldMetadataIdY
-    orderByY
+    primaryAxisGroupByFieldMetadataId
+    primaryAxisGroupBySubFieldName
+    primaryAxisOrderBy
+    secondaryAxisGroupByFieldMetadataId
+    secondaryAxisGroupBySubFieldName
+    secondaryAxisOrderBy
     omitNullValues
-    xAxisName
-    yAxisName
+    axisNameDisplay
+    displayDataLabel
     rangeMin
     rangeMax
     filter
@@ -43,13 +45,15 @@ export const PAGE_LAYOUT_WIDGET_CONFIGURATION_FIELDS = `
     graphType
     aggregateFieldMetadataId
     aggregateOperation
-    groupByFieldMetadataIdX
-    orderByX
-    groupByFieldMetadataIdY
-    orderByY
+    primaryAxisGroupByFieldMetadataId
+    primaryAxisGroupBySubFieldName
+    primaryAxisOrderBy
+    secondaryAxisGroupByFieldMetadataId
+    secondaryAxisGroupBySubFieldName
+    secondaryAxisOrderBy
     omitNullValues
-    xAxisName
-    yAxisName
+    axisNameDisplay
+    displayDataLabel
     rangeMin
     rangeMax
     filter
@@ -62,17 +66,17 @@ export const PAGE_LAYOUT_WIDGET_CONFIGURATION_FIELDS = `
     aggregateFieldMetadataId
     aggregateOperation
     orderBy
+    displayDataLabel
     filter
     color
     description
   }
-  ... on NumberChartConfiguration {
+  ... on AggregateChartConfiguration {
     graphType
     aggregateFieldMetadataId
     aggregateOperation
     description
     filter
-    color
     format
     label
   }
@@ -80,8 +84,6 @@ export const PAGE_LAYOUT_WIDGET_CONFIGURATION_FIELDS = `
     graphType
     aggregateFieldMetadataId
     aggregateOperation
-    aggregateOperationTotal
-    aggregateFieldMetadataIdTotal
     description
     filter
   }

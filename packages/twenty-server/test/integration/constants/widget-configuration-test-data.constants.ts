@@ -1,4 +1,5 @@
 import { AggregateOperations } from 'src/engine/api/graphql/graphql-query-runner/constants/aggregate-operations.constant';
+import { AxisNameDisplay } from 'src/engine/core-modules/page-layout/enums/axis-name-display.enum';
 import { GraphOrderBy } from 'src/engine/core-modules/page-layout/enums/graph-order-by.enum';
 import { GraphType } from 'src/engine/core-modules/page-layout/enums/graph-type.enum';
 
@@ -16,29 +17,30 @@ export const TEST_IFRAME_CONFIG_ALTERNATIVE = {
 };
 
 export const TEST_NUMBER_CHART_CONFIG = {
-  graphType: GraphType.NUMBER,
+  graphType: GraphType.AGGREGATE,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.COUNT,
   label: 'Total Records',
   description: 'Count of all records',
-  color: 'blue',
   format: '0,0',
+  displayDataLabel: true,
 };
 
 export const TEST_NUMBER_CHART_CONFIG_MINIMAL = {
-  graphType: GraphType.NUMBER,
+  graphType: GraphType.AGGREGATE,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.SUM,
+  displayDataLabel: false,
 };
 
-export const TEST_BAR_CHART_CONFIG = {
-  graphType: GraphType.BAR,
+export const TEST_VERTICAL_BAR_CHART_CONFIG = {
+  graphType: GraphType.VERTICAL_BAR,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.SUM,
-  groupByFieldMetadataIdX: TEST_FIELD_METADATA_ID_2,
-  orderByX: GraphOrderBy.FIELD_ASC,
-  xAxisName: 'Month',
-  yAxisName: 'Revenue',
+  primaryAxisGroupByFieldMetadataId: TEST_FIELD_METADATA_ID_2,
+  primaryAxisOrderBy: GraphOrderBy.FIELD_ASC,
+  displayDataLabel: true,
+  axisNameDisplay: AxisNameDisplay.BOTH,
   color: 'red',
   description: 'Monthly revenue breakdown',
   omitNullValues: true,
@@ -46,24 +48,51 @@ export const TEST_BAR_CHART_CONFIG = {
   rangeMax: 100000,
 };
 
-export const TEST_BAR_CHART_CONFIG_MINIMAL = {
-  graphType: GraphType.BAR,
+export const TEST_VERTICAL_BAR_CHART_CONFIG_MINIMAL = {
+  graphType: GraphType.VERTICAL_BAR,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.COUNT,
-  groupByFieldMetadataIdX: TEST_FIELD_METADATA_ID_2,
-  orderByX: GraphOrderBy.VALUE_DESC,
+  primaryAxisGroupByFieldMetadataId: TEST_FIELD_METADATA_ID_2,
+  primaryAxisOrderBy: GraphOrderBy.VALUE_DESC,
+  displayDataLabel: false,
+  axisNameDisplay: AxisNameDisplay.NONE,
+};
+
+export const TEST_HORIZONTAL_BAR_CHART_CONFIG = {
+  graphType: GraphType.HORIZONTAL_BAR,
+  aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
+  aggregateOperation: AggregateOperations.SUM,
+  primaryAxisGroupByFieldMetadataId: TEST_FIELD_METADATA_ID_2,
+  primaryAxisOrderBy: GraphOrderBy.FIELD_ASC,
+  displayDataLabel: true,
+  axisNameDisplay: AxisNameDisplay.BOTH,
+  color: 'blue',
+  description: 'Horizontal revenue breakdown',
+  omitNullValues: true,
+  rangeMin: 0,
+  rangeMax: 100000,
+};
+
+export const TEST_HORIZONTAL_BAR_CHART_CONFIG_MINIMAL = {
+  graphType: GraphType.HORIZONTAL_BAR,
+  aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
+  aggregateOperation: AggregateOperations.COUNT,
+  primaryAxisGroupByFieldMetadataId: TEST_FIELD_METADATA_ID_2,
+  primaryAxisOrderBy: GraphOrderBy.VALUE_DESC,
+  displayDataLabel: false,
+  axisNameDisplay: AxisNameDisplay.NONE,
 };
 
 export const TEST_LINE_CHART_CONFIG = {
   graphType: GraphType.LINE,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.AVG,
-  groupByFieldMetadataIdX: TEST_FIELD_METADATA_ID_2,
-  orderByX: GraphOrderBy.FIELD_ASC,
-  groupByFieldMetadataIdY: TEST_FIELD_METADATA_ID_3,
-  orderByY: GraphOrderBy.FIELD_DESC,
-  xAxisName: 'Date',
-  yAxisName: 'Average Value',
+  primaryAxisGroupByFieldMetadataId: TEST_FIELD_METADATA_ID_2,
+  primaryAxisOrderBy: GraphOrderBy.FIELD_ASC,
+  secondaryAxisGroupByFieldMetadataId: TEST_FIELD_METADATA_ID_3,
+  secondaryAxisOrderBy: GraphOrderBy.FIELD_DESC,
+  displayDataLabel: true,
+  axisNameDisplay: AxisNameDisplay.BOTH,
   color: 'cyan',
   description: 'Trend over time',
   omitNullValues: false,
@@ -75,8 +104,10 @@ export const TEST_LINE_CHART_CONFIG_MINIMAL = {
   graphType: GraphType.LINE,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.MAX,
-  groupByFieldMetadataIdX: TEST_FIELD_METADATA_ID_2,
-  orderByX: GraphOrderBy.VALUE_ASC,
+  primaryAxisGroupByFieldMetadataId: TEST_FIELD_METADATA_ID_2,
+  primaryAxisOrderBy: GraphOrderBy.VALUE_ASC,
+  displayDataLabel: false,
+  axisNameDisplay: AxisNameDisplay.NONE,
 };
 
 export const TEST_PIE_CHART_CONFIG = {
@@ -85,6 +116,7 @@ export const TEST_PIE_CHART_CONFIG = {
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_2,
   aggregateOperation: AggregateOperations.SUM,
   orderBy: GraphOrderBy.VALUE_DESC,
+  displayDataLabel: true,
   color: 'yellow',
   description: 'Distribution by category',
   filter: {
@@ -104,15 +136,15 @@ export const TEST_PIE_CHART_CONFIG_MINIMAL = {
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_2,
   aggregateOperation: AggregateOperations.COUNT,
   orderBy: GraphOrderBy.FIELD_ASC,
+  displayDataLabel: false,
 };
 
 export const TEST_GAUGE_CHART_CONFIG = {
   graphType: GraphType.GAUGE,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.SUM,
-  aggregateOperationTotal: AggregateOperations.COUNT,
-  aggregateFieldMetadataIdTotal: TEST_FIELD_METADATA_ID_2,
   description: 'Completion percentage',
+  displayDataLabel: true,
   filter: {
     or: [
       {
@@ -128,8 +160,7 @@ export const TEST_GAUGE_CHART_CONFIG_MINIMAL = {
   graphType: GraphType.GAUGE,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.COUNT_TRUE,
-  aggregateOperationTotal: AggregateOperations.COUNT,
-  aggregateFieldMetadataIdTotal: TEST_FIELD_METADATA_ID_2,
+  displayDataLabel: false,
 };
 
 export const INVALID_IFRAME_CONFIG_BAD_URL = {
@@ -143,37 +174,51 @@ export const INVALID_IFRAME_CONFIG_EMPTY_URL = {
 };
 
 export const INVALID_NUMBER_CHART_CONFIG_MISSING_FIELDS = {
-  graphType: GraphType.NUMBER,
+  graphType: GraphType.AGGREGATE,
 };
 
 export const INVALID_NUMBER_CHART_CONFIG_BAD_UUID = {
-  graphType: GraphType.NUMBER,
+  graphType: GraphType.AGGREGATE,
   aggregateFieldMetadataId: 'not-a-uuid',
   aggregateOperation: AggregateOperations.COUNT,
 };
 
 export const INVALID_NUMBER_CHART_CONFIG_INVALID_OPERATION = {
-  graphType: GraphType.NUMBER,
+  graphType: GraphType.AGGREGATE,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: 'INVALID_OP' as any,
 };
 
-export const INVALID_BAR_CHART_CONFIG_MISSING_GROUP_BY = {
-  graphType: GraphType.BAR,
+export const INVALID_VERTICAL_BAR_CHART_CONFIG_MISSING_GROUP_BY = {
+  graphType: GraphType.VERTICAL_BAR,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.SUM,
 };
 
-export const INVALID_BAR_CHART_CONFIG_BAD_ORDER_BY = {
-  graphType: GraphType.BAR,
+export const INVALID_VERTICAL_BAR_CHART_CONFIG_BAD_ORDER_BY = {
+  graphType: GraphType.VERTICAL_BAR,
   aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
   aggregateOperation: AggregateOperations.SUM,
-  groupByFieldMetadataIdX: TEST_FIELD_METADATA_ID_2,
-  orderByX: 'INVALID_ORDER' as any,
+  primaryAxisGroupByFieldMetadataId: TEST_FIELD_METADATA_ID_2,
+  primaryAxisOrderBy: 'INVALID_ORDER' as any,
+};
+
+export const INVALID_HORIZONTAL_BAR_CHART_CONFIG_MISSING_GROUP_BY = {
+  graphType: GraphType.HORIZONTAL_BAR,
+  aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
+  aggregateOperation: AggregateOperations.SUM,
+};
+
+export const INVALID_HORIZONTAL_BAR_CHART_CONFIG_BAD_ORDER_BY = {
+  graphType: GraphType.HORIZONTAL_BAR,
+  aggregateFieldMetadataId: TEST_FIELD_METADATA_ID_1,
+  aggregateOperation: AggregateOperations.SUM,
+  primaryAxisGroupByFieldMetadataId: TEST_FIELD_METADATA_ID_2,
+  primaryAxisOrderBy: 'INVALID_ORDER' as any,
 };
 
 export const CONFIG_TYPE_MISMATCH_IFRAME_WITH_GRAPH = {
-  graphType: GraphType.NUMBER,
+  graphType: GraphType.AGGREGATE,
   url: 'https://example.com',
 };
 
@@ -183,7 +228,8 @@ export const CONFIG_TYPE_MISMATCH_GRAPH_WITH_IFRAME = {
 
 export const ALL_VALID_GRAPH_CONFIGS = [
   TEST_NUMBER_CHART_CONFIG,
-  TEST_BAR_CHART_CONFIG,
+  TEST_VERTICAL_BAR_CHART_CONFIG,
+  TEST_HORIZONTAL_BAR_CHART_CONFIG,
   TEST_LINE_CHART_CONFIG,
   TEST_PIE_CHART_CONFIG,
   TEST_GAUGE_CHART_CONFIG,
@@ -191,7 +237,8 @@ export const ALL_VALID_GRAPH_CONFIGS = [
 
 export const ALL_MINIMAL_GRAPH_CONFIGS = [
   TEST_NUMBER_CHART_CONFIG_MINIMAL,
-  TEST_BAR_CHART_CONFIG_MINIMAL,
+  TEST_VERTICAL_BAR_CHART_CONFIG_MINIMAL,
+  TEST_HORIZONTAL_BAR_CHART_CONFIG_MINIMAL,
   TEST_LINE_CHART_CONFIG_MINIMAL,
   TEST_PIE_CHART_CONFIG_MINIMAL,
   TEST_GAUGE_CHART_CONFIG_MINIMAL,
@@ -204,8 +251,10 @@ export const ALL_INVALID_CONFIGS = [
   INVALID_NUMBER_CHART_CONFIG_MISSING_FIELDS,
   INVALID_NUMBER_CHART_CONFIG_BAD_UUID,
   INVALID_NUMBER_CHART_CONFIG_INVALID_OPERATION,
-  INVALID_BAR_CHART_CONFIG_MISSING_GROUP_BY,
-  INVALID_BAR_CHART_CONFIG_BAD_ORDER_BY,
+  INVALID_VERTICAL_BAR_CHART_CONFIG_MISSING_GROUP_BY,
+  INVALID_VERTICAL_BAR_CHART_CONFIG_BAD_ORDER_BY,
+  INVALID_HORIZONTAL_BAR_CHART_CONFIG_MISSING_GROUP_BY,
+  INVALID_HORIZONTAL_BAR_CHART_CONFIG_BAD_ORDER_BY,
 ];
 
 export function getValidConfigForWidgetType(widgetType: string): any {
@@ -219,6 +268,12 @@ export function getValidConfigForWidgetType(widgetType: string): any {
     }
     case 'VIEW':
     case 'FIELDS':
+    case 'TIMELINE':
+    case 'TASKS':
+    case 'NOTES':
+    case 'FILES':
+    case 'EMAILS':
+    case 'CALENDAR':
       return null;
     default:
       return null;

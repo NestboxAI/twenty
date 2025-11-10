@@ -44,10 +44,16 @@ export const WorkflowDiagramStepNodeIcon = ({
         case 'FORM': {
           return <Icon size={theme.icon.size.md} color={theme.color.orange} />;
         }
-        case 'AI_AGENT': 
+        case 'AI_AGENT':
         case 'NESTBOX_AI_AGENT': {
           return <Icon size={theme.icon.size.md} color={theme.color.pink} />;
         }
+        case 'EMPTY':
+          return null;
+        case 'DELAY':
+        case 'FILTER':
+        case 'ITERATOR':
+          return <Icon size={theme.icon.size.md} color={theme.color.green60} />;
         default: {
           return (
             <Icon

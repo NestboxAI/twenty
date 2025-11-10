@@ -1,5 +1,6 @@
 import { type WorkflowAiAgentActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/ai-agent/types/workflow-ai-agent-action-settings.type';
 import { type WorkflowCodeActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/code/types/workflow-code-action-settings.type';
+import { type WorkflowDelayActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/delay/types/workflow-delay-action-settings.type';
 import { type WorkflowFilterActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/filter/types/workflow-filter-action-settings.type';
 import { type WorkflowFormActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/form/types/workflow-form-action-settings.type';
 import { type WorkflowHttpRequestActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/http-request/types/workflow-http-request-action-settings.type';
@@ -11,6 +12,7 @@ import {
   type WorkflowDeleteRecordActionSettings,
   type WorkflowFindRecordsActionSettings,
   type WorkflowUpdateRecordActionSettings,
+  type WorkflowUpsertRecordActionSettings,
 } from 'src/modules/workflow/workflow-executor/workflow-actions/record-crud/types/workflow-record-crud-action-settings.type';
 import { type WorkflowActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/types/workflow-action-settings.type';
 
@@ -20,6 +22,7 @@ export enum WorkflowActionType {
   CREATE_RECORD = 'CREATE_RECORD',
   UPDATE_RECORD = 'UPDATE_RECORD',
   DELETE_RECORD = 'DELETE_RECORD',
+  UPSERT_RECORD = 'UPSERT_RECORD',
   FIND_RECORDS = 'FIND_RECORDS',
   FORM = 'FORM',
   FILTER = 'FILTER',
@@ -28,6 +31,7 @@ export enum WorkflowActionType {
   ITERATOR = 'ITERATOR',
   EMPTY = 'EMPTY',
   NESTBOX_AI_AGENT = 'NESTBOX_AI_AGENT',
+  DELAY = 'DELAY',
 }
 
 type BaseWorkflowAction = {
@@ -66,6 +70,11 @@ export type WorkflowUpdateRecordAction = BaseWorkflowAction & {
 export type WorkflowDeleteRecordAction = BaseWorkflowAction & {
   type: WorkflowActionType.DELETE_RECORD;
   settings: WorkflowDeleteRecordActionSettings;
+};
+
+export type WorkflowUpsertRecordAction = BaseWorkflowAction & {
+  type: WorkflowActionType.UPSERT_RECORD;
+  settings: WorkflowUpsertRecordActionSettings;
 };
 
 export type WorkflowFindRecordsAction = BaseWorkflowAction & {
@@ -107,12 +116,18 @@ export type WorkflowNestboxAiAgentAction = BaseWorkflowAction & {
   settings: WorkflowNestboxAiAgentActionSettings;
 };
 
+export type WorkflowDelayAction = BaseWorkflowAction & {
+  type: WorkflowActionType.DELAY;
+  settings: WorkflowDelayActionSettings;
+};
+
 export type WorkflowAction =
   | WorkflowCodeAction
   | WorkflowSendEmailAction
   | WorkflowCreateRecordAction
   | WorkflowUpdateRecordAction
   | WorkflowDeleteRecordAction
+  | WorkflowUpsertRecordAction
   | WorkflowFindRecordsAction
   | WorkflowFormAction
   | WorkflowFilterAction
@@ -120,4 +135,5 @@ export type WorkflowAction =
   | WorkflowAiAgentAction
   | WorkflowIteratorAction
   | WorkflowEmptyAction
-  | WorkflowNestboxAiAgentAction;
+  | WorkflowNestboxAiAgentAction
+  | WorkflowDelayAction;

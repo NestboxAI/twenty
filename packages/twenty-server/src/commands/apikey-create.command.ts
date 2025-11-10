@@ -1,13 +1,13 @@
 // nestbox: v1.7.0 upgrade patch
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 
 import { Command, CommandRunner, Option } from 'nest-commander';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ApiKeyService } from 'src/engine/core-modules/api-key/api-key.service';
-import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { ADMIN_ROLE_LABEL } from 'src/engine/metadata-modules/permissions/constants/admin-role-label.constants';
 import { RoleService } from 'src/engine/metadata-modules/role/role.service';
 
@@ -29,15 +29,16 @@ interface ApiKeyCreateOptions {
 @Injectable()
 export class ApiKeyCreateCommand extends CommandRunner {
   private readonly logger = new Logger(ApiKeyCreateCommand.name);
+  private workspaceRepository: Repository<WorkspaceEntity>;
 
   constructor(
     private readonly apiKeyService: ApiKeyService,
     private readonly roleService: RoleService,
     private readonly apiKeyNotificationService: ApiKeyNotificationService,
-    @InjectRepository(Workspace)
-    private readonly workspaceRepository: Repository<Workspace>,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {
     super();
+    this.workspaceRepository = this.dataSource.getRepository(WorkspaceEntity);
   }
 
   @Option({
@@ -102,7 +103,7 @@ export class ApiKeyCreateCommand extends CommandRunner {
       this.logger.log('Starting API key creation process...');
 
       // Find workspace by name
-      let workspace: Workspace | null = null;
+      let workspace: WorkspaceEntity | null = null;
 
       // Find by name
       workspace = await this.workspaceRepository.findOne({

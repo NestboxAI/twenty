@@ -25,7 +25,10 @@ export const CRON_TRIGGER_ENTITY_RELATION_PROPERTIES = [
 
 @Entity({ name: 'cronTrigger', schema: 'core' })
 @Index('IDX_CRON_TRIGGER_WORKSPACE_ID', ['workspaceId'])
-export class CronTrigger extends SyncableEntity {
+export class CronTriggerEntity
+  extends SyncableEntity
+  implements Required<CronTriggerEntity>
+{
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -40,8 +43,8 @@ export class CronTrigger extends SyncableEntity {
   @JoinColumn({ name: 'serverlessFunctionId' })
   serverlessFunction: Relation<ServerlessFunctionEntity>;
 
-  @Column({ nullable: true, type: 'uuid' })
-  serverlessFunctionId: string | null;
+  @Column({ nullable: false, type: 'uuid' })
+  serverlessFunctionId: string;
 
   @Column({ nullable: false, type: 'uuid' })
   workspaceId: string;

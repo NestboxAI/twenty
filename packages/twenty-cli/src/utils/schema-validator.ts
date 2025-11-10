@@ -5,7 +5,10 @@ import {
   AGENT_SCHEMA_URL,
   APP_MANIFEST_SCHEMA_URL,
   OBJECT_SCHEMA_URL,
+  SERVERLESS_FUNCTION_SCHEMA_URL,
+  TRIGGER_SCHEMA_URL,
 } from '../constants/schemas';
+import { BASE_SCHEMAS_PATH } from '../constants/constants-path';
 
 export class SchemaValidationError extends Error {
   constructor(
@@ -31,7 +34,7 @@ const formatErrors = (errors: any[]): string => {
 };
 
 export const validateSchema = async (
-  schemaName: 'app-manifest' | 'agent' | 'object',
+  schemaName: 'appManifest' | 'agent' | 'object' | 'serverlessFunction',
   manifest: any,
   filePath?: string,
 ): Promise<void> => {
@@ -39,18 +42,18 @@ export const validateSchema = async (
     allErrors: true,
     verbose: true,
     strict: false,
+    $data: true,
   });
 
   const schemaUrls = getSchemaUrls();
+
   let schema;
 
   for (const name of Object.keys(schemaUrls) as (keyof typeof schemaUrls)[]) {
-    const formattedName = name === 'appManifest' ? 'app-manifest' : name;
-    const schemasDir = path.join(__dirname, '../../schemas');
-    const schemaPath = path.join(schemasDir, `${formattedName}.schema.json`);
+    const schemaPath = path.join(BASE_SCHEMAS_PATH, `${name}.schema.json`);
     ajv.addSchema(await fs.readJson(schemaPath));
 
-    if (formattedName === schemaName) {
+    if (name === schemaName) {
       schema = ajv.getSchema(schemaUrls[name])?.schema;
     }
   }
@@ -71,8 +74,10 @@ export const validateSchema = async (
 
 export const getSchemaUrls = () => {
   return {
+    trigger: TRIGGER_SCHEMA_URL,
     agent: AGENT_SCHEMA_URL,
     object: OBJECT_SCHEMA_URL,
+    serverlessFunction: SERVERLESS_FUNCTION_SCHEMA_URL,
     appManifest: APP_MANIFEST_SCHEMA_URL,
   };
 };

@@ -10,6 +10,7 @@ import unicornPlugin from 'eslint-plugin-unicorn';
 import unusedImportsPlugin from 'eslint-plugin-unused-imports';
 import jsoncParser from 'jsonc-eslint-parser';
 
+
 export default [
   // Base JavaScript configuration
   js.configs.recommended,
@@ -53,6 +54,10 @@ export default [
           enforceBuildableLibDependency: true,
           allow: [],
           depConstraints: [
+            {
+              sourceTag: 'scope:sdk',
+              onlyDependOnLibsWithTags: ['scope:sdk'],
+            },
             {
               sourceTag: 'scope:shared',
               onlyDependOnLibsWithTags: ['scope:shared'],
@@ -123,7 +128,7 @@ export default [
       '@typescript-eslint/ban-ts-comment': 'error',
       '@typescript-eslint/consistent-type-imports': [
         'error',
-        { 
+        {
           prefer: 'type-imports',
           fixStyle: 'inline-type-imports'
         },

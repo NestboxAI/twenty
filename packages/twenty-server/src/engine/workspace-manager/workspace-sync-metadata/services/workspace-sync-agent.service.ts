@@ -6,20 +6,13 @@ import { IsNull, Not, type EntityManager } from 'typeorm';
 import { ComparatorAction } from 'src/engine/workspace-manager/workspace-sync-metadata/interfaces/comparator.interface';
 import { type WorkspaceSyncContext } from 'src/engine/workspace-manager/workspace-sync-metadata/interfaces/workspace-sync-context.interface';
 
-import { AgentRoleService } from 'src/engine/metadata-modules/agent-role/agent-role.service';
 import { AgentEntity } from 'src/engine/metadata-modules/agent/agent.entity';
 import { transformAgentEntityToFlatAgent } from 'src/engine/metadata-modules/flat-agent/utils/transform-agent-entity-to-flat-agent.util';
 import { RoleTargetsEntity } from 'src/engine/metadata-modules/role/role-targets.entity';
 import { RoleEntity } from 'src/engine/metadata-modules/role/role.entity';
-import { AGENT_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-agents.util';
-import {
-  SEED_APPLE_WORKSPACE_ID,
-  SEED_YCOMBINATOR_WORKSPACE_ID,
-} from 'src/engine/workspace-manager/dev-seeder/core/utils/seed-workspaces.util';
 import { WorkspaceAgentComparator } from 'src/engine/workspace-manager/workspace-sync-metadata/comparators/workspace-agent.comparator';
 import { StandardAgentFactory } from 'src/engine/workspace-manager/workspace-sync-metadata/factories/standard-agent.factory';
 import { standardAgentDefinitions } from 'src/engine/workspace-manager/workspace-sync-metadata/standard-agents';
-import { WORKFLOW_CREATION_AGENT } from 'src/engine/workspace-manager/workspace-sync-metadata/standard-agents/agents/workflow-creation-agent';
 
 @Injectable()
 export class WorkspaceSyncAgentService {
@@ -28,7 +21,6 @@ export class WorkspaceSyncAgentService {
   constructor(
     private readonly standardAgentFactory: StandardAgentFactory,
     private readonly workspaceAgentComparator: WorkspaceAgentComparator,
-    private readonly agentRoleService: AgentRoleService,
   ) {}
 
   async synchronize(
@@ -110,14 +102,6 @@ export class WorkspaceSyncAgentService {
               throw error;
             }
           }
-
-          if (createdAgent.standardId === WORKFLOW_CREATION_AGENT.standardId) {
-            await this.createAgentHandoffToWorkflowCreationAgent(
-              createdAgent.id,
-              context.workspaceId,
-              manager,
-            );
-          }
           break;
         }
 
@@ -179,81 +163,6 @@ export class WorkspaceSyncAgentService {
           break;
         }
       }
-    }
-  }
-
-  private async createAgentHandoffToWorkflowCreationAgent(
-    workflowCreationAgentId: string,
-    workspaceId: string,
-    manager: EntityManager,
-  ): Promise<void> {
-    try {
-      const agentRepository = manager.getRepository(AgentEntity);
-
-      let defaultAgent: AgentEntity | null = null;
-
-      if (workspaceId === SEED_APPLE_WORKSPACE_ID) {
-        defaultAgent = await agentRepository.findOne({
-          where: {
-            id: AGENT_DATA_SEED_IDS.APPLE_DEFAULT_AGENT,
-            workspaceId,
-          },
-        });
-      } else if (workspaceId === SEED_YCOMBINATOR_WORKSPACE_ID) {
-        defaultAgent = await agentRepository.findOne({
-          where: {
-            id: AGENT_DATA_SEED_IDS.YCOMBINATOR_DEFAULT_AGENT,
-            workspaceId,
-          },
-        });
-      } else {
-        defaultAgent = await agentRepository.findOne({
-          where: {
-            workspaceId,
-          },
-        });
-      }
-
-      if (!defaultAgent) {
-        this.logger.warn(
-          `Default agent not found for workspace ${workspaceId}. Agent handoff will not be created.`,
-        );
-
-        return;
-      }
-
-      const agentHandoffRepository = manager.getRepository('agentHandoff');
-      const existingHandoff = await agentHandoffRepository.findOne({
-        where: {
-          fromAgentId: defaultAgent.id,
-          toAgentId: workflowCreationAgentId,
-          workspaceId,
-        },
-      });
-
-      if (existingHandoff) {
-        this.logger.log(
-          `Agent handoff from default agent to workflow creation agent already exists for workspace ${workspaceId}`,
-        );
-
-        return;
-      }
-
-      await agentHandoffRepository.save({
-        fromAgentId: defaultAgent.id,
-        toAgentId: workflowCreationAgentId,
-        workspaceId,
-        description:
-          'Handoff from default agent to workflow creation agent for processing workflow creation requests',
-      });
-
-      this.logger.log(
-        `Successfully created agent handoff from default agent to workflow creation agent for workspace ${workspaceId}`,
-      );
-    } catch (error) {
-      this.logger.error(
-        `Failed to create agent handoff to workflow creation agent: ${error.message}`,
-      );
     }
   }
 }

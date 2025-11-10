@@ -5,13 +5,15 @@ import { makeGraphqlAPIRequest } from 'test/integration/graphql/utils/make-graph
 import { mergeManyOperationFactory } from 'test/integration/graphql/utils/merge-many-operation-factory.util';
 import { deleteRecordsByIds } from 'test/integration/utils/delete-records-by-ids';
 
+import { type PersonWorkspaceEntity } from 'src/modules/person/standard-objects/person.workspace-entity';
+
 describe('people merge resolvers (integration)', () => {
-  let createdPersonIds: string[] = [];
+  let createdPersonIdsForCleaning: string[] = [];
 
   afterEach(async () => {
-    if (createdPersonIds.length > 0) {
-      await deleteRecordsByIds('person', createdPersonIds);
-      createdPersonIds = [];
+    if (createdPersonIdsForCleaning.length > 0) {
+      await deleteRecordsByIds('person', createdPersonIdsForCleaning);
+      createdPersonIdsForCleaning = [];
     }
   });
 
@@ -57,15 +59,16 @@ describe('people merge resolvers (integration)', () => {
 
       expect(createResponse.body.data.createPeople).toHaveLength(2);
 
-      const person1Id = createResponse.body.data.createPeople[0].id;
-      const person2Id = createResponse.body.data.createPeople[1].id;
+      const createdPersonIds = [...createResponse.body.data.createPeople].map(
+        ({ id }: { id: string }) => id,
+      );
 
-      createdPersonIds.push(person1Id, person2Id);
+      createdPersonIdsForCleaning.push(...createdPersonIds);
 
       const mergeOperation = mergeManyOperationFactory({
         objectMetadataPluralName: 'people',
         gqlFields: PERSON_GQL_FIELDS,
-        ids: [person1Id, person2Id],
+        ids: createdPersonIds,
         conflictPriorityIndex: 0,
       });
 
@@ -78,13 +81,14 @@ describe('people merge resolvers (integration)', () => {
       expect(mergedPerson.emails.primaryEmail).toBe('john@example.com');
       expect(mergedPerson.emails.additionalEmails).toEqual(
         expect.arrayContaining([
+          'jane@example.com',
           'john.alt@example.com',
           'john.work@example.com',
           'jane.alt@example.com',
           'jane.personal@example.com',
         ]),
       );
-      expect(mergedPerson.emails.additionalEmails).toHaveLength(4);
+      expect(mergedPerson.emails.additionalEmails).toHaveLength(5);
     });
 
     it('should merge emails with deduplication', async () => {
@@ -122,15 +126,17 @@ describe('people merge resolvers (integration)', () => {
       const createResponse = await makeGraphqlAPIRequest(
         createPersonsOperation,
       );
-      const person1Id = createResponse.body.data.createPeople[0].id;
-      const person2Id = createResponse.body.data.createPeople[1].id;
 
-      createdPersonIds.push(person1Id, person2Id);
+      const createdPersonIds = createResponse.body.data.createPeople.map(
+        ({ id }: { id: string }) => id,
+      );
+
+      createdPersonIdsForCleaning.push(...createdPersonIds);
 
       const mergeOperation = mergeManyOperationFactory({
         objectMetadataPluralName: 'people',
         gqlFields: PERSON_GQL_FIELDS,
-        ids: [person1Id, person2Id],
+        ids: createdPersonIds,
         conflictPriorityIndex: 0,
       });
 
@@ -140,9 +146,10 @@ describe('people merge resolvers (integration)', () => {
       expect(mergedPerson.emails.primaryEmail).toBe('alice@example.com');
       const additionalEmails = mergedPerson.emails.additionalEmails;
 
-      expect(additionalEmails).toHaveLength(3);
+      expect(additionalEmails).toHaveLength(4);
       expect(additionalEmails).toEqual(
         expect.arrayContaining([
+          'bob@example.com',
           'shared@example.com',
           'alice.work@example.com',
           'bob.work@example.com',
@@ -188,15 +195,17 @@ describe('people merge resolvers (integration)', () => {
       const createResponse = await makeGraphqlAPIRequest(
         createPersonsOperation,
       );
-      const person1Id = createResponse.body.data.createPeople[0].id;
-      const person2Id = createResponse.body.data.createPeople[1].id;
 
-      createdPersonIds.push(person1Id, person2Id);
+      const createdPersonIds = createResponse.body.data.createPeople.map(
+        ({ id }: { id: string }) => id,
+      );
+
+      createdPersonIdsForCleaning.push(...createdPersonIds);
 
       const mergeWithPriority1 = mergeManyOperationFactory({
         objectMetadataPluralName: 'people',
         gqlFields: PERSON_GQL_FIELDS,
-        ids: [person1Id, person2Id],
+        ids: createdPersonIds,
         conflictPriorityIndex: 1,
       });
 
@@ -206,6 +215,7 @@ describe('people merge resolvers (integration)', () => {
       expect(mergedPerson.emails.primaryEmail).toBe('second@example.com');
       expect(mergedPerson.emails.additionalEmails).toEqual(
         expect.arrayContaining([
+          'first@example.com',
           'first.extra@example.com',
           'second.extra@example.com',
         ]),
@@ -240,14 +250,20 @@ describe('people merge resolvers (integration)', () => {
           },
         ],
       });
-
       const createResponse = await makeGraphqlAPIRequest(
         createPersonsOperation,
       );
-      const person1Id = createResponse.body.data.createPeople[0].id;
-      const person2Id = createResponse.body.data.createPeople[1].id;
 
-      createdPersonIds.push(person1Id, person2Id);
+      const person1Id = createResponse.body.data.createPeople.find(
+        (people: PersonWorkspaceEntity) =>
+          people.emails.primaryEmail === 'test1@example.com',
+      ).id;
+      const person2Id = createResponse.body.data.createPeople.find(
+        (people: PersonWorkspaceEntity) =>
+          people.emails.primaryEmail === 'test2@example.com',
+      ).id;
+
+      createdPersonIdsForCleaning.push(person1Id, person2Id);
 
       const dryRunMergeOperation = mergeManyOperationFactory({
         objectMetadataPluralName: 'people',
@@ -266,6 +282,7 @@ describe('people merge resolvers (integration)', () => {
       expect(dryRunResult.emails.primaryEmail).toBe('test1@example.com');
       expect(dryRunResult.emails.additionalEmails).toEqual(
         expect.arrayContaining([
+          'test2@example.com',
           'test1.extra@example.com',
           'test2.extra@example.com',
         ]),
@@ -364,15 +381,16 @@ describe('people merge resolvers (integration)', () => {
 
       expect(createResponse.body.data.createPeople).toHaveLength(2);
 
-      const person1Id = createResponse.body.data.createPeople[0].id;
-      const person2Id = createResponse.body.data.createPeople[1].id;
+      const createdPersonIds = createResponse.body.data.createPeople.map(
+        ({ id }: { id: string }) => id,
+      );
 
-      createdPersonIds.push(person1Id, person2Id);
+      createdPersonIdsForCleaning.push(...createdPersonIds);
 
       const mergeOperation = mergeManyOperationFactory({
         objectMetadataPluralName: 'people',
         gqlFields: PERSON_GQL_FIELDS,
-        ids: [person1Id, person2Id],
+        ids: createdPersonIds,
         conflictPriorityIndex: 0,
       });
 
@@ -387,22 +405,24 @@ describe('people merge resolvers (integration)', () => {
       expect(mergedPerson.phones.primaryPhoneCallingCode).toBe('+1');
       expect(mergedPerson.phones.additionalPhones).toEqual(
         expect.arrayContaining([
+          expect.objectContaining({ number: '4445556789' }),
           expect.objectContaining({ number: '5559876543' }),
           expect.objectContaining({ number: '4441112222' }),
         ]),
       );
-      expect(mergedPerson.phones.additionalPhones).toHaveLength(2);
+      expect(mergedPerson.phones.additionalPhones).toHaveLength(3);
 
       expect(mergedPerson.whatsapp.primaryPhoneNumber).toBe('810407803');
       expect(mergedPerson.whatsapp.primaryPhoneCountryCode).toBe('FR');
       expect(mergedPerson.whatsapp.primaryPhoneCallingCode).toBe('+33');
       expect(mergedPerson.whatsapp.additionalPhones).toEqual(
         expect.arrayContaining([
+          expect.objectContaining({ number: '987654321' }),
           expect.objectContaining({ number: '8104078034' }),
           expect.objectContaining({ number: '123456789' }),
         ]),
       );
-      expect(mergedPerson.whatsapp.additionalPhones).toHaveLength(2);
+      expect(mergedPerson.whatsapp.additionalPhones).toHaveLength(3);
     });
   });
 });

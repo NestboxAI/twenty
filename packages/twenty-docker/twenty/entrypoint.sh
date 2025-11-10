@@ -28,13 +28,13 @@ setup_and_migrate_db() {
     fi
 
     # Run setup and migration scripts
-    has_schema=$(PGPASSWORD=${PGPASS} psql -h ${PGHOST} -p ${PGPORT} -U ${PGUSER} -d ${PGDATABASE} -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'core')")
+    has_schema=$(psql -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'core')" ${PG_DATABASE_URL})
     if [ "$has_schema" = "f" ]; then
         echo "Database appears to be empty, running migrations."
         NODE_OPTIONS="--max-old-space-size=1500" tsx ./scripts/setup-db.ts
         yarn database:migrate:prod
     fi
-    
+
     yarn command:prod upgrade
     echo "Successfully migrated DB!"
 }
@@ -44,7 +44,7 @@ register_background_jobs() {
         echo "Cron job registration is disabled, skipping..."
         return
     fi
-  
+
     echo "Registering background sync jobs..."
     if yarn command:prod cron:register:all; then
         echo "Successfully registered all background sync jobs!"

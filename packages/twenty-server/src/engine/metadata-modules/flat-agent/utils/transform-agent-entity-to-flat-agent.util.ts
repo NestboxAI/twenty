@@ -19,5 +19,6 @@ export const transformAgentEntityToFlatAgent = (
     universalIdentifier: agentEntity.standardId || agentEntity.id,
     applicationId: agentEntity.applicationId,
     modelConfiguration: agentEntity.modelConfiguration,
+    mcpTools: agentEntity.mcpTools,
   };
 };
