@@ -145,22 +145,12 @@ export const SettingsAIAgentForm = ({
       )}
 
       <StyledFormContainer>
-        <Select
-          dropdownId="ai-role-select"
-          label={t`Role`}
-          value={formValues.role || ''}
-          onChange={(value) => onFieldChange('role', value)}
-          options={rolesOptions}
-          disabled={disabled}
-        />
-      </StyledFormContainer>
-
-      <StyledFormContainer>
         <TextArea
           textAreaId="agent-prompt-textarea"
-          label={t`System Prompt*`}
+          label={t`System Prompt`}
           placeholder={t`Enter the system prompt that defines this agent's behavior and capabilities`}
           minRows={6}
+          maxRows={15}
           value={formValues.prompt}
           onChange={(value) => onFieldChange('prompt', value)}
           disabled={disabled}

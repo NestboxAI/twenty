@@ -12,6 +12,8 @@ import { workflowHttpRequestActionSchema } from './http-request-action-schema';
 import { workflowIteratorActionSchema } from './iterator-action-schema';
 import { workflowSendEmailActionSchema } from './send-email-action-schema';
 import { workflowUpdateRecordActionSchema } from './update-record-action-schema';
+import { workflowUpsertRecordActionSchema } from './upsert-record-action-schema';
+import { workflowDelayActionSchema } from './workflow-delay-action-schema';
 
 export const workflowActionSchema = z.discriminatedUnion('type', [
   workflowCodeActionSchema,
@@ -19,6 +21,7 @@ export const workflowActionSchema = z.discriminatedUnion('type', [
   workflowCreateRecordActionSchema,
   workflowUpdateRecordActionSchema,
   workflowDeleteRecordActionSchema,
+  workflowUpsertRecordActionSchema,
   workflowFindRecordsActionSchema,
   workflowFormActionSchema,
   workflowHttpRequestActionSchema,
@@ -26,5 +29,6 @@ export const workflowActionSchema = z.discriminatedUnion('type', [
   workflowNestboxAiAgentActionSchema,
   workflowFilterActionSchema,
   workflowIteratorActionSchema,
+  workflowDelayActionSchema,
   workflowEmptyActionSchema,
 ]);

@@ -1,54 +1,35 @@
 import { Injectable } from '@nestjs/common';
 
-import { FlatCronTrigger } from 'src/engine/metadata-modules/cron-trigger/types/flat-cron-trigger.type';
-import { compareTwoFlatCronTrigger } from 'src/engine/metadata-modules/cron-trigger/utils/compare-two-flat-cron-trigger.util';
-import {
-  FlatEntityUpdateValidationArgs,
-  FlatEntityValidationArgs,
-  FlatEntityValidationReturnType,
-  WorkspaceEntityMigrationBuilderV2Service,
-} from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/services/workspace-entity-migration-builder-v2.service';
-import {
-  UpdateCronTriggerAction,
-  WorkspaceMigrationCronTriggerActionV2,
-} from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/workspace-migration-cron-trigger-action-v2.type';
-import {
-  CronTriggerRelatedFlatEntityMaps,
-  FlatCronTriggerValidatorService,
-} from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/validators/services/flat-cron-trigger-validator.service';
+import { ALL_METADATA_NAME } from 'twenty-shared/metadata';
+
+import { UpdateCronTriggerAction } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/builders/cron-trigger/types/workspace-migration-cron-trigger-action-v2.type';
+import { WorkspaceEntityMigrationBuilderV2Service } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/services/workspace-entity-migration-builder-v2.service';
+import { FlatEntityUpdateValidationArgs } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/flat-entity-update-validation-args.type';
+import { FlatEntityValidationArgs } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/flat-entity-validation-args.type';
+import { FlatEntityValidationReturnType } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/flat-entity-validation-result.type';
+import { FlatCronTriggerValidatorService } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/validators/services/flat-cron-trigger-validator.service';
 
 @Injectable()
 export class WorkspaceMigrationV2CronTriggerActionsBuilderService extends WorkspaceEntityMigrationBuilderV2Service<
-  FlatCronTrigger,
-  WorkspaceMigrationCronTriggerActionV2,
-  CronTriggerRelatedFlatEntityMaps
+  typeof ALL_METADATA_NAME.cronTrigger
 > {
   constructor(
     private readonly flatCronTriggerValidatorService: FlatCronTriggerValidatorService,
   ) {
-    super();
+    super(ALL_METADATA_NAME.cronTrigger);
   }
 
-  protected async validateFlatEntityCreation({
-    dependencyOptimisticFlatEntityMaps,
-    flatEntityToValidate: flatCronTriggerToValidate,
-    optimisticFlatEntityMaps: optimisticFlatCronTriggerMaps,
-  }: FlatEntityValidationArgs<
-    FlatCronTrigger,
-    CronTriggerRelatedFlatEntityMaps
-  >): Promise<
+  protected async validateFlatEntityCreation(
+    args: FlatEntityValidationArgs<typeof ALL_METADATA_NAME.cronTrigger>,
+  ): Promise<
     FlatEntityValidationReturnType<
-      WorkspaceMigrationCronTriggerActionV2,
-      FlatCronTrigger
+      typeof ALL_METADATA_NAME.cronTrigger,
+      'created'
     >
   > {
     const validationResult =
       await this.flatCronTriggerValidatorService.validateFlatCronTriggerCreation(
-        {
-          flatCronTriggerToValidate,
-          optimisticFlatCronTriggerMaps,
-          dependencyOptimisticFlatEntityMaps,
-        },
+        args,
       );
 
     if (validationResult.errors.length > 0) {
@@ -58,34 +39,33 @@ export class WorkspaceMigrationV2CronTriggerActionsBuilderService extends Worksp
       };
     }
 
+    const {
+      dependencyOptimisticFlatEntityMaps,
+      flatEntityToValidate: flatCronTriggerToValidate,
+    } = args;
+
     return {
       status: 'success',
       action: {
         type: 'create_cron_trigger',
         cronTrigger: flatCronTriggerToValidate,
       },
+      dependencyOptimisticFlatEntityMaps,
     };
   }
 
-  protected async validateFlatEntityDeletion({
-    dependencyOptimisticFlatEntityMaps,
-    flatEntityToValidate: flatCronTriggerToValidate,
-    optimisticFlatEntityMaps: optimisticFlatCronTriggerMaps,
-  }: FlatEntityValidationArgs<
-    FlatCronTrigger,
-    CronTriggerRelatedFlatEntityMaps
-  >): Promise<
+  protected async validateFlatEntityDeletion(
+    args: FlatEntityValidationArgs<typeof ALL_METADATA_NAME.cronTrigger>,
+  ): Promise<
     FlatEntityValidationReturnType<
-      WorkspaceMigrationCronTriggerActionV2,
-      FlatCronTrigger
+      typeof ALL_METADATA_NAME.cronTrigger,
+      'deleted'
     >
   > {
     const validationResult =
-      this.flatCronTriggerValidatorService.validateFlatCronTriggerDeletion({
-        flatCronTriggerToValidate,
-        optimisticFlatCronTriggerMaps,
-        dependencyOptimisticFlatEntityMaps,
-      });
+      this.flatCronTriggerValidatorService.validateFlatCronTriggerDeletion(
+        args,
+      );
 
     if (validationResult.errors.length > 0) {
       return {
@@ -93,6 +73,11 @@ export class WorkspaceMigrationV2CronTriggerActionsBuilderService extends Worksp
         ...validationResult,
       };
     }
+
+    const {
+      flatEntityToValidate: flatCronTriggerToValidate,
+      dependencyOptimisticFlatEntityMaps,
+    } = args;
 
     return {
       status: 'success',
@@ -100,38 +85,20 @@ export class WorkspaceMigrationV2CronTriggerActionsBuilderService extends Worksp
         type: 'delete_cron_trigger',
         cronTriggerId: flatCronTriggerToValidate.id,
       },
+      dependencyOptimisticFlatEntityMaps,
     };
   }
 
-  protected async validateFlatEntityUpdate({
-    dependencyOptimisticFlatEntityMaps,
-    flatEntityUpdate: { from: fromFlatCronTrigger, to: toFlatCronTrigger },
-    optimisticFlatEntityMaps: optimisticFlatCronTriggerMaps,
-  }: FlatEntityUpdateValidationArgs<
-    FlatCronTrigger,
-    CronTriggerRelatedFlatEntityMaps
-  >): Promise<
-    | FlatEntityValidationReturnType<
-        WorkspaceMigrationCronTriggerActionV2,
-        FlatCronTrigger
-      >
-    | undefined
+  protected async validateFlatEntityUpdate(
+    args: FlatEntityUpdateValidationArgs<typeof ALL_METADATA_NAME.cronTrigger>,
+  ): Promise<
+    FlatEntityValidationReturnType<
+      typeof ALL_METADATA_NAME.cronTrigger,
+      'updated'
+    >
   > {
-    const cronTriggerUpdatedProperties = compareTwoFlatCronTrigger({
-      fromFlatCronTrigger,
-      toFlatCronTrigger,
-    });
-
-    if (cronTriggerUpdatedProperties.length === 0) {
-      return undefined;
-    }
-
     const validationResult =
-      this.flatCronTriggerValidatorService.validateFlatCronTriggerUpdate({
-        flatCronTriggerToValidate: toFlatCronTrigger,
-        optimisticFlatCronTriggerMaps,
-        dependencyOptimisticFlatEntityMaps,
-      });
+      this.flatCronTriggerValidatorService.validateFlatCronTriggerUpdate(args);
 
     if (validationResult.errors.length > 0) {
       return {
@@ -139,16 +106,22 @@ export class WorkspaceMigrationV2CronTriggerActionsBuilderService extends Worksp
         ...validationResult,
       };
     }
+    const {
+      dependencyOptimisticFlatEntityMaps,
+      flatEntityId,
+      flatEntityUpdates,
+    } = args;
 
     const updateCronTriggerAction: UpdateCronTriggerAction = {
       type: 'update_cron_trigger',
-      cronTriggerId: toFlatCronTrigger.id,
-      updates: cronTriggerUpdatedProperties,
+      cronTriggerId: flatEntityId,
+      updates: flatEntityUpdates,
     };
 
     return {
       status: 'success',
       action: updateCronTriggerAction,
+      dependencyOptimisticFlatEntityMaps,
     };
   }
 }

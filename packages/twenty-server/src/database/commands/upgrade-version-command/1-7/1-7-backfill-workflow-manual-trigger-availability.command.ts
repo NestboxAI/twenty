@@ -8,7 +8,7 @@ import {
   ActiveOrSuspendedWorkspacesMigrationCommandRunner,
   type RunOnWorkspaceArgs,
 } from 'src/database/commands/command-runners/active-or-suspended-workspaces-migration.command-runner';
-import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { TwentyORMGlobalManager } from 'src/engine/twenty-orm/twenty-orm-global.manager';
 import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 import { WorkflowTriggerType } from 'src/modules/workflow/workflow-trigger/types/workflow-trigger.type';
@@ -20,8 +20,8 @@ import { WorkflowTriggerType } from 'src/modules/workflow/workflow-trigger/types
 })
 export class BackfillWorkflowManualTriggerAvailabilityCommand extends ActiveOrSuspendedWorkspacesMigrationCommandRunner {
   constructor(
-    @InjectRepository(Workspace)
-    protected readonly workspaceRepository: Repository<Workspace>,
+    @InjectRepository(WorkspaceEntity)
+    protected readonly workspaceRepository: Repository<WorkspaceEntity>,
     protected readonly twentyORMGlobalManager: TwentyORMGlobalManager,
     @InjectDataSource()
     private readonly coreDataSource: DataSource,
@@ -41,7 +41,7 @@ export class BackfillWorkflowManualTriggerAvailabilityCommand extends ActiveOrSu
     for (const workflowVersion of workflowVersions) {
       const { trigger } = workflowVersion;
 
-      if (trigger.type !== WorkflowTriggerType.MANUAL) {
+      if (!isDefined(trigger) || trigger?.type !== WorkflowTriggerType.MANUAL) {
         continue;
       }
 

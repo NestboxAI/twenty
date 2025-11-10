@@ -1,9 +1,5 @@
 import { type InputSchemaPropertyType } from '@/workflow/types/InputSchema';
 import {
-  type BaseOutputSchemaV2,
-  type Node,
-} from '@/workflow/workflow-variables/types/BaseOutputSchemaV2';
-import {
   type FieldOutputSchemaV2,
   type RecordOutputSchemaV2,
 } from '@/workflow/workflow-variables/types/RecordOutputSchemaV2';
@@ -13,6 +9,7 @@ import { isLinkOutputSchema } from '@/workflow/workflow-variables/types/guards/i
 import { isRecordOutputSchemaV2 } from '@/workflow/workflow-variables/types/guards/isRecordOutputSchemaV2';
 import { isFieldTypeCompatibleWithRecordId } from '@/workflow/workflow-variables/utils/isFieldTypeCompatibleWithRecordId';
 import { isDefined } from 'twenty-shared/utils';
+import { type BaseOutputSchemaV2, type Node } from 'twenty-shared/workflow';
 
 const isValidRecordOutputSchema = ({
   shouldDisplayRecordFields,
@@ -104,7 +101,11 @@ const filterBaseOutputSchema = ({
   for (const key in outputSchema) {
     const field = outputSchema[key];
 
-    if (field.isLeaf) {
+    if (!isDefined(field)) {
+      continue;
+    }
+
+    if (field.isLeaf === true) {
       if (isFieldTypeCompatibleWithRecordId(field.type)) {
         filteredSchema[key] = field;
         hasValidFields = true;

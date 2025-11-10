@@ -1,89 +1,91 @@
 import { Injectable } from '@nestjs/common';
 
-import { t } from '@lingui/core/macro';
+import { msg, t } from '@lingui/core/macro';
 import { isDefined } from 'twenty-shared/utils';
+import { ALL_METADATA_NAME } from 'twenty-shared/metadata';
 
-import { AllFlatEntityMaps } from 'src/engine/core-modules/common/types/all-flat-entity-maps.type';
-import { FlatEntityMaps } from 'src/engine/core-modules/common/types/flat-entity-maps.type';
 import { ServerlessFunctionExceptionCode } from 'src/engine/metadata-modules/serverless-function/serverless-function.exception';
 import { FlatServerlessFunction } from 'src/engine/metadata-modules/serverless-function/types/flat-serverless-function.type';
 import { FailedFlatEntityValidation } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/builders/types/failed-flat-entity-validation.type';
+import { FlatEntityUpdateValidationArgs } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/flat-entity-update-validation-args.type';
+import { FlatEntityValidationArgs } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/flat-entity-validation-args.type';
 
-export type ServerlessFunctionRelatedFlatEntityMaps = Pick<
-  AllFlatEntityMaps,
-  'flatServerlessFunctionMaps'
->;
-
-type ServerlessFunctionValidationArgs = {
-  flatServerlessFunctionToValidate: FlatServerlessFunction;
-  optimisticFlatServerlessFunctionMaps: FlatEntityMaps<FlatServerlessFunction>;
-  dependencyOptimisticFlatEntityMaps: ServerlessFunctionRelatedFlatEntityMaps;
-};
 @Injectable()
 export class FlatServerlessFunctionValidatorService {
   constructor() {}
 
   public validateFlatServerlessFunctionUpdate({
-    flatServerlessFunctionToValidate: updatedFlatServerlessFunction,
-    optimisticFlatServerlessFunctionMaps,
-  }: ServerlessFunctionValidationArgs): FailedFlatEntityValidation<FlatServerlessFunction> {
-    const errors = [];
+    flatEntityId,
+    optimisticFlatEntityMaps: optimisticFlatServerlessFunctionMaps,
+  }: FlatEntityUpdateValidationArgs<
+    typeof ALL_METADATA_NAME.serverlessFunction
+  >): FailedFlatEntityValidation<FlatServerlessFunction> {
+    const validationResult: FailedFlatEntityValidation<FlatServerlessFunction> =
+      {
+        type: 'update_serverless_function',
+        errors: [],
+        flatEntityMinimalInformation: {
+          id: flatEntityId,
+        },
+      };
 
     const existingFlatServerlessFunction =
-      optimisticFlatServerlessFunctionMaps.byId[
-        updatedFlatServerlessFunction.id
-      ];
+      optimisticFlatServerlessFunctionMaps.byId[flatEntityId];
 
     if (!isDefined(existingFlatServerlessFunction)) {
-      errors.push({
+      validationResult.errors.push({
         code: ServerlessFunctionExceptionCode.SERVERLESS_FUNCTION_NOT_FOUND,
         message: t`Serverless function not found`,
-        userFriendlyMessage: t`Serverless function not found`,
+        userFriendlyMessage: msg`Serverless function not found`,
       });
     }
 
-    return {
-      type: 'update_serverless_function',
-      errors,
-      flatEntityMinimalInformation: {
-        id: updatedFlatServerlessFunction.id,
-      },
-    };
+    return validationResult;
   }
 
   public validateFlatServerlessFunctionDeletion({
-    flatServerlessFunctionToValidate: { id: serverlessFunctionIdToDelete },
-    optimisticFlatServerlessFunctionMaps,
-  }: ServerlessFunctionValidationArgs): FailedFlatEntityValidation<FlatServerlessFunction> {
-    const errors = [];
+    flatEntityToValidate: { id: serverlessFunctionIdToDelete },
+    optimisticFlatEntityMaps: optimisticFlatServerlessFunctionMaps,
+  }: FlatEntityValidationArgs<
+    typeof ALL_METADATA_NAME.serverlessFunction
+  >): FailedFlatEntityValidation<FlatServerlessFunction> {
+    const validationResult: FailedFlatEntityValidation<FlatServerlessFunction> =
+      {
+        type: 'delete_serverless_function',
+        errors: [],
+        flatEntityMinimalInformation: {
+          id: serverlessFunctionIdToDelete,
+        },
+      };
 
     const existingFlatServerlessFunction =
       optimisticFlatServerlessFunctionMaps.byId[serverlessFunctionIdToDelete];
 
     if (!isDefined(existingFlatServerlessFunction)) {
-      errors.push({
+      validationResult.errors.push({
         code: ServerlessFunctionExceptionCode.SERVERLESS_FUNCTION_NOT_FOUND,
         message: t`Serverless function not found`,
-        userFriendlyMessage: t`Serverless function not found`,
+        userFriendlyMessage: msg`Serverless function not found`,
       });
     }
 
-    return {
-      type: 'delete_serverless_function',
-      errors,
-      flatEntityMinimalInformation: {
-        id: serverlessFunctionIdToDelete,
-      },
-    };
+    return validationResult;
   }
 
   public async validateFlatServerlessFunctionCreation({
-    flatServerlessFunctionToValidate,
-    optimisticFlatServerlessFunctionMaps,
-  }: ServerlessFunctionValidationArgs): Promise<
-    FailedFlatEntityValidation<FlatServerlessFunction>
-  > {
-    const errors = [];
+    flatEntityToValidate: flatServerlessFunctionToValidate,
+    optimisticFlatEntityMaps: optimisticFlatServerlessFunctionMaps,
+  }: FlatEntityValidationArgs<
+    typeof ALL_METADATA_NAME.serverlessFunction
+  >): Promise<FailedFlatEntityValidation<FlatServerlessFunction>> {
+    const validationResult: FailedFlatEntityValidation<FlatServerlessFunction> =
+      {
+        type: 'create_serverless_function',
+        errors: [],
+        flatEntityMinimalInformation: {
+          id: flatServerlessFunctionToValidate.id,
+        },
+      };
 
     if (
       isDefined(
@@ -92,19 +94,13 @@ export class FlatServerlessFunctionValidatorService {
         ],
       )
     ) {
-      errors.push({
+      validationResult.errors.push({
         code: ServerlessFunctionExceptionCode.SERVERLESS_FUNCTION_ALREADY_EXIST,
         message: t`Serverless function with same id already exists`,
-        userFriendlyMessage: t`Serverless function already exists`,
+        userFriendlyMessage: msg`Serverless function already exists`,
       });
     }
 
-    return {
-      type: 'create_serverless_function',
-      errors,
-      flatEntityMinimalInformation: {
-        id: flatServerlessFunctionToValidate.id,
-      },
-    };
+    return validationResult;
   }
 }

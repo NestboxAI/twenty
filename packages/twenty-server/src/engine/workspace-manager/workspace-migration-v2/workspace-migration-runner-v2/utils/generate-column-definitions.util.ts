@@ -13,7 +13,7 @@ import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-m
 import { isCompositeFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-composite-flat-field-metadata.util';
 import { isFlatFieldMetadataOfType } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-flat-field-metadata-of-type.util';
 import { isMorphOrRelationFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-morph-or-relation-flat-field-metadata.util';
-import { type FlatObjectMetadataWithoutFields } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
+import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import { fieldMetadataTypeToColumnType } from 'src/engine/metadata-modules/workspace-migration/utils/field-metadata-type-to-column-type.util';
 import { type WorkspaceSchemaColumnDefinition } from 'src/engine/twenty-orm/workspace-schema-manager/types/workspace-schema-column-definition.type';
 import { computePostgresEnumName } from 'src/engine/workspace-manager/workspace-migration-runner/utils/compute-postgres-enum-name.util';
@@ -27,15 +27,15 @@ import { getWorkspaceSchemaContextForMigration } from 'src/engine/workspace-mana
 export const generateCompositeColumnDefinition = ({
   compositeProperty,
   parentFieldMetadata,
-  flatObjectMetadataWithoutFields,
+  flatObjectMetadata,
 }: {
   compositeProperty: CompositeProperty;
   parentFieldMetadata: FlatFieldMetadata<CompositeFieldMetadataType>;
-  flatObjectMetadataWithoutFields: FlatObjectMetadataWithoutFields;
+  flatObjectMetadata: FlatObjectMetadata;
 }): WorkspaceSchemaColumnDefinition => {
   const { tableName, schemaName } = getWorkspaceSchemaContextForMigration({
-    workspaceId: flatObjectMetadataWithoutFields.workspaceId,
-    flatObjectMetadata: flatObjectMetadataWithoutFields,
+    workspaceId: flatObjectMetadata.workspaceId,
+    flatObjectMetadata,
   });
 
   if (
@@ -79,6 +79,7 @@ export const generateCompositeColumnDefinition = ({
     isUnique: parentFieldMetadata.isUnique ?? false,
     default: serializedDefaultValue,
     isArray: isArrayFlag,
+    isPrimary: false,
   };
 
   return definition;
@@ -98,6 +99,7 @@ const generateTsVectorColumnDefinition = (
     default: null,
     asExpression: flatFieldMetadata.settings?.asExpression ?? undefined,
     generatedType: flatFieldMetadata.settings?.generatedType ?? undefined,
+    isPrimary: false,
   };
 };
 
@@ -122,14 +124,19 @@ const generateRelationColumnDefinition = (
     isArray: false,
     isUnique: false,
     default: null,
+    isPrimary: false,
   };
 };
 
-const generateColumnDefinition = (
-  flatFieldMetadata: FlatFieldMetadata,
-  tableName: string,
-  schemaName: string,
-): WorkspaceSchemaColumnDefinition => {
+const generateColumnDefinition = ({
+  flatFieldMetadata,
+  schemaName,
+  tableName,
+}: {
+  flatFieldMetadata: FlatFieldMetadata;
+  tableName: string;
+  schemaName: string;
+}): WorkspaceSchemaColumnDefinition => {
   const columnName = computeColumnName(flatFieldMetadata.name);
   const columnType = fieldMetadataTypeToColumnType(
     flatFieldMetadata.type,
@@ -154,19 +161,20 @@ const generateColumnDefinition = (
       flatFieldMetadata.type === FieldMetadataType.MULTI_SELECT,
     isUnique: flatFieldMetadata.isUnique ?? false,
     default: serializedDefaultValue,
+    isPrimary: flatFieldMetadata.name === 'id',
   };
 };
 
 export const generateColumnDefinitions = ({
   flatFieldMetadata,
-  flatObjectMetadataWithoutFields,
+  flatObjectMetadata,
 }: {
   flatFieldMetadata: FlatFieldMetadata;
-  flatObjectMetadataWithoutFields: FlatObjectMetadataWithoutFields;
+  flatObjectMetadata: FlatObjectMetadata;
 }): WorkspaceSchemaColumnDefinition[] => {
   const { tableName, schemaName } = getWorkspaceSchemaContextForMigration({
-    workspaceId: flatObjectMetadataWithoutFields.workspaceId,
-    flatObjectMetadata: flatObjectMetadataWithoutFields,
+    workspaceId: flatObjectMetadata.workspaceId,
+    flatObjectMetadata,
   });
 
   if (isCompositeFlatFieldMetadata(flatFieldMetadata)) {
@@ -176,7 +184,7 @@ export const generateColumnDefinitions = ({
       generateCompositeColumnDefinition({
         compositeProperty: property,
         parentFieldMetadata: flatFieldMetadata,
-        flatObjectMetadataWithoutFields: flatObjectMetadataWithoutFields,
+        flatObjectMetadata,
       }),
     );
   }
@@ -193,5 +201,7 @@ export const generateColumnDefinitions = ({
     return relationColumn ? [relationColumn] : [];
   }
 
-  return [generateColumnDefinition(flatFieldMetadata, tableName, schemaName)];
+  return [
+    generateColumnDefinition({ flatFieldMetadata, tableName, schemaName }),
+  ];
 };

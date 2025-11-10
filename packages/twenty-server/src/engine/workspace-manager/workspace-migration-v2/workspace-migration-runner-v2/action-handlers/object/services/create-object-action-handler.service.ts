@@ -5,15 +5,15 @@ import {
   WorkspaceMigrationRunnerActionHandler,
 } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-runner-v2/interfaces/workspace-migration-runner-action-handler-service.interface';
 
-import { AllFlatEntityMaps } from 'src/engine/core-modules/common/types/all-flat-entity-maps.type';
 import { DataSourceEntity } from 'src/engine/metadata-modules/data-source/data-source.entity';
 import { FieldMetadataEntity } from 'src/engine/metadata-modules/field-metadata/field-metadata.entity';
+import { AllFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/all-flat-entity-maps.type';
+import { addFlatEntityToFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/add-flat-entity-to-flat-entity-maps-or-throw.util';
 import { isCompositeFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-composite-flat-field-metadata.util';
 import { isEnumFlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/utils/is-enum-flat-field-metadata.util';
-import { addFlatObjectMetadataToFlatObjectMetadataMapsOrThrow } from 'src/engine/metadata-modules/flat-object-metadata-maps/utils/add-flat-object-metadata-to-flat-object-metadata-maps-or-throw.util';
 import { ObjectMetadataEntity } from 'src/engine/metadata-modules/object-metadata/object-metadata.entity';
 import { WorkspaceSchemaManagerService } from 'src/engine/twenty-orm/workspace-schema-manager/workspace-schema-manager.service';
-import { type CreateObjectAction } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/types/workspace-migration-object-action-v2';
+import { type CreateObjectAction } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-builder-v2/builders/object/types/workspace-migration-object-action-v2';
 import { type WorkspaceMigrationActionRunnerArgs } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-runner-v2/types/workspace-migration-action-runner-args.type';
 import { generateColumnDefinitions } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-runner-v2/utils/generate-column-definitions.util';
 import { getWorkspaceSchemaContextForMigration } from 'src/engine/workspace-manager/workspace-migration-v2/workspace-migration-runner-v2/utils/get-workspace-schema-context-for-migration.util';
@@ -37,24 +37,26 @@ export class CreateObjectActionHandlerService extends WorkspaceMigrationRunnerAc
     action,
     allFlatEntityMaps,
   }: OptimisticallyApplyActionOnAllFlatEntityMapsArgs<CreateObjectAction>): Partial<AllFlatEntityMaps> {
-    const { flatObjectMetadataMaps } = allFlatEntityMaps;
-    const { flatObjectMetadataWithoutFields, createFieldActions } = action;
+    const { flatObjectMetadataMaps, flatFieldMetadataMaps } = allFlatEntityMaps;
+    const { flatObjectMetadata, flatFieldMetadatas } = action;
 
-    const flatFieldMetadatas = createFieldActions.map(
-      (createFieldAction) => createFieldAction.flatFieldMetadata,
+    const updatedFlatFieldMetadatas = flatFieldMetadatas.reduce(
+      (flatFieldMaps, flatFieldMetadata) =>
+        addFlatEntityToFlatEntityMapsOrThrow({
+          flatEntity: flatFieldMetadata,
+          flatEntityMaps: flatFieldMaps,
+        }),
+      flatFieldMetadataMaps,
     );
 
-    const updatedFlatObjectMetadataMaps =
-      addFlatObjectMetadataToFlatObjectMetadataMapsOrThrow({
-        flatObjectMetadata: {
-          ...flatObjectMetadataWithoutFields,
-          flatFieldMetadatas,
-        },
-        flatObjectMetadataMaps,
-      });
+    const updatedFlatObjectMetadataMaps = addFlatEntityToFlatEntityMapsOrThrow({
+      flatEntity: flatObjectMetadata,
+      flatEntityMaps: flatObjectMetadataMaps,
+    });
 
     return {
       flatObjectMetadataMaps: updatedFlatObjectMetadataMaps,
+      flatFieldMetadataMaps: updatedFlatFieldMetadatas,
     };
   }
 
@@ -62,7 +64,7 @@ export class CreateObjectActionHandlerService extends WorkspaceMigrationRunnerAc
     context: WorkspaceMigrationActionRunnerArgs<CreateObjectAction>,
   ): Promise<void> {
     const { action, queryRunner } = context;
-    const { flatObjectMetadataWithoutFields, createFieldActions } = action;
+    const { flatObjectMetadata, flatFieldMetadatas } = action;
 
     const objectMetadataRepository =
       queryRunner.manager.getRepository<ObjectMetadataEntity>(
@@ -74,13 +76,13 @@ export class CreateObjectActionHandlerService extends WorkspaceMigrationRunnerAc
 
     const lastDataSourceMetadata = await dataSourceRepository.findOneOrFail({
       where: {
-        workspaceId: flatObjectMetadataWithoutFields.workspaceId,
+        workspaceId: flatObjectMetadata.workspaceId,
       },
       order: { createdAt: 'DESC' },
     });
 
     await objectMetadataRepository.insert({
-      ...flatObjectMetadataWithoutFields,
+      ...flatObjectMetadata,
       dataSourceId: lastDataSourceMetadata.id,
       targetTableName: 'DEPRECATED',
     });
@@ -90,9 +92,7 @@ export class CreateObjectActionHandlerService extends WorkspaceMigrationRunnerAc
         FieldMetadataEntity,
       );
 
-    for (const createFieldAction of createFieldActions) {
-      const { flatFieldMetadata } = createFieldAction;
-
+    for (const flatFieldMetadata of flatFieldMetadatas) {
       await fieldMetadataRepository.save(flatFieldMetadata);
     }
   }
@@ -101,21 +101,17 @@ export class CreateObjectActionHandlerService extends WorkspaceMigrationRunnerAc
     context: WorkspaceMigrationActionRunnerArgs<CreateObjectAction>,
   ): Promise<void> {
     const { action, queryRunner, workspaceId } = context;
-    const { flatObjectMetadataWithoutFields, createFieldActions } = action;
+    const { flatObjectMetadata, flatFieldMetadatas } = action;
 
     const { schemaName, tableName } = getWorkspaceSchemaContextForMigration({
       workspaceId,
-      flatObjectMetadata: flatObjectMetadataWithoutFields,
+      flatObjectMetadata,
     });
-
-    const flatFieldMetadatas = createFieldActions.map(
-      (createFieldAction) => createFieldAction.flatFieldMetadata,
-    );
 
     const columnDefinitions = flatFieldMetadatas.flatMap((flatFieldMetadata) =>
       generateColumnDefinitions({
         flatFieldMetadata,
-        flatObjectMetadataWithoutFields,
+        flatObjectMetadata,
       }),
     );
 

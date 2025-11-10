@@ -1,18 +1,9 @@
 import { type WorkflowActionType } from '@/workflow/types/Workflow';
+import { AI_AGENT_ACTION } from '@/workflow/workflow-steps/workflow-actions/constants/actions/AiAgentAction';
+import { NESTBOX_AI_AGENT_ACTION } from '@/workflow/workflow-steps/workflow-actions/constants/actions/NestboxAiAgentAction';
 
 export const AI_ACTIONS: Array<{
-  label: string;
+  defaultLabel: string;
   type: Extract<WorkflowActionType, 'AI_AGENT' | 'NESTBOX_AI_AGENT'>;
   icon: string;
-}> = [
-  {
-    label: 'AI Agent',
-    type: 'AI_AGENT',
-    icon: 'IconBrain',
-  },
-  {
-    label: 'Nestbox AI Agent',
-    type: 'NESTBOX_AI_AGENT',
-    icon: 'IconBrain',
-  }  
-];
+}> = [AI_AGENT_ACTION, NESTBOX_AI_AGENT_ACTION];

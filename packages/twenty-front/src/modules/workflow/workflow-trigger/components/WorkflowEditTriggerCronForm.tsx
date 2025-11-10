@@ -1,10 +1,11 @@
+import { SidePanelHeader } from '@/command-menu/components/SidePanelHeader';
 import { FormNumberFieldInput } from '@/object-record/record-field/ui/form-types/components/FormNumberFieldInput';
 import { FormTextFieldInput } from '@/object-record/record-field/ui/form-types/components/FormTextFieldInput';
 import { Select } from '@/ui/input/components/Select';
 import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
 import { type WorkflowCronTrigger } from '@/workflow/types/Workflow';
 import { WorkflowStepBody } from '@/workflow/workflow-steps/components/WorkflowStepBody';
-import { WorkflowStepHeader } from '@/workflow/workflow-steps/components/WorkflowStepHeader';
+import { WorkflowStepFooter } from '@/workflow/workflow-steps/components/WorkflowStepFooter';
 import { CronExpressionHelperLazy } from '@/workflow/workflow-trigger/components/CronExpressionHelperLazy';
 import { CRON_TRIGGER_INTERVAL_OPTIONS } from '@/workflow/workflow-trigger/constants/CronTriggerIntervalOptions';
 import { getCronTriggerDefaultSettings } from '@/workflow/workflow-trigger/utils/getCronTriggerDefaultSettings';
@@ -17,6 +18,7 @@ import { t } from '@lingui/core/macro';
 import { isNumber } from '@sniptt/guards';
 import { useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
+import { TRIGGER_STEP_ID } from 'twenty-shared/workflow';
 import { useIcons } from 'twenty-ui/display';
 
 type WorkflowEditTriggerCronFormProps = {
@@ -64,7 +66,7 @@ export const WorkflowEditTriggerCronForm = ({
 
   return (
     <>
-      <WorkflowStepHeader
+      <SidePanelHeader
         onTitleChange={(newName: string) => {
           if (triggerOptions.readonly === true) {
             return;
@@ -80,6 +82,7 @@ export const WorkflowEditTriggerCronForm = ({
         initialTitle={headerTitle}
         headerType={headerType}
         disabled={triggerOptions.readonly}
+        iconTooltip={getTriggerDefaultLabel(trigger)}
       />
       <WorkflowStepBody>
         <Select
@@ -468,6 +471,9 @@ export const WorkflowEditTriggerCronForm = ({
           </>
         )}
       </WorkflowStepBody>
+      {!triggerOptions.readonly && (
+        <WorkflowStepFooter stepId={TRIGGER_STEP_ID} />
+      )}
     </>
   );
 };

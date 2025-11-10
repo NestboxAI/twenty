@@ -8,10 +8,10 @@ import { Repository } from 'typeorm';
 
 import { hashPassword } from 'src/engine/core-modules/auth/auth.util';
 import { SignInUpService } from 'src/engine/core-modules/auth/services/sign-in-up.service';
-import { DomainManagerService } from 'src/engine/core-modules/domain-manager/services/domain-manager.service';
-import { User } from 'src/engine/core-modules/user/user.entity';
+import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
+import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { WorkspaceService } from 'src/engine/core-modules/workspace/services/workspace.service';
-import { Workspace } from 'src/engine/core-modules/workspace/workspace.entity';
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
 interface WorkspaceSignupOptions {
   username: string;
@@ -35,11 +35,11 @@ export class WorkspaceSignupCommand extends CommandRunner {
     private readonly signInUpService: SignInUpService,
     // Removed AuthService since it's not being used
     private readonly workspaceService: WorkspaceService,
-    private readonly domainManagerService: DomainManagerService,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(Workspace)
-    private readonly workspaceRepository: Repository<Workspace>,
+    private readonly workspaceDomainsService: WorkspaceDomainsService,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity  >,
+    @InjectRepository(WorkspaceEntity)
+    private readonly workspaceRepository: Repository<WorkspaceEntity>,
   ) {
     super();
   }
@@ -176,7 +176,7 @@ export class WorkspaceSignupCommand extends CommandRunner {
 
       // Generate workspace URLs
       const workspaceUrls =
-        this.domainManagerService.getWorkspaceUrls(activatedWorkspace);
+      this.workspaceDomainsService.getWorkspaceUrls(activatedWorkspace);
 
       // Output confirmation
       this.logger.log('='.repeat(60));

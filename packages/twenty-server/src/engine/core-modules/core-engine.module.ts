@@ -50,14 +50,15 @@ import { TelemetryModule } from 'src/engine/core-modules/telemetry/telemetry.mod
 import { TwentyConfigModule } from 'src/engine/core-modules/twenty-config/twenty-config.module';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserModule } from 'src/engine/core-modules/user/user.module';
-import { CoreViewModule } from 'src/engine/core-modules/view/view.module';
 import { WebhookModule } from 'src/engine/core-modules/webhook/webhook.module';
 import { WorkflowApiModule } from 'src/engine/core-modules/workflow/workflow-api.module';
 import { WorkspaceInvitationModule } from 'src/engine/core-modules/workspace-invitation/workspace-invitation.module';
 import { WorkspaceModule } from 'src/engine/core-modules/workspace/workspace.module';
 import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
 import { SubscriptionsModule } from 'src/engine/subscriptions/subscriptions.module';
+import { TrashCleanupModule } from 'src/engine/trash-cleanup/trash-cleanup.module';
 import { WorkspaceEventEmitterModule } from 'src/engine/workspace-event-emitter/workspace-event-emitter.module';
+import { ChannelSyncModule } from 'src/modules/connected-account/channel-sync/channel-sync.module';
 
 import { AiAgentConfigModule } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.module';
 import { AuditModule } from './audit/audit.module';
@@ -102,6 +103,7 @@ import { FileModule } from './file/file.module';
     GeoMapModule,
     SubscriptionsModule,
     ImapSmtpCaldavModule,
+    ChannelSyncModule,
     FileStorageModule.forRoot(),
     LoggerModule.forRootAsync({
       useFactory: loggerModuleFactory,
@@ -132,10 +134,10 @@ import { FileModule } from './file/file.module';
     SearchModule,
     ApiKeyModule,
     WebhookModule,
-    CoreViewModule,
     PageLayoutModule,
     ImpersonationModule,
-    AiAgentConfigModule // nestbox: added for upgrade to 1.7.0
+    AiAgentConfigModule, // nestbox: added for upgrade to 1.7.0
+    TrashCleanupModule,
   ],
   exports: [
     AuditModule,
