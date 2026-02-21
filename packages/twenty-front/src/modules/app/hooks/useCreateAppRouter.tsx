@@ -13,6 +13,7 @@ import {
   createRoutesFromElements,
   Route,
 } from 'react-router-dom';
+import { AnalyxPage } from '~/pages/analyx/AnalyxPage';
 import { Authorize } from '~/pages/auth/Authorize';
 import { PasswordReset } from '~/pages/auth/PasswordReset';
 import { SignInUp } from '~/pages/auth/SignInUp';
@@ -60,6 +61,7 @@ export const useCreateAppRouter = (
             element={<BookCallDecision />}
           />
           <Route path={AppPath.BookCall} element={<BookCall />} />
+          <Route path={AppPath.Analyx} element={<AnalyxPage />} />
           <Route path={indexAppPath.getIndexAppPath()} element={<></>} />
           <Route path={AppPath.RecordIndexPage} element={<RecordIndexPage />} />
           <Route path={AppPath.RecordShowPage} element={<RecordShowPage />} />
