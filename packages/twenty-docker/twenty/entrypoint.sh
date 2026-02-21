@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+# Source the automated workspace setup script
+. /app/automated-workspace-setup.sh
+
+# Source the automated oauth integration setup script
+. /app/automated-oauth-integration-setup.sh
+
 setup_and_migrate_db() {
     if [ "${DISABLE_DB_MIGRATIONS}" = "true" ]; then
         echo "Database setup and migrations are disabled, skipping..."
@@ -8,6 +14,18 @@ setup_and_migrate_db() {
     fi
 
     echo "Running database setup and migrations..."
+    PGUSER=$(echo $PG_DATABASE_URL | awk -F '//' '{print $2}' | awk -F ':' '{print $1}')
+    PGPASS=$(echo $PG_DATABASE_URL | awk -F ':' '{print $3}' | awk -F '@' '{print $1}')
+    PGHOST=$(echo $PG_DATABASE_URL | awk -F '@' '{print $2}' | awk -F ':' '{print $1}')
+    PGPORT=$(echo $PG_DATABASE_URL | awk -F ':' '{print $4}' | awk -F '/' '{print $1}')
+    PGDATABASE=$(echo $PG_DATABASE_URL | awk -F '/' '{print $NF}' | cut -d'?' -f1)
+
+    # Creating the database if it doesn't exist
+    db_count=$(PGPASSWORD=${PGPASS} psql -h ${PGHOST} -p ${PGPORT} -U ${PGUSER} -d postgres -tAc "SELECT COUNT(*) FROM pg_database WHERE datname = '${PGDATABASE}'")
+    if [ "$db_count" = "0" ]; then
+        echo "Database ${PGDATABASE} does not exist, creating..."
+        PGPASSWORD=${PGPASS} psql -h ${PGHOST} -p ${PGPORT} -U ${PGUSER} -d postgres -c "CREATE DATABASE \"${PGDATABASE}\""
+    fi
 
     # Run setup and migration scripts
     has_schema=$(psql -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'core')" ${PG_DATABASE_URL})
@@ -40,6 +58,12 @@ register_background_jobs() {
 
 setup_and_migrate_db
 register_background_jobs
+
+# Run automated workspace setup (only on first time)
+automated_workspace_setup
+
+# Run automated oauth integration setup (only on first time)
+automated_oauth_integration_cron_setup
 
 # Continue with the original Docker command
 exec "$@"

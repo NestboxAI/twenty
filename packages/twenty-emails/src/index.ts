@@ -1,4 +1,5 @@
 export type { JSONContent } from '@tiptap/core';
+export * from './emails/api-key-created.email'; // nestbox: v1.7.0 upgrade patch
 export * from './emails/clean-suspended-workspace.email';
 export * from './emails/password-reset-link.email';
 export * from './emails/password-update-notify.email';
