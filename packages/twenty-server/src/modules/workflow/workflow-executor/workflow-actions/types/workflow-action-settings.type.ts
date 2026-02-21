@@ -9,6 +9,7 @@ import { type WorkflowIfElseActionSettings } from 'src/modules/workflow/workflow
 import { type WorkflowIteratorActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/iterator/types/workflow-iterator-action-settings.type';
 import { type WorkflowLogicFunctionActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/logic-function/types/workflow-logic-function-action-settings.type';
 import { type WorkflowSendEmailActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/mail-sender/types/workflow-send-email-action-settings.type';
+import { type WorkflowNestboxAiAgentActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/nestbox-ai-agent/types/workflow-nestbox-ai-agent-action-settings.type';
 import {
   type WorkflowCreateRecordActionSettings,
   type WorkflowDeleteRecordActionSettings,
@@ -43,5 +44,6 @@ export type WorkflowActionSettings =
   | WorkflowIfElseActionSettings
   | WorkflowHttpRequestActionSettings
   | WorkflowAiAgentActionSettings
+  | WorkflowNestboxAiAgentActionSettings
   | WorkflowDelayActionSettings
   | WorkflowIteratorActionSettings;

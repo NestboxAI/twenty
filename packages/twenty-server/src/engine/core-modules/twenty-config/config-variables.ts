@@ -1190,6 +1190,22 @@ export class ConfigVariables {
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.LLM,
+    description: 'NESTBOX_AI_INSTANCE_IP',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  NESTBOX_AI_INSTANCE_IP = 'http://localhost:11434';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LLM,
+    description: 'NESTBOX_AI_INSTANCE_API_KEY',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  NESTBOX_AI_INSTANCE_API_KEY = 'NESTBOX_AI_INSTANCE_API_KEY';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LLM,
     description:
       'Comma-separated list of AI model IDs for speed-optimized operations, in priority order. The first available model will be used.',
     type: ConfigVariableType.STRING,

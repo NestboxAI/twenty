@@ -5,6 +5,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WorkspaceQueryRunnerModule } from 'src/engine/api/graphql/workspace-query-runner/workspace-query-runner.module';
 import { ActorModule } from 'src/engine/core-modules/actor/actor.module';
 import { AdminPanelModule } from 'src/engine/core-modules/admin-panel/admin-panel.module';
+import { AiAgentConfigModule } from 'src/engine/core-modules/ai-agent-config/ai-agent-config.module';
 import { ApiKeyModule } from 'src/engine/core-modules/api-key/api-key.module';
 import { AppTokenModule } from 'src/engine/core-modules/app-token/app-token.module';
 import { ApplicationSyncModule } from 'src/engine/core-modules/application/application-sync.module';
@@ -81,6 +82,7 @@ import { FileModule } from './file/file.module';
     HealthModule,
     AuditModule,
     AuthModule,
+    AiAgentConfigModule,
     BillingModule,
     BillingWebhookModule,
     ClientConfigModule,

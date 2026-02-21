@@ -31,6 +31,7 @@ export const getActionIconColorOrThrow = ({
     case 'DELAY':
       return theme.color.green12;
     case 'AI_AGENT':
+    case 'NESTBOX_AI_AGENT':
       return theme.color.pink;
     default:
       assertUnreachable(actionType, `Unsupported action type: ${actionType}`);

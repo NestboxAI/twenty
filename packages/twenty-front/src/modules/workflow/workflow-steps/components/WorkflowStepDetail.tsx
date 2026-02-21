@@ -19,6 +19,7 @@ import { WorkflowEditActionHttpRequest } from '@/workflow/workflow-steps/workflo
 import { WorkflowEditActionIfElse } from '@/workflow/workflow-steps/workflow-actions/if-else-action/components/WorkflowEditActionIfElse';
 import { WorkflowEditActionIterator } from '@/workflow/workflow-steps/workflow-actions/iterator-action/components/WorkflowEditActionIterator';
 import { WorkflowEditActionLogicFunction } from '@/workflow/workflow-steps/workflow-actions/logic-function-action/components/WorkflowEditActionLogicFunction';
+import { WorkflowEditActionNestboxAiAgent } from '@/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowEditActionNestboxAiAgent';
 import { WorkflowEditTriggerCronForm } from '@/workflow/workflow-trigger/components/WorkflowEditTriggerCronForm';
 import { WorkflowEditTriggerDatabaseEventForm } from '@/workflow/workflow-trigger/components/WorkflowEditTriggerDatabaseEventForm';
 import { WorkflowEditTriggerManual } from '@/workflow/workflow-trigger/components/WorkflowEditTriggerManual';
@@ -208,6 +209,15 @@ export const WorkflowStepDetail = ({
         case 'AI_AGENT': {
           return (
             <WorkflowEditActionAiAgent
+              key={stepId}
+              action={stepDefinition.definition}
+              actionOptions={props}
+            />
+          );
+        }
+        case 'NESTBOX_AI_AGENT': {
+          return (
+            <WorkflowEditActionNestboxAiAgent
               key={stepId}
               action={stepDefinition.definition}
               actionOptions={props}

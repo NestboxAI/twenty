@@ -45,6 +45,8 @@ export { workflowIteratorActionSettingsSchema } from './schemas/iterator-action-
 export { workflowLogicFunctionActionSchema } from './schemas/logic-function-action-schema';
 export { workflowLogicFunctionActionSettingsSchema } from './schemas/logic-function-action-settings-schema';
 export { workflowManualTriggerSchema } from './schemas/manual-trigger-schema';
+export { workflowNestboxAiAgentActionSchema } from './schemas/nestbox-ai-agent-action-schema';
+export { workflowNestboxAiAgentActionSettingsSchema } from './schemas/nestbox-ai-agent-action-settings-schema';
 export { objectRecordSchema } from './schemas/object-record-schema';
 export { workflowSendEmailActionSchema } from './schemas/send-email-action-schema';
 export { workflowSendEmailActionSettingsSchema } from './schemas/send-email-action-settings-schema';

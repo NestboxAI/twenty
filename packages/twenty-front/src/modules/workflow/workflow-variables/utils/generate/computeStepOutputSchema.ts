@@ -16,6 +16,7 @@ import { DatabaseEventAction } from '~/generated-metadata/graphql';
 const PERSISTED_OUTPUT_SCHEMA_TYPES = [
   'CODE',
   'HTTP_REQUEST',
+  'NESTBOX_AI_AGENT',
   'AI_AGENT',
   'WEBHOOK',
   'ITERATOR',

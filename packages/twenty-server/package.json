@@ -47,6 +47,8 @@
     "@lingui/vite-plugin": "5.1.2",
     "@microsoft/microsoft-graph-client": "3.0.7",
     "@microsoft/microsoft-graph-types": "^2.40.0",
+    "@nestbox-ai/agents": "^1.0.50",
+    "@nestbox-ai/instances": "^1.0.50",
     "@nestjs/axios": "3.1.2",
     "@nestjs/cache-manager": "^2.3.0",
     "@nestjs/common": "11.1.9",

@@ -13,6 +13,7 @@ export enum WorkflowActionType {
   IF_ELSE = 'IF_ELSE',
   HTTP_REQUEST = 'HTTP_REQUEST',
   AI_AGENT = 'AI_AGENT',
+  NESTBOX_AI_AGENT = 'NESTBOX_AI_AGENT',
   ITERATOR = 'ITERATOR',
   EMPTY = 'EMPTY',
   DELAY = 'DELAY',

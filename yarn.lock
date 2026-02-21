@@ -11510,6 +11510,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestbox-ai/agents@npm:^1.0.50":
+  version: 1.0.67
+  resolution: "@nestbox-ai/agents@npm:1.0.67"
+  dependencies:
+    axios: "npm:^1.6.1"
+  checksum: 10c0/abf95d00f10764fef3d2848db733deb1c4b15f111747f1a0fa454d4ec6e35a7f83c33efe0183560c934d4ab2f8689a609173377d790dbb2daf25592e717a7097
+  languageName: node
+  linkType: hard
+
+"@nestbox-ai/instances@npm:^1.0.50":
+  version: 1.0.67
+  resolution: "@nestbox-ai/instances@npm:1.0.67"
+  dependencies:
+    axios: "npm:^1.6.1"
+  checksum: 10c0/cd10a1b798ce3855b17337b3532318de5e16d6e5574d3ca6be8467adba6a835314499790fd87686bdef1d7145286ca8b6782580c52fff855cb668405f5982846
+  languageName: node
+  linkType: hard
+
 "@nestjs/axios@npm:3.1.2":
   version: 3.1.2
   resolution: "@nestjs/axios@npm:3.1.2"
@@ -58496,6 +58514,8 @@ __metadata:
     "@lingui/vite-plugin": "npm:5.1.2"
     "@microsoft/microsoft-graph-client": "npm:3.0.7"
     "@microsoft/microsoft-graph-types": "npm:^2.40.0"
+    "@nestbox-ai/agents": "npm:^1.0.50"
+    "@nestbox-ai/instances": "npm:^1.0.50"
     "@nestjs/axios": "npm:3.1.2"
     "@nestjs/cache-manager": "npm:^2.3.0"
     "@nestjs/cli": "npm:^11.0.16"

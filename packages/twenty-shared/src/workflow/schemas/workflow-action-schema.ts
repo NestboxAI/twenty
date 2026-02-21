@@ -1,3 +1,4 @@
+import { workflowNestboxAiAgentActionSchema } from '@/workflow/schemas/nestbox-ai-agent-action-schema';
 import { z } from 'zod';
 import { workflowAiAgentActionSchema } from './ai-agent-action-schema';
 import { workflowCodeActionSchema } from './code-action-schema';
@@ -30,6 +31,7 @@ export const workflowActionSchema = z.discriminatedUnion('type', [
   workflowFormActionSchema,
   workflowHttpRequestActionSchema,
   workflowAiAgentActionSchema,
+  workflowNestboxAiAgentActionSchema,
   workflowFilterActionSchema,
   workflowIfElseActionSchema,
   workflowIteratorActionSchema,

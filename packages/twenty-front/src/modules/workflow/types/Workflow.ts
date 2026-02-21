@@ -19,6 +19,7 @@ import {
   type workflowIteratorActionSchema,
   type workflowLogicFunctionActionSchema,
   type workflowManualTriggerSchema,
+  type workflowNestboxAiAgentActionSchema,
   type workflowRunSchema,
   type workflowRunStateSchema,
   type workflowRunStatusSchema,
@@ -68,6 +69,10 @@ export type WorkflowIteratorAction = z.infer<
 >;
 export type WorkflowAiAgentAction = z.infer<typeof workflowAiAgentActionSchema>;
 export type WorkflowEmptyAction = z.infer<typeof workflowEmptyActionSchema>;
+// nestbox: new action type
+export type WorkflowNestboxAiAgentAction = z.infer<
+  typeof workflowNestboxAiAgentActionSchema
+>;
 
 export type WorkflowAction =
   | WorkflowCodeAction
@@ -86,7 +91,8 @@ export type WorkflowAction =
   | WorkflowAiAgentAction
   | WorkflowIteratorAction
   | WorkflowDelayAction
-  | WorkflowEmptyAction;
+  | WorkflowEmptyAction
+  | WorkflowNestboxAiAgentAction;
 
 export type WorkflowActionType = WorkflowAction['type'];
 export type WorkflowStep = WorkflowAction;

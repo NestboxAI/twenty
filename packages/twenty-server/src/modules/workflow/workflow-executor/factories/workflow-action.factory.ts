@@ -15,6 +15,7 @@ import { FormWorkflowAction } from 'src/modules/workflow/workflow-executor/workf
 import { IfElseWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/if-else/if-else.workflow-action';
 import { IteratorWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/iterator/iterator.workflow-action';
 import { LogicFunctionWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/logic-function/logic-function.workflow-action';
+import { NestboxAiAgentWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/nestbox-ai-agent/nestbox-ai-agent.workflow-action';
 import { CreateRecordWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/record-crud/create-record.workflow-action';
 import { DeleteRecordWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/record-crud/delete-record.workflow-action';
 import { FindRecordsWorkflowAction } from 'src/modules/workflow/workflow-executor/workflow-actions/record-crud/find-records.workflow-action';
@@ -39,6 +40,7 @@ export class WorkflowActionFactory {
     private readonly iteratorWorkflowAction: IteratorWorkflowAction,
     private readonly toolExecutorWorkflowAction: ToolExecutorWorkflowAction,
     private readonly aiAgentWorkflowAction: AiAgentWorkflowAction,
+    private readonly nestboxAiAgentWorkflowAction: NestboxAiAgentWorkflowAction,
     private readonly emptyWorkflowAction: EmptyWorkflowAction,
     private readonly delayWorkflowAction: DelayWorkflowAction,
   ) {}
@@ -75,6 +77,8 @@ export class WorkflowActionFactory {
         return this.toolExecutorWorkflowAction;
       case WorkflowActionType.AI_AGENT:
         return this.aiAgentWorkflowAction;
+      case WorkflowActionType.NESTBOX_AI_AGENT:
+        return this.nestboxAiAgentWorkflowAction;
       case WorkflowActionType.EMPTY:
         return this.emptyWorkflowAction;
       case WorkflowActionType.DELAY:

@@ -33,6 +33,7 @@ import {
   WorkflowVersionStepException,
   WorkflowVersionStepExceptionCode,
 } from 'src/modules/workflow/common/exceptions/workflow-version-step.exception';
+import { type FormFieldMetadata } from 'src/modules/workflow/workflow-executor/workflow-actions/form/types/workflow-form-action-settings.type';
 import { type WorkflowVersionWorkspaceEntity } from 'src/modules/workflow/common/standard-objects/workflow-version.workspace-entity';
 import { WorkflowCommonWorkspaceService } from 'src/modules/workflow/common/workspace-services/workflow-common.workspace-service';
 import { type BaseWorkflowActionSettings } from 'src/modules/workflow/workflow-executor/workflow-actions/types/workflow-action-settings.type';
@@ -468,6 +469,22 @@ export class WorkflowVersionStepOperationsWorkspaceService {
           },
         };
       }
+      case WorkflowActionType.NESTBOX_AI_AGENT: {
+        return {
+          builtStep: {
+            ...baseStep,
+            name: 'Nestbox AI Agent',
+            type: WorkflowActionType.NESTBOX_AI_AGENT,
+            settings: {
+              ...BASE_STEP_DEFINITION,
+              input: {
+                agentId: '',
+                params: {},
+              },
+            },
+          },
+        };
+      }
       case WorkflowActionType.ITERATOR: {
         const emptyNodeStep = await this.createEmptyNodeForIteratorStep({
           iteratorStepId: baseStep.id,
@@ -601,7 +618,7 @@ export class WorkflowVersionStepOperationsWorkspaceService {
             }
 
             const field = step.settings.input.find(
-              (field) => field.name === key,
+              (field: FormFieldMetadata) => field.name === key,
             );
 
             if (
@@ -730,6 +747,20 @@ export class WorkflowVersionStepOperationsWorkspaceService {
             input: {
               ...step.settings.input,
               agentId: clonedAgent.id,
+            },
+          },
+        };
+      }
+      case WorkflowActionType.NESTBOX_AI_AGENT: {
+        return {
+          ...step,
+          id: v4(),
+          nextStepIds: [],
+          position: duplicatedStepPosition,
+          settings: {
+            ...step.settings,
+            input: {
+              ...step.settings.input,
             },
           },
         };

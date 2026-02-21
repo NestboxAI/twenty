@@ -480,6 +480,7 @@ export class WorkflowSchemaWorkspaceService {
         };
       }
       case WorkflowActionType.CODE:
+      case WorkflowActionType.NESTBOX_AI_AGENT:
       case WorkflowActionType.HTTP_REQUEST: {
         const propertyPath = extractPropertyPathFromVariable(items);
         const schemaNode = navigateOutputSchemaProperty({
