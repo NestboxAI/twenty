@@ -14,6 +14,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconCpu,
+  IconPaperclip,
   IconPlus,
   type IconComponent,
 } from 'twenty-ui/display';
@@ -204,7 +205,7 @@ export const AnalyxPromptInput = ({
           onChange={onFileChange}
         />
         <StyledIconButton onClick={() => fileInputRef.current?.click()}>
-          <IconPlus size={16} /> Attachment
+          <IconPaperclip size={16} /> Attachment
         </StyledIconButton>
 
         <Dropdown

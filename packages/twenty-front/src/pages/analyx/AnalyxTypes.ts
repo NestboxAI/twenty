@@ -41,3 +41,12 @@ export type NestboxAgent = {
   description?: string;
   type?: string | null;
 };
+
+export type AnalyxSkill = {
+  id: string;
+  name: string;
+  description: string;
+  tags: string[];
+  createdAt: string;
+  isDefault: boolean;
+};

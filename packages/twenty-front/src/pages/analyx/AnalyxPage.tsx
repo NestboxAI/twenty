@@ -13,17 +13,27 @@ import styled from '@emotion/styled';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 import { IconBrain, IconFolder, useIcons } from 'twenty-ui/display';
-import { type NestboxAgent, type SelectedContext, type Task, type TaskTab } from './AnalyxTypes';
+import {
+  type AnalyxSkill,
+  type NestboxAgent,
+  type SelectedContext,
+  type Task,
+  type TaskTab,
+} from './AnalyxTypes';
 import {
   CONTEXT_TYPE_OPTIONS,
+  DEFAULT_SKILLS,
   generateRandomTitle,
   getTaskType,
 } from './AnalyxUtils';
+import { AnalyxAddSkillForm } from './components/AnalyxAddSkillForm';
 import { AnalyxChipsBar } from './components/AnalyxChipsBar';
 import {
   AnalyxPromptInput,
   type ContextObjectOption,
 } from './components/AnalyxPromptInput';
+import { AnalyxSkillDetailPopup } from './components/AnalyxSkillDetailPopup';
+import { AnalyxSkillsBar } from './components/AnalyxSkillsBar';
 import { AnalyxTaskList } from './components/AnalyxTaskList';
 import { TaskDetailDrawer } from './components/TaskDetailDrawer';
 
@@ -92,6 +102,13 @@ export const AnalyxPage = () => {
   const [activeTab, setActiveTab] = useState('Tasks');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Skills state
+  const [skills, setSkills] = useState<AnalyxSkill[]>([]);
+  const [skillsInitialized, setSkillsInitialized] = useState(false);
+  const [skillSearchQuery, setSkillSearchQuery] = useState('');
+  const [selectedSkill, setSelectedSkill] = useState<AnalyxSkill | null>(null);
+  const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
+
   // Load tasks from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem('analyx-tasks');
@@ -120,6 +137,53 @@ export const AnalyxPage = () => {
       console.error('Failed to save tasks to localStorage:', e);
     }
   }, [tasks]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load skills from localStorage on mount, merging with latest DEFAULT_SKILLS
+  useEffect(() => {
+    const stored = localStorage.getItem('analyx-skills');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as AnalyxSkill[];
+        const defaultSkillMap = new Map(
+          DEFAULT_SKILLS.map((s) => [s.id, s]),
+        );
+        const storedIds = new Set(parsed.map((s) => s.id));
+
+        // For default skills, always use the latest from code.
+        // For user-edited or custom skills, keep the stored version.
+        const merged = parsed.map((s) =>
+          s.isDefault && defaultSkillMap.has(s.id)
+            ? defaultSkillMap.get(s.id)!
+            : s,
+        );
+
+        // Add any new default skills that weren't in localStorage yet
+        for (const ds of DEFAULT_SKILLS) {
+          if (!storedIds.has(ds.id)) {
+            merged.push(ds);
+          }
+        }
+
+        setSkills(merged);
+      } catch (e) {
+        console.error('Failed to parse stored skills:', e);
+        setSkills(DEFAULT_SKILLS);
+      }
+    } else {
+      setSkills(DEFAULT_SKILLS);
+    }
+    setSkillsInitialized(true);
+  }, []);
+
+  // Save skills to localStorage whenever they change
+  useEffect(() => {
+    if (!skillsInitialized) return;
+    try {
+      localStorage.setItem('analyx-skills', JSON.stringify(skills));
+    } catch (e) {
+      console.error('Failed to save skills to localStorage:', e);
+    }
+  }, [skills]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const contextObjectOptions: ContextObjectOption[] = objectMetadataItems
     .filter((item) => !item.isSystem && item.isActive)
@@ -198,6 +262,43 @@ export const AnalyxPage = () => {
 
   const handleRemoveContext = (id: string) => {
     setSelectedContexts((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const filteredSkills = skills.filter((skill) => {
+    if (!skillSearchQuery) return true;
+    const query = skillSearchQuery.toLowerCase();
+    return (
+      skill.name.toLowerCase().includes(query) ||
+      skill.description.toLowerCase().includes(query) ||
+      skill.tags.some((tag) => tag.toLowerCase().includes(query))
+    );
+  });
+
+  const handleAddSkill = (name: string, description: string) => {
+    const newSkill: AnalyxSkill = {
+      id: Date.now().toString(),
+      name,
+      description,
+      tags: [],
+      createdAt: new Date().toISOString(),
+      isDefault: false,
+    };
+    setSkills((prev) => [...prev, newSkill]);
+  };
+
+  const handleDeleteSkill = (skillId: string) => {
+    setSkills((prev) =>
+      prev.filter((skill) => skill.id !== skillId || skill.isDefault),
+    );
+  };
+
+  const handleUpdateSkill = (updatedSkill: AnalyxSkill) => {
+    setSkills((prev) =>
+      prev.map((skill) =>
+        skill.id === updatedSkill.id ? updatedSkill : skill,
+      ),
+    );
+    setSelectedSkill(updatedSkill);
   };
 
   const handleSubmit = () => {
@@ -309,6 +410,14 @@ export const AnalyxPage = () => {
             onSubmit={handleSubmit}
           />
 
+          <AnalyxSkillsBar
+            skills={filteredSkills}
+            searchQuery={skillSearchQuery}
+            onSearchChange={setSkillSearchQuery}
+            onSkillClick={setSelectedSkill}
+            onAddSkillClick={() => setIsAddSkillOpen(true)}
+          />
+
           <AnalyxChipsBar
             selectedContexts={selectedContexts}
             selectedAgentIds={selectedAgentIds}
@@ -341,6 +450,19 @@ export const AnalyxPage = () => {
             prev.map((t) => (t.id === updatedTask.id ? updatedTask : t)),
           )
         }
+      />
+
+      <AnalyxSkillDetailPopup
+        skill={selectedSkill}
+        onClose={() => setSelectedSkill(null)}
+        onDelete={handleDeleteSkill}
+        onUpdate={handleUpdateSkill}
+      />
+
+      <AnalyxAddSkillForm
+        isOpen={isAddSkillOpen}
+        onClose={() => setIsAddSkillOpen(false)}
+        onSave={handleAddSkill}
       />
     </PageContainer>
   );

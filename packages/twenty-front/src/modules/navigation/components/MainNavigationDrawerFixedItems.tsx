@@ -11,7 +11,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath } from 'twenty-shared/utils';
-import { IconBrain, IconSearch, IconSettings, IconSparkles } from 'twenty-ui/display';
+import {
+  IconBrain,
+  IconSearch,
+  IconSettings,
+  IconSparkles,
+} from 'twenty-ui/display';
 import { useIsMobile } from 'twenty-ui/utilities';
 import { FeatureFlagKey } from '~/generated-metadata/graphql';
 
