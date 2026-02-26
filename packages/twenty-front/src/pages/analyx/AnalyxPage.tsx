@@ -20,9 +20,9 @@ import {
   type Task,
   type TaskTab,
 } from './AnalyxTypes';
+import { DEFAULT_SKILLS } from './AnalyxDefaultSkills';
 import {
   CONTEXT_TYPE_OPTIONS,
-  DEFAULT_SKILLS,
   generateRandomTitle,
   getTaskType,
 } from './AnalyxUtils';

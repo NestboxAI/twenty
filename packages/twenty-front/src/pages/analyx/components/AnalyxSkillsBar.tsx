@@ -6,6 +6,7 @@ import {
   IconChevronRight,
   IconPlus,
   IconSearch,
+  IconX,
 } from 'twenty-ui/display';
 import { type AnalyxSkill } from '../AnalyxTypes';
 
@@ -141,7 +142,9 @@ const StyledSkillCard = styled.div<{
   height: 76px;
   justify-content: center;
   padding: 12px 14px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   width: 180px;
 
   &:hover {
@@ -191,6 +194,23 @@ export const AnalyxSkillsBar = ({
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchOverlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isSearchOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        searchOverlayRef.current &&
+        !searchOverlayRef.current.contains(e.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isSearchOpen, onSearchChange]);
 
   const updateScrollState = useCallback(() => {
     const el = scrollRef.current;
@@ -237,13 +257,20 @@ export const AnalyxSkillsBar = ({
 
       <StyledScrollArea>
         {isSearchOpen && (
-          <StyledSearchOverlay>
+          <StyledSearchOverlay ref={searchOverlayRef}>
             <TextInput
               ref={searchInputRef}
               value={searchQuery}
               onChange={onSearchChange}
               placeholder="Filter skills..."
               LeftIcon={IconSearch}
+              RightIcon={(props) => (
+                <IconX
+                  {...props}
+                  color={searchQuery ? 'currentColor' : 'transparent'}
+                />
+              )}
+              onRightIconClick={() => onSearchChange('')}
               sizeVariant="sm"
             />
           </StyledSearchOverlay>
@@ -257,8 +284,7 @@ export const AnalyxSkillsBar = ({
 
         <StyledScrollContainer ref={scrollRef} onScroll={handleScroll}>
           {skills.map((skill, index) => {
-            const colors =
-              SKILL_CARD_COLORS[index % SKILL_CARD_COLORS.length];
+            const colors = SKILL_CARD_COLORS[index % SKILL_CARD_COLORS.length];
             const snippet = skill.description
               .replace(/<[^>]*>/g, ' ')
               .replace(/###?\s?/g, '')
