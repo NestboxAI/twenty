@@ -104,6 +104,48 @@ export const getTaskType = (
   return 'document';
 };
 
+export const formatTaskDateTime = (isoOrLegacy: string): string => {
+  const date = new Date(isoOrLegacy);
+  if (isNaN(date.getTime())) return isoOrLegacy;
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }) + ' at ' + date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
+
+export const formatTaskDateShort = (isoOrLegacy: string): string => {
+  const date = new Date(isoOrLegacy);
+  if (isNaN(date.getTime())) return isoOrLegacy;
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+export const generateMockScores = (
+  taskId: string,
+): { f1: number; factCheck: number; agents: number } => {
+  let hash = 0;
+  for (let i = 0; i < taskId.length; i++) {
+    hash = (hash * 31 + taskId.charCodeAt(i)) | 0;
+  }
+  const pseudoRandom = (seed: number) => Math.abs((seed * 16807) % 2147483647);
+  const r1 = pseudoRandom(hash);
+  const r2 = pseudoRandom(r1);
+  const r3 = pseudoRandom(r2);
+  return {
+    f1: 65 + (r1 % 31),
+    factCheck: 70 + (r2 % 26),
+    agents: 2 + (r3 % 5),
+  };
+};
+
 export const generateRandomTitle = (
   prompt: string,
   contextType: string,

@@ -3,12 +3,14 @@ import styled from '@emotion/styled';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   IconArchive,
-  IconBrain,
+  IconArrowRight,
   IconCheck,
+  IconChevronDown,
+  IconDownload,
   IconFile,
+  IconFileText,
   IconLoader,
-  IconPrinter,
-  IconSend,
+  IconLock,
   IconSparkles,
   IconX,
   useIcons,
@@ -19,7 +21,7 @@ import {
   StyledStatusIcon,
 } from '../AnalyxSharedStyles';
 import { type Task } from '../AnalyxTypes';
-import { getEntityIcon } from '../AnalyxUtils';
+import { formatTaskDateTime, getEntityIcon, getTypeIcon } from '../AnalyxUtils';
 
 const DrawerOverlay = styled.div<{ isOpen: boolean }>`
   backdrop-filter: blur(2px);
@@ -56,7 +58,7 @@ const DrawerContainer = styled.div<{ isOpen: boolean }>`
 `;
 
 const DrawerHeader = styled.div`
-  padding: 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid ${({ theme }) => theme.border.color.light};
   display: flex;
   align-items: center;
@@ -67,9 +69,9 @@ const DrawerTitle = styled.h2`
   align-items: center;
   color: ${({ theme }) => theme.font.color.primary};
   display: flex;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
-  gap: 8px;
+  gap: 6px;
   margin: 0;
 `;
 
@@ -77,19 +79,20 @@ const DrawerContent = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
+  min-height: 0;
   overflow-y: auto;
-  padding: 24px;
+  padding: 14px 16px;
 `;
 
 const DetailSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 `;
 
 const SectionLabel = styled.div`
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -99,21 +102,24 @@ const SectionLabel = styled.div`
 const PromptBox = styled.div`
   background: ${({ theme }) => theme.background.secondary};
   border: 1px solid ${({ theme }) => theme.border.color.medium};
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 14px;
-  line-height: 1.5;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.4;
   color: ${({ theme }) => theme.font.color.primary};
   white-space: pre-wrap;
+  max-height: 60px;
+  overflow-y: auto;
 `;
 
 const ChatContainer = styled.div`
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
-  overflow: hidden;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  height: 400px; // Fixed height for chat area
+  min-height: 0;
+  overflow: hidden;
 `;
 
 const ChatMessages = styled.div`
@@ -143,7 +149,7 @@ const MessageBubble = styled.div<{ role: 'user' | 'ai' }>`
 `;
 
 const ChatInputArea = styled.div`
-  padding: 12px;
+  padding: 8px 12px;
   background: ${({ theme }) => theme.background.primary};
   border-top: 1px solid ${({ theme }) => theme.border.color.light};
   display: flex;
@@ -151,24 +157,226 @@ const ChatInputArea = styled.div`
   align-items: flex-end;
 `;
 
+const SendButton = styled.button`
+  align-items: center;
+  background: ${({ theme }) => theme.font.color.primary};
+  border: none;
+  border-radius: 50%;
+  color: ${({ theme }) => theme.background.primary};
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  height: 32px;
+  justify-content: center;
+  transition: transform 0.1s;
+  width: 32px;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
+const CHAT_LINE_HEIGHT = 24;
+const CHAT_PADDING_Y = 1;
+const CHAT_COLLAPSED = CHAT_LINE_HEIGHT + CHAT_PADDING_Y * 2;
+const CHAT_EXPANDED = CHAT_LINE_HEIGHT * 2 + CHAT_PADDING_Y * 2;
+
 const ChatInput = styled.textarea`
   flex: 1;
   background: ${({ theme }) => theme.background.secondary};
   color: ${({ theme }) => theme.font.color.primary};
   border: 1px solid ${({ theme }) => theme.border.color.medium};
-  border-radius: 20px;
-  padding: 10px 16px;
-  font-size: 14px;
+  border-radius: 7px;
+  padding: ${CHAT_PADDING_Y}px 14px;
+  font-size: 13px;
+  line-height: ${CHAT_LINE_HEIGHT}px;
   resize: none;
-  min-height: 40px;
+  height: ${CHAT_COLLAPSED}px;
   max-height: 120px;
+  overflow: hidden;
   outline: none;
   font-family: inherit;
+  transition:
+    height 0.2s ease,
+    border-color 0.2s ease;
 
   &:focus {
     border-color: ${({ theme }) => theme.color.blue};
   }
 `;
+
+const TaskNameText = styled.div`
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const VersionDropdownWrapper = styled.div`
+  position: relative;
+`;
+
+const VersionButton = styled.button`
+  align-items: center;
+  background: none;
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 6px;
+  color: ${({ theme }) => theme.font.color.secondary};
+  cursor: pointer;
+  display: flex;
+  font-size: 12px;
+  gap: 4px;
+  padding: 4px 8px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: ${({ theme }) => theme.background.transparent.lighter};
+  }
+`;
+
+const VersionMenu = styled.div`
+  background: ${({ theme }) => theme.background.primary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 8px;
+  box-shadow: ${({ theme }) => theme.boxShadow.strong};
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  width: 360px;
+  z-index: 10;
+`;
+
+const VersionMenuItem = styled.div<{ isLatest: boolean }>`
+  align-items: center;
+  background: ${({ isLatest, theme }) =>
+    isLatest ? theme.background.transparent.lighter : 'transparent'};
+  cursor: pointer;
+  display: flex;
+  font-size: 11px;
+  gap: 8px;
+  padding: 7px 10px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: ${({ theme }) => theme.background.transparent.light};
+  }
+`;
+
+const TrustScoreCard = styled.div`
+  background: ${({ theme }) => theme.background.secondary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 10px;
+  padding: 12px 16px;
+`;
+
+const TrustScoreHeader = styled.div`
+  align-items: center;
+  color: ${({ theme }) => theme.font.color.tertiary};
+  display: flex;
+  font-size: 10px;
+  font-weight: 600;
+  gap: 5px;
+  letter-spacing: 0.6px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+`;
+
+const ScoreColumnsRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+`;
+
+const ScoreColumn = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const ScoreColumnLabel = styled.div`
+  color: ${({ theme }) => theme.font.color.primary};
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+`;
+
+const ScoreColumnValue = styled.div`
+  color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 10px;
+  text-align: center;
+`;
+
+const ScoreColumnCI = styled.div`
+  color: ${({ theme }) => theme.font.color.light};
+  font-size: 9px;
+  text-align: center;
+`;
+
+const ScoreRing = ({
+  value,
+  maxValue,
+  color,
+  size = 52,
+}: {
+  value: number;
+  maxValue: number;
+  color: string;
+  size?: number;
+}) => {
+  const strokeWidth = 4;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(value / maxValue, 1);
+  const dashOffset = circumference * (1 - progress);
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        opacity={0.08}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={dashOffset}
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+      />
+      <text
+        x={size / 2}
+        y={size / 2}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={14}
+        fontWeight={700}
+        fill="currentColor"
+      >
+        {value}%
+      </text>
+    </svg>
+  );
+};
 
 export const TaskDetailDrawer = ({
   task,
@@ -182,7 +390,10 @@ export const TaskDetailDrawer = ({
   onUpdateTask: (updatedTask: Task) => void;
 }) => {
   const [chatInput, setChatInput] = useState('');
+  const [versionMenuOpen, setVersionMenuOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const versionMenuRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const theme = useTheme();
   const { getIcon } = useIcons();
 
@@ -191,7 +402,46 @@ export const TaskDetailDrawer = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [task?.messages]);
 
+  // Close version dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        versionMenuRef.current &&
+        !versionMenuRef.current.contains(event.target as Node)
+      ) {
+        setVersionMenuOpen(false);
+      }
+    };
+    if (versionMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [versionMenuOpen]);
+
   if (!task) return null;
+
+  const resizeChatInput = () => {
+    const el = chatInputRef.current;
+    if (!el) return;
+    el.style.height = `${CHAT_EXPANDED}px`;
+    const needed = Math.max(CHAT_EXPANDED, el.scrollHeight);
+    el.style.height = `${Math.min(needed, 120)}px`;
+    el.style.overflow = needed > 120 ? 'auto' : 'hidden';
+  };
+
+  const handleChatFocus = () => {
+    const el = chatInputRef.current;
+    if (!el) return;
+    const needed = Math.max(CHAT_EXPANDED, el.scrollHeight);
+    el.style.height = `${Math.min(needed, 120)}px`;
+  };
+
+  const handleChatBlur = () => {
+    const el = chatInputRef.current;
+    if (!el || el.value.trim()) return;
+    el.style.height = `${CHAT_COLLAPSED}px`;
+    el.style.overflow = 'hidden';
+  };
 
   const handleSendMessage = () => {
     if (!chatInput.trim()) return;
@@ -209,6 +459,10 @@ export const TaskDetailDrawer = ({
 
     onUpdateTask(updatedTask);
     setChatInput('');
+    if (chatInputRef.current) {
+      chatInputRef.current.style.height = `${CHAT_COLLAPSED}px`;
+      chatInputRef.current.style.overflow = 'hidden';
+    }
 
     // Simulate AI response
     setTimeout(() => {
@@ -231,19 +485,32 @@ export const TaskDetailDrawer = ({
     }
   };
 
-  const handleDownload = () => {
-    // URL to the static PDF file
+  const handleDownload = (version?: number) => {
     const pdfUrl = '/pdf/report-template.pdf';
-
-    // Create a temporary link element
     const link = document.createElement('a');
     link.href = pdfUrl;
-    // Set a meaningful name for the downloaded file
-    link.download = `Analyx_Report_${task.name.replace(/\s+/g, '_')}.pdf`;
+    const vSuffix = version ? `_v${version}` : '';
+    link.download = `Analyx_Report_${task.name.replace(/\s+/g, '_')}${vSuffix}.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
+
+  const versions = task.documentVersions || [];
+  const latestVersion =
+    versions.length > 0 ? versions[versions.length - 1] : null;
+  const TypeIcon = getTypeIcon(task.type);
+  const hasScores =
+    task.f1Score !== undefined && task.factCheckScore !== undefined;
+  const testCases =
+    task.f1Score !== undefined ? Math.round(task.f1Score * 55) : 0;
+  const ciMargin =
+    task.f1Score !== undefined ? (100 / Math.sqrt(testCases)).toFixed(1) : '0';
+  const externalSources =
+    task.factCheckScore !== undefined
+      ? Math.max(3, Math.round(task.factCheckScore / 18))
+      : 0;
+  const validatorCount = task.agentCount ?? 3;
 
   return (
     <>
@@ -266,7 +533,6 @@ export const TaskDetailDrawer = ({
               height: auto !important;
               overflow: visible !important;
             }
-            /* Hide close button and other non-printable elements inside drawer if needed */
             .drawer-close-button,
             .drawer-export-button,
             .drawer-overlay {
@@ -287,37 +553,109 @@ export const TaskDetailDrawer = ({
         >
           <DrawerHeader>
             <DrawerTitle>
-              <IconBrain size={20} color={theme.color.blue} />
-              Task Details
+              <TypeIcon size={18} color={theme.color.blue} />
+              Report Details
             </DrawerTitle>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <StyledIconButton
-                onClick={handleDownload}
-                className="drawer-export-button"
-              >
-                <IconPrinter size={20} />
-              </StyledIconButton>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              {versions.length > 0 && (
+                <VersionDropdownWrapper ref={versionMenuRef}>
+                  <div
+                    style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}
+                  >
+                    <VersionButton
+                      onClick={() => handleDownload(latestVersion?.version)}
+                      className="drawer-export-button"
+                      title="Download latest version"
+                      style={{
+                        borderRadius: '6px 0 0 6px',
+                        borderRight: 'none',
+                        padding: '4px 8px',
+                      }}
+                    >
+                      <IconDownload size={14} />
+                    </VersionButton>
+                    <VersionButton
+                      onClick={() => setVersionMenuOpen((prev) => !prev)}
+                      title="Document versions"
+                      style={{ borderRadius: '0 6px 6px 0' }}
+                    >
+                      v{latestVersion?.version}
+                      <IconChevronDown size={12} />
+                    </VersionButton>
+                  </div>
+                  {versionMenuOpen && (
+                    <VersionMenu>
+                      {[...versions].reverse().map((ver) => (
+                        <VersionMenuItem
+                          key={ver.version}
+                          isLatest={ver.version === latestVersion?.version}
+                          onClick={() => {
+                            handleDownload(ver.version);
+                            setVersionMenuOpen(false);
+                          }}
+                        >
+                          <span style={{ fontWeight: 600, flexShrink: 0 }}>
+                            v{ver.version}
+                          </span>
+                          <span
+                            style={{
+                              flex: 1,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              color: theme.font.color.secondary,
+                            }}
+                          >
+                            {ver.summary}
+                          </span>
+                          <span
+                            style={{
+                              flexShrink: 0,
+                              color: theme.font.color.tertiary,
+                            }}
+                          >
+                            {formatTaskDateTime(ver.date)}
+                          </span>
+                          <IconFileText
+                            size={13}
+                            color={theme.font.color.tertiary}
+                            style={{ flexShrink: 0 }}
+                          />
+                        </VersionMenuItem>
+                      ))}
+                    </VersionMenu>
+                  )}
+                </VersionDropdownWrapper>
+              )}
+              {versions.length === 0 && (
+                <StyledIconButton
+                  onClick={() => handleDownload()}
+                  className="drawer-export-button"
+                  title="Download report"
+                >
+                  <IconDownload size={18} />
+                </StyledIconButton>
+              )}
               <StyledIconButton
                 onClick={onClose}
                 className="drawer-close-button"
               >
-                <IconX size={20} />
+                <IconX size={18} />
               </StyledIconButton>
             </div>
           </DrawerHeader>
 
           <DrawerContent>
-            {/* Header / Meta Info */}
+            {/* Header: name + status */}
             <div
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                gap: '8px',
               }}
             >
-              <div style={{ fontSize: '18px', fontWeight: 600 }}>
-                {task.name}
-              </div>
+              <TaskNameText title={task.name}>{task.name}</TaskNameText>
               <StyledStatusBadge status={task.status}>
                 <StyledStatusIcon status={task.status}>
                   {task.status === 'Processing' && <IconLoader size={16} />}
@@ -330,72 +668,116 @@ export const TaskDetailDrawer = ({
               </StyledStatusBadge>
             </div>
 
-            <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-              <div>
-                <SectionLabel>Version</SectionLabel>
-                <div>{task.version}</div>
-              </div>
-              <div>
-                <SectionLabel>Type</SectionLabel>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-                >
-                  {task.contextType || 'General'}
-                </div>
-              </div>
-              <div>
-                <SectionLabel>Date</SectionLabel>
-                <div>{task.date}</div>
-              </div>
-            </div>
-
-            {/* Entities Section */}
-            {task.entities && task.entities.length > 0 && (
-              <DetailSection>
-                <SectionLabel>Context</SectionLabel>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {/* Meta: type, date, context — single compact line */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                flexWrap: 'wrap',
+                fontSize: '12px',
+                color: theme.font.color.tertiary,
+              }}
+            >
+              <span
+                style={{ fontWeight: 500, color: theme.font.color.secondary }}
+              >
+                {task.contextType || 'General'}
+              </span>
+              <span>{'·'}</span>
+              <span>{formatTaskDateTime(task.date)}</span>
+              {task.entities && task.entities.length > 0 && (
+                <>
+                  <span>{'·'}</span>
                   {task.entities.map((entity, idx) => {
                     const EntityIcon = entity.objectIcon
                       ? getIcon(entity.objectIcon)
                       : getEntityIcon(entity.objectName || entity.name);
-
                     return (
-                      <div
+                      <span
                         key={idx}
                         style={{
-                          display: 'flex',
+                          display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '6px',
-                          padding: '6px 10px',
-                          background: theme.background.secondary,
-                          borderRadius: '6px',
-                          fontSize: '13px',
-                          border: `1px solid ${theme.border.color.light}`,
+                          gap: '3px',
                         }}
                       >
                         <EntityIcon
-                          size={14}
-                          color={theme.font.color.secondary}
+                          size={12}
+                          color={theme.font.color.tertiary}
                         />
                         {entity.objectName &&
                           entity.objectName !== entity.name && (
-                            <span style={{ color: theme.font.color.tertiary }}>
-                              {entity.objectName}:
-                            </span>
+                            <span>{entity.objectName}:</span>
                           )}
-                        <span style={{ fontWeight: 500 }}>{entity.name}</span>
-                      </div>
+                        <span style={{ color: theme.font.color.secondary }}>
+                          {entity.name}
+                        </span>
+                        {idx < task.entities.length - 1 && (
+                          <span style={{ marginLeft: '2px' }}>{','}</span>
+                        )}
+                      </span>
                     );
                   })}
-                </div>
-              </DetailSection>
-            )}
+                </>
+              )}
+            </div>
 
-            {/* Prompt Section */}
-            <DetailSection>
-              <SectionLabel>Original Prompt</SectionLabel>
-              <PromptBox>{task.prompt}</PromptBox>
-            </DetailSection>
+            {/* Prompt — compact */}
+            <PromptBox>{task.prompt}</PromptBox>
+
+            {/* Trust & Accuracy Score Widget */}
+            {hasScores && (
+              <TrustScoreCard>
+                <TrustScoreHeader>
+                  <IconLock size={12} />
+                  Trust & Accuracy
+                </TrustScoreHeader>
+                <ScoreColumnsRow>
+                  <ScoreColumn>
+                    <ScoreRing
+                      value={task.f1Score!}
+                      maxValue={100}
+                      color={theme.color.blue}
+                    />
+                    <ScoreColumnLabel>Accuracy (F1)</ScoreColumnLabel>
+                    <ScoreColumnValue>
+                      {testCases.toLocaleString()} test cases
+                    </ScoreColumnValue>
+                    <ScoreColumnCI>
+                      {'\u00B1'} {ciMargin}% (95% CI)
+                    </ScoreColumnCI>
+                  </ScoreColumn>
+                  <ScoreColumn>
+                    <ScoreRing
+                      value={task.factCheckScore!}
+                      maxValue={100}
+                      color="#4CAF50"
+                    />
+                    <ScoreColumnLabel>Claim Verification</ScoreColumnLabel>
+                    <ScoreColumnValue>
+                      {externalSources} external sources
+                    </ScoreColumnValue>
+                  </ScoreColumn>
+                  <ScoreColumn>
+                    <ScoreRing
+                      value={Math.min(
+                        99,
+                        Math.round(
+                          (task.f1Score! + task.factCheckScore!) / 2 + 5,
+                        ),
+                      )}
+                      maxValue={100}
+                      color="#E67E22"
+                    />
+                    <ScoreColumnLabel>Consensus</ScoreColumnLabel>
+                    <ScoreColumnValue>
+                      {validatorCount} validators
+                    </ScoreColumnValue>
+                  </ScoreColumn>
+                </ScoreColumnsRow>
+              </TrustScoreCard>
+            )}
 
             {/* Attachments Section */}
             {task.attachments && task.attachments.length > 0 && (
@@ -434,7 +816,7 @@ export const TaskDetailDrawer = ({
             )}
 
             {/* Chat Interface */}
-            <DetailSection style={{ flex: 1 }}>
+            <DetailSection style={{ flex: 1, minHeight: 0 }}>
               <SectionLabel
                 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               >
@@ -467,27 +849,24 @@ export const TaskDetailDrawer = ({
                 </ChatMessages>
                 <ChatInputArea>
                   <ChatInput
+                    ref={chatInputRef}
                     placeholder="Ask a question or request changes..."
                     value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
+                    onChange={(e) => {
+                      setChatInput(e.target.value);
+                      resizeChatInput();
+                    }}
+                    onFocus={handleChatFocus}
+                    onBlur={handleChatBlur}
                     onKeyDown={(e) => {
                       e.stopPropagation();
                       handleKeyDown(e);
                     }}
                     rows={1}
                   />
-                  <StyledIconButton
-                    onClick={handleSendMessage}
-                    style={{
-                      background: theme.color.blue,
-                      color: 'white',
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                    }}
-                  >
-                    <IconSend size={16} />
-                  </StyledIconButton>
+                  <SendButton onClick={handleSendMessage}>
+                    <IconArrowRight size={18} stroke={3} />
+                  </SendButton>
                 </ChatInputArea>
               </ChatContainer>
             </DetailSection>

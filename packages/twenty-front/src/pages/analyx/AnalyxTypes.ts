@@ -7,6 +7,12 @@ export type TaskStatus =
   | 'Archived';
 export type TaskTab = 'Tasks' | 'Reviewed' | 'Archive';
 
+export type DocumentVersion = {
+  version: number;
+  date: string;
+  summary: string;
+};
+
 export interface SelectedContext {
   id: string;
   name: string;
@@ -33,6 +39,10 @@ export interface Task {
   messages: Array<{ role: 'user' | 'ai'; content: string; timestamp: number }>;
   status: TaskStatus;
   tab: TaskTab;
+  documentVersions?: DocumentVersion[];
+  f1Score?: number;
+  factCheckScore?: number;
+  agentCount?: number;
 }
 
 export type NestboxAgent = {

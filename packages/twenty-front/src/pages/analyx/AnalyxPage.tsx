@@ -23,6 +23,7 @@ import {
 import { DEFAULT_SKILLS } from './AnalyxDefaultSkills';
 import {
   CONTEXT_TYPE_OPTIONS,
+  generateMockScores,
   generateRandomTitle,
   getTaskType,
 } from './AnalyxUtils';
@@ -115,11 +116,25 @@ export const AnalyxPage = () => {
     if (stored) {
       try {
         const parsedTasks = JSON.parse(stored);
-        // Migrate old tasks without tab field
-        const migratedTasks = parsedTasks.map((task: Task) => ({
-          ...task,
-          tab: task.tab || 'Tasks',
-        }));
+        // Migrate old tasks: default missing fields
+        const migratedTasks = parsedTasks.map((task: Task) => {
+          const scores = generateMockScores(task.id);
+          return {
+            ...task,
+            tab: task.tab || 'Tasks',
+            documentVersions: task.documentVersions || (() => {
+              const base = new Date(task.date).getTime() || Date.now();
+              return [
+                { version: 1, date: new Date(base - 47 * 60000).toISOString(), summary: 'Initial draft' },
+                { version: 2, date: new Date(base - 18 * 60000).toISOString(), summary: 'Added sources & data tables' },
+                { version: 3, date: new Date(base).toISOString(), summary: 'Final review & formatting' },
+              ];
+            })(),
+            f1Score: task.f1Score ?? scores.f1,
+            factCheckScore: task.factCheckScore ?? scores.factCheck,
+            agentCount: task.agentCount ?? scores.agents,
+          };
+        });
         setTasks(migratedTasks);
       } catch (e) {
         console.error('Failed to parse stored tasks:', e);
@@ -308,14 +323,15 @@ export const AnalyxPage = () => {
       return;
     }
 
+    const taskId = Date.now().toString();
+    const now = new Date();
+    const isoDate = now.toISOString();
+    const scores = generateMockScores(taskId);
+
     const newTask: Task = {
-      id: Date.now().toString(),
+      id: taskId,
       name: generateRandomTitle(prompt, contextType || 'task'),
-      date: new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
+      date: isoDate,
       type: getTaskType(contextType || 'task'),
       entities: selectedContexts.map((ctx) => ({
         name: ctx.name,
@@ -333,6 +349,26 @@ export const AnalyxPage = () => {
       contextType: contextType,
       version: 'v1',
       messages: [],
+      documentVersions: [
+        {
+          version: 1,
+          date: new Date(now.getTime() - 47 * 60000).toISOString(),
+          summary: 'Initial draft',
+        },
+        {
+          version: 2,
+          date: new Date(now.getTime() - 18 * 60000).toISOString(),
+          summary: 'Added sources & data tables',
+        },
+        {
+          version: 3,
+          date: isoDate,
+          summary: 'Final review & formatting',
+        },
+      ],
+      f1Score: scores.f1,
+      factCheckScore: scores.factCheck,
+      agentCount: scores.agents,
     };
 
     setTasks((prev) => [newTask, ...prev]);

@@ -21,7 +21,12 @@ import {
   StyledStatusIcon,
 } from '../AnalyxSharedStyles';
 import { type Task, type TaskTab } from '../AnalyxTypes';
-import { getEntityIcon, getTypeIcon, getTypeName } from '../AnalyxUtils';
+import {
+  formatTaskDateShort,
+  getEntityIcon,
+  getTypeIcon,
+  getTypeName,
+} from '../AnalyxUtils';
 
 const StyledTabsContainer = styled.div`
   align-items: center;
@@ -347,7 +352,7 @@ export const AnalyxTaskList = ({
                 onClick={() => onTaskClick(task.id)}
               >
                 <StyledCell style={{ fontWeight: 500 }}>{task.name}</StyledCell>
-                <StyledDateCell>{task.date}</StyledDateCell>
+                <StyledDateCell>{formatTaskDateShort(task.date)}</StyledDateCell>
 
                 <StyledCell>
                   <StyledIconWrapper>

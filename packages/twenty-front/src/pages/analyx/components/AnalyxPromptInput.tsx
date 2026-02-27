@@ -205,7 +205,7 @@ export const AnalyxPromptInput = ({
           onChange={onFileChange}
         />
         <StyledIconButton onClick={() => fileInputRef.current?.click()}>
-          <IconPaperclip size={16} /> Attachment
+          <IconPaperclip size={16} /> Attach
         </StyledIconButton>
 
         <Dropdown
