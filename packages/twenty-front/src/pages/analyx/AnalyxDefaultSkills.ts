@@ -2369,4 +2369,940 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     isDefault: true,
     placeholder: 'e.g. Calculate nexus exposure and file obligations for Q4',
   },
+  // CRE — Lease & Revenue Reports
+  {
+    id: 'default-lease-expiration',
+    name: 'Lease Expiration Schedule',
+    description: `### Tasks Required
+- Extract all active leases with expiration dates, renewal options, and notice deadlines
+- Map lease expirations by month and year for the next 5-10 year horizon
+- Calculate percentage of GLA and percentage of annualized rent expiring each period
+- Assign renewal probability estimates based on tenant credit, market conditions, and lease terms
+- Quantify rollover risk: NOI at risk, downtime assumptions, and re-leasing cost estimates
+- Identify concentration risk where multiple large tenants expire in the same period
+
+### Data Sources
+- **Property Management System** (Yardi / MRI / AppFolio) — active lease roster with term dates, GLA, and rent
+- **Lease Abstracts** — renewal option terms, notice periods, termination rights, and co-tenancy triggers
+- **Market Data** (CoStar / CBRE Research) — submarket vacancy, absorption, and asking rent trends
+- **CRM** (Twenty CRM) — tenant relationship notes, renewal discussion status, and broker contacts
+
+### Computation Process
+1. Pull all active leases and extract tenant name, suite, GLA, annual rent, lease expiration date, and option details
+2. Group expirations by quarter and year; calculate GLA expiring and rent expiring per period
+3. Compute cumulative expiration: running total of GLA and rent at risk over the projection horizon
+4. Assign renewal probability to each lease based on tenant credit tier, remaining term, and market rent spread
+5. Calculate expected vacancy cost: (1 - renewal probability) x estimated downtime x market rent loss
+6. Estimate re-leasing costs for non-renewals: TI allowance, leasing commissions, and free rent concessions
+7. Compute NOI impact under base case (expected renewals) and stress case (50% renewal rate)
+8. Flag periods with expiration concentration exceeding 15% of total GLA or 20% of total rent
+
+### Output Structure
+- **Expiration Schedule**: Monthly and annual table showing GLA and rent expiring with cumulative totals
+- **Rollover Risk Heat Map**: Color-coded calendar highlighting high-risk expiration periods
+- **Renewal Probability Matrix**: Tenant-level renewal likelihood with supporting rationale
+- **NOI Impact Analysis**: Base case and stress case NOI projections accounting for downtime and re-leasing costs
+- **Concentration Alert Panel**: Periods exceeding concentration thresholds with tenant detail
+- **Action Items**: Recommended early renewal outreach targets and lease negotiation priorities`,
+    tags: [
+      'real estate',
+      'realestate',
+      'lease expiration',
+      'rollover',
+      'leasing',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Map lease expirations for the office portfolio over the next 5 years',
+  },
+  {
+    id: 'default-lease-abstract-summary',
+    name: 'Lease Abstract Summary',
+    description: `### Tasks Required
+- Compile executed lease documents including all amendments, side letters, and commencement agreements
+- Extract escalation clauses: fixed increases, CPI-based adjustments, and fair market value resets
+- Document CAM caps, expense stops, and base year provisions per tenant
+- Quantify TI obligations: allowance amounts, disbursement conditions, and amortization schedules
+- Identify free rent periods, abatement structures, and burn-off schedules
+- Catalog all option rights with critical notice deadlines
+
+### Data Sources
+- **Lease Documents** — executed leases, amendments, commencement date agreements, and guaranty agreements
+- **Property Management System** (Yardi / MRI / AppFolio) — lease terms, billing schedules, and TI tracking
+- **Document Management System** — centralized repository for lease-related files
+- **Legal Counsel Notes** — interpretation guidance on ambiguous clauses or non-standard provisions
+
+### Computation Process
+1. Review each lease and all amendments in chronological order to determine current effective terms
+2. Build escalation schedule: map each rent step by effective date, amount, and escalation mechanism
+3. Calculate the present value of total lease obligation using a market discount rate
+4. Extract recovery structure: identify base year, pro-rata share method, cap type (cumulative vs non-cumulative), and exclusions
+5. Compute landlord exposure under CAM caps: project operating expenses and calculate the gap between tenant cap and actual costs
+6. Tabulate TI obligations: total allowance, amount disbursed, remaining balance, and amortization terms
+7. Map free rent periods and compute the effective rent (total rent collected / total lease term in months)
+8. Create a critical dates calendar for all option notice deadlines, escalation triggers, and lease milestones
+
+### Output Structure
+- **Lease Summary Matrix**: Tenant, suite, GLA, term, base rent, escalation type, recovery structure
+- **Escalation Schedule**: Year-by-year rent steps with annual and PSF amounts for each tenant
+- **CAM Cap Analysis**: Projected cap impact by tenant showing landlord-absorbed expenses
+- **TI Obligation Tracker**: Allowance, disbursed, remaining, and amortization schedule per tenant
+- **Free Rent Summary**: Abatement periods, monthly value, and effective rent calculation
+- **Critical Date Calendar**: All option and milestone deadlines sorted chronologically`,
+    tags: [
+      'real estate',
+      'realestate',
+      'lease abstract',
+      'escalation',
+      'leasing',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Summarize escalation clauses and TI obligations across the retail portfolio',
+  },
+  // CRE — Operating & CAM Reports
+  {
+    id: 'default-property-operating-statement',
+    name: 'Property Operating Statement',
+    description: `### Tasks Required
+- Compile monthly income detail: base rent, percentage rent, CAM recoveries, parking, and other income
+- Aggregate operating expenses by category: taxes, insurance, utilities, R&M, janitorial, management fee, administrative
+- Calculate NOI on a monthly and YTD basis for each property
+- Compare actual results to budget and prior year with dollar and percentage variances
+- Identify material variances and provide explanatory commentary
+- Consolidate property-level statements into a portfolio-level summary
+
+### Data Sources
+- **Property Management System** (Yardi / MRI / AppFolio) — GL-level income and expense transactions by property and period
+- **Rent Roll** — current billing schedules, base rent, escalations, and recovery billings
+- **Budget / Pro Forma** — approved annual operating budget for variance analysis
+- **Vendor Invoices** — supporting detail for expense line items
+- **Prior Year Actuals** — comparative period financial data
+
+### Computation Process
+1. Extract income transactions by category: base rent, CAM/tax/insurance recoveries, percentage rent, parking, and miscellaneous
+2. Extract expense transactions by category and map to standardized chart of accounts
+3. Calculate gross income, vacancy loss, and effective gross income (EGI)
+4. Subtract total operating expenses from EGI to arrive at NOI
+5. Compute NOI margin (NOI / EGI) and expense ratio (OpEx / EGI)
+6. Calculate budget variance: actual minus budget in dollars and as a percentage for each line item
+7. Calculate prior year variance: actual minus prior year for trend analysis
+8. Flag variances exceeding a materiality threshold (e.g., 5% or $10,000) for management commentary
+9. Roll up property-level results into portfolio-level consolidated operating statement
+
+### Output Structure
+- **Monthly P&L by Property**: Income, expenses, and NOI with budget and prior year columns
+- **YTD Summary**: Cumulative income, expenses, and NOI with variance analysis
+- **Variance Report**: Material variances with dollar amount, percentage, and explanatory notes
+- **Expense Breakdown**: Detailed operating expense schedule by category with per-SF metrics
+- **Portfolio Consolidation**: Combined operating statement across all properties with property-level detail
+- **Trend Charts**: Monthly NOI trend with budget overlay and prior year comparison`,
+    tags: [
+      'real estate',
+      'realestate',
+      'operating statement',
+      'property management',
+      'noi',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Produce monthly P&L for each property in the office portfolio',
+  },
+  {
+    id: 'default-property-budget-variance',
+    name: 'Property Budget Variance',
+    description: `### Tasks Required
+- Extract actual income and expense results from the property GL for the reporting period
+- Pull approved budget amounts by line item and property for the same period
+- Pull prior year actual amounts for year-over-year comparison
+- Calculate dollar and percentage variances: actual vs budget and actual vs prior year
+- Identify root causes for material variances at the line-item level
+- Prepare variance commentary and action recommendations for asset management review
+
+### Data Sources
+- **Property Management System** (Yardi / MRI / AppFolio) — actual GL transactions by account, property, and period
+- **Budget Model** — approved annual operating budget with monthly phasing by property
+- **Prior Year Actuals** — comparative period results from the same properties
+- **Vendor Contracts** — contracted rates for recurring expenses (landscaping, janitorial, elevator, etc.)
+- **Capital Budget** — approved CapEx plan for variance tracking on capital items
+
+### Computation Process
+1. Extract actual income and expense balances by GL account for each property and period
+2. Map actual accounts to budget line items using the standardized chart of accounts
+3. Calculate budget variance: actual minus budget for each line item in dollars
+4. Calculate budget variance percentage: (actual - budget) / budget x 100
+5. Calculate prior year variance: actual minus prior year for each line item
+6. Rank variances by materiality (absolute dollar amount and percentage) to focus commentary
+7. Investigate top variances: identify whether driven by timing, volume, rate, or one-time items
+8. Categorize each variance as favorable or unfavorable and as controllable or non-controllable
+9. Prepare a forecast adjustment recommendation where variances indicate a full-year budget miss
+
+### Output Structure
+- **Variance Summary by Property**: One-page view showing total income, total expense, and NOI variances
+- **Line-Item Detail**: Actual, budget, prior year, and variances for every income and expense account
+- **Materiality Ranked List**: Top 10 variances sorted by absolute dollar impact with explanation
+- **Favorable/Unfavorable Split**: Grouped variance totals showing positive and negative contributors
+- **Forecast Impact**: Projected full-year NOI impact if current variance trends continue
+- **Action Recommendations**: Specific steps to address unfavorable variances and protect NOI`,
+    tags: [
+      'real estate',
+      'realestate',
+      'budget variance',
+      'property management',
+      'fp&a',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Analyze YTD budget variances across the industrial portfolio',
+  },
+  {
+    id: 'default-property-ar-aging',
+    name: 'Property AR Aging',
+    description: `### Tasks Required
+- Extract tenant-level accounts receivable balances from the property management system
+- Age outstanding balances into standard buckets: current, 30 days, 60 days, 90+ days
+- Calculate delinquency rate by property: delinquent rent / total billings
+- Assess cash flow impact of delinquencies on property-level NOI and debt service coverage
+- Identify repeat offenders and tenants with deteriorating payment patterns
+- Recommend collection actions: demand letters, late fee enforcement, lease default notices
+
+### Data Sources
+- **Property Management System** (Yardi / MRI / AppFolio) — tenant billing history, payment receipts, and open balances
+- **Rent Roll** — monthly billing amounts by tenant for reconciliation to AR
+- **Lease Abstracts** — late fee provisions, cure periods, and default remedies
+- **Tenant Credit Files** — credit scores, financial statements, and guarantor information
+- **Bank Deposit Records** — payment receipt confirmation and NSF check tracking
+
+### Computation Process
+1. Pull open AR balances by tenant and invoice date from the property management system
+2. Age each balance by computing days outstanding: reporting date minus invoice date
+3. Bucket balances into current (0-30), 31-60, 61-90, and 90+ day categories
+4. Calculate delinquency rate by property: sum of 31+ day balances / total billed for the period
+5. Compute cash flow impact: delinquent amounts as a percentage of monthly NOI and DSCR shortfall
+6. Analyze payment history trends: identify tenants with worsening aging patterns over the trailing 6 months
+7. Cross-reference against lease provisions to determine available remedies and cure period status
+8. Estimate bad debt reserve requirement based on aging profile and historical write-off rates
+
+### Output Structure
+- **AR Aging Schedule**: Tenant-level detail with current, 30, 60, 90+ day columns and total outstanding
+- **Delinquency Rate Dashboard**: Property-level delinquency percentages with trend over trailing 6 months
+- **Cash Flow Impact Analysis**: NOI and DSCR impact of outstanding receivables by property
+- **Watchlist Report**: Tenants with deteriorating payment patterns flagged for proactive outreach
+- **Collection Action Tracker**: Recommended next steps per tenant with cure period deadlines
+- **Bad Debt Reserve Estimate**: Projected write-off based on aging and historical loss experience`,
+    tags: [
+      'real estate',
+      'realestate',
+      'ar aging',
+      'collections',
+      'tenant',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Review tenant delinquencies and cash flow impact across all properties',
+  },
+  // CRE — Asset Performance Reports
+  {
+    id: 'default-noi-trend',
+    name: 'NOI Trend Report',
+    description: `### Tasks Required
+- Compile monthly and quarterly NOI for each property over the trailing 12-24 months
+- Calculate period-over-period change: MoM, QoQ, and YoY NOI growth rates
+- Decompose NOI changes into income-driven and expense-driven components
+- Compute NOI margin trends and identify margin compression or expansion
+- Compare NOI performance to budget and to peer/benchmark properties
+- Project forward NOI trajectory based on known lease events and expense trends
+
+### Data Sources
+- **Property Management System** (Yardi / MRI / AppFolio) — monthly income and expense GL detail by property
+- **Budget / Pro Forma** — approved NOI budget with monthly phasing
+- **Market Benchmarks** (NCREIF / CoStar) — peer property NOI per SF and margin data
+- **Lease Event Calendar** — known rent commencements, expirations, and escalation triggers
+- **Capital Plan** — approved CapEx that may affect future operating expenses
+
+### Computation Process
+1. Extract monthly income and expense totals for each property over the analysis period
+2. Calculate NOI for each month: EGI minus total operating expenses
+3. Compute trailing 3-month and trailing 12-month NOI to smooth seasonal volatility
+4. Calculate period-over-period growth rates: MoM, QoQ, and YoY for each property
+5. Decompose YoY NOI change into income growth contribution and expense growth contribution
+6. Compute NOI margin (NOI / EGI) for each period and track the trend
+7. Compare actual NOI trajectory to budget and identify cumulative deviation
+8. Project forward 12-month NOI using committed lease income, scheduled escalations, and expense inflation assumptions
+
+### Output Structure
+- **Monthly NOI Schedule**: Property-level NOI by month with income and expense components
+- **Growth Rate Dashboard**: MoM, QoQ, and YoY NOI growth rates with trend direction indicators
+- **NOI Bridge Analysis**: Waterfall decomposing YoY change into income, vacancy, and expense drivers
+- **Margin Trend Chart**: NOI margin plotted over time with target margin overlay
+- **Budget Comparison**: Actual vs budget NOI with cumulative variance and projected full-year outcome
+- **Forward Projection**: 12-month NOI forecast based on known lease events and expense assumptions`,
+    tags: [
+      'real estate',
+      'realestate',
+      'noi',
+      'trend analysis',
+      'asset performance',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Show NOI trajectory and YoY growth for each asset over the past 24 months',
+  },
+  {
+    id: 'default-property-capex',
+    name: 'Property CapEx Report',
+    description: `### Tasks Required
+- Compile approved capital expenditure budgets by property and project category
+- Track actual CapEx spend against approved amounts with remaining balance
+- Categorize spend: tenant improvements, building systems, roof, parking, elevator, common area upgrades
+- Assess ROI impact of completed capital projects on property value and NOI
+- Monitor project timelines and flag budget overruns or schedule delays
+- Forecast remaining CapEx obligations for the current and next fiscal year
+
+### Data Sources
+- **Property Management System** (Yardi / MRI) — CapEx GL accounts, project codes, and payment records
+- **Capital Budget** — approved CapEx plan with project descriptions, amounts, and timing
+- **Construction / Project Management** (Procore / manual tracking) — project milestones, change orders, and completion status
+- **Vendor Contracts** — contractor agreements, scope of work, and payment schedules
+- **Appraisal Reports** — capital reserve recommendations and useful life estimates
+
+### Computation Process
+1. Extract CapEx transactions from the GL by project code and property
+2. Map each transaction to the approved capital budget line item
+3. Calculate spend-to-date vs approved budget: dollar amount and percentage complete
+4. Compute remaining budget: approved minus spent, flagging projects exceeding 90% of budget
+5. Categorize spend by type: TI, building envelope, mechanical systems, site work, common area
+6. Estimate ROI for completed projects: incremental NOI or rent increase / total project cost
+7. Calculate CapEx as a percentage of property value and NOI for each asset
+8. Project remaining obligations: committed but unpaid amounts plus planned future projects
+
+### Output Structure
+- **CapEx Summary by Property**: Total approved, spent, remaining, and percentage complete
+- **Project Detail Schedule**: Each project with description, budget, spend-to-date, remaining, and status
+- **Budget Variance Report**: Projects over budget with variance amount and explanation
+- **Category Breakdown**: Spend by type (TI, roof, parking, HVAC, etc.) as a percentage of total
+- **ROI Analysis**: Completed projects with estimated value impact and payback period
+- **Forward Projection**: Remaining obligations and planned CapEx for the next 12-24 months`,
+    tags: [
+      'real estate',
+      'realestate',
+      'capex',
+      'capital expenditure',
+      'asset management',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Track CapEx spend vs budget for TI and building projects this year',
+  },
+  {
+    id: 'default-dscr-report',
+    name: 'DSCR Report',
+    description: `### Tasks Required
+- Calculate debt service coverage ratio (DSCR) for each financed property
+- Compare actual DSCR to lender covenant requirements and identify breaches or near-breaches
+- Analyze DSCR trends over the trailing 12 months to detect deterioration
+- Stress test DSCR under adverse scenarios: vacancy increase, rent decline, expense escalation
+- Compile loan-level detail: outstanding balance, interest rate, maturity, and amortization schedule
+- Prepare lender reporting package with supporting calculations
+
+### Data Sources
+- **Property Management System** (Yardi / MRI) — property-level NOI and cash flow data
+- **Loan Agreements** — debt service schedules, covenant thresholds, and reporting requirements
+- **Lender Statements** — outstanding principal balance, interest rate, and payment history
+- **Budget / Pro Forma** — projected NOI for forward-looking DSCR estimates
+- **Appraisal Reports** — property values for LTV covenant monitoring
+
+### Computation Process
+1. Calculate actual NOI for each financed property for the reporting period
+2. Determine total debt service: principal payments plus interest payments for the same period
+3. Compute DSCR: NOI / total debt service for each property
+4. Compare calculated DSCR to covenant minimum (typically 1.20x-1.35x depending on lender)
+5. Calculate headroom: actual DSCR minus covenant minimum, expressed as NOI dollars of cushion
+6. Analyze trailing 12-month DSCR trend to detect improving or deteriorating trajectory
+7. Stress test under adverse scenarios: 10% rent decline, 500 bps vacancy increase, 5% expense escalation
+8. Flag properties with DSCR below 1.50x as watchlist and below covenant as critical
+9. Calculate LTV ratio as a secondary covenant check: outstanding loan balance / current property value
+
+### Output Structure
+- **DSCR Summary Dashboard**: Property-level DSCR with covenant minimum and headroom indicator
+- **Loan Detail Schedule**: Property, lender, balance, rate, maturity, amortization, and DSCR
+- **Trend Analysis**: Trailing 12-month DSCR by property with directional arrows
+- **Covenant Compliance Matrix**: All financial covenants with actual vs required and pass/fail status
+- **Stress Test Results**: DSCR under base, moderate stress, and severe stress scenarios
+- **Watchlist and Action Items**: Properties approaching or breaching covenants with recommended remediation`,
+    tags: [
+      'real estate',
+      'realestate',
+      'dscr',
+      'debt service',
+      'loan compliance',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Calculate DSCR for each financed property and flag covenant risks',
+  },
+  // CRE — Investor / Fund-Level Reports
+  {
+    id: 'default-property-cash-flow',
+    name: 'Property Cash Flow Statement',
+    description: `### Tasks Required
+- Compile property-level NOI from the operating statement
+- Deduct debt service (principal and interest) from NOI to calculate cash flow after debt service
+- Deduct capital expenditures (TI, building CapEx, leasing commissions) from cash flow
+- Calculate cash available for distribution to equity holders
+- Compare actual distributions to projected returns and partnership agreement requirements
+- Prepare a sources and uses reconciliation for the reporting period
+
+### Data Sources
+- **Property Management System** (Yardi / MRI) — property-level income, expense, and NOI data
+- **Loan Servicer Statements** — debt service payments, escrow activity, and reserve balances
+- **CapEx Tracking** — actual capital expenditures and tenant improvement disbursements
+- **Partnership / Operating Agreement** — distribution priority, reserve requirements, and waterfall structure
+- **Bank Statements** — property-level operating account balances and cash movement
+
+### Computation Process
+1. Start with property-level NOI from the operating statement
+2. Add back non-cash items if applicable (straight-line rent adjustment, amortization of lease costs)
+3. Deduct total debt service: scheduled principal plus interest payments
+4. Calculate cash flow after debt service (CFADS)
+5. Deduct capital expenditures: TI, building CapEx, and leasing commissions paid during the period
+6. Deduct required reserve contributions: replacement reserves, TI reserves, and lender escrows
+7. Calculate cash available for distribution: CFADS minus CapEx minus reserve contributions
+8. Reconcile opening cash balance plus net cash flow to closing cash balance
+9. Compare actual cash flow to budget projections and partnership return targets
+
+### Output Structure
+- **Cash Flow Waterfall**: NOI → less debt service → less CapEx → less reserves → cash for distribution
+- **Monthly Cash Flow Schedule**: Period-by-period cash inflows, outflows, and ending balance
+- **Debt Service Detail**: Principal, interest, escrow, and total payment by month
+- **CapEx Cash Outflow**: TI disbursements, building CapEx, and leasing commissions paid
+- **Reserve Activity**: Opening balance, contributions, withdrawals, and closing balance by reserve type
+- **Distribution Summary**: Cash available, amount distributed, and retained balance`,
+    tags: [
+      'real estate',
+      'realestate',
+      'cash flow',
+      'distribution',
+      'investment',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Calculate cash available for distribution after debt service and CapEx',
+  },
+  {
+    id: 'default-distribution-waterfall',
+    name: 'Distribution Waterfall',
+    description: `### Tasks Required
+- Parse the partnership or operating agreement to extract the waterfall structure
+- Calculate preferred return accrual and cumulative unpaid preferred return balance
+- Determine which waterfall tier is currently active based on cumulative distributions
+- Allocate distributable cash through each tier: preferred return, return of capital, catch-up, and promote
+- Compute GP and LP allocation at each tier and in total
+- Reconcile cumulative distributions to date against invested capital and return hurdles
+
+### Data Sources
+- **Partnership / Operating Agreement** — waterfall structure, preferred return rate, promote hurdles, and GP/LP splits
+- **Capital Account Ledger** — investor contributions, return of capital, and cumulative distributions by partner
+- **Property Cash Flow Statement** — cash available for distribution for the current period
+- **Prior Period Distribution Records** — historical distributions by partner and tier for cumulative tracking
+- **Investor Management Platform** (Juniper Square / IMS) — investor data, K-1 allocations, and capital call history
+
+### Computation Process
+1. Determine total distributable cash for the current period from the property cash flow statement
+2. Calculate preferred return accrual: invested capital x preferred rate x days in period / 365
+3. Check cumulative preferred return status: accrued vs paid to determine any unpaid balance
+4. Tier 1 — Preferred Return: distribute cash to LPs until current and cumulative preferred return is satisfied
+5. Tier 2 — Return of Capital: distribute remaining cash to LPs until 100% of invested capital is returned
+6. Tier 3 — Catch-Up (if applicable): distribute to GP until GP has received its promote percentage of total profits
+7. Tier 4 — Residual Split: distribute remaining cash per the agreed GP/LP promote split (e.g., 80/20 or 70/30)
+8. Compute total allocation to each partner class (GP and LP) for the period and cumulatively
+9. Calculate effective promote percentage and implied IRR at current distribution pace
+
+### Output Structure
+- **Waterfall Structure Summary**: Diagram of tiers with hurdle rates and split percentages
+- **Current Period Allocation**: Cash distributed through each tier with GP and LP amounts
+- **Cumulative Distribution Tracker**: Total distributions by tier since inception vs total invested capital
+- **Preferred Return Status**: Accrued, paid, and unpaid preferred return by investor
+- **Capital Account Summary**: Contributions, return of capital, and unreturned capital balance by partner
+- **Promote Calculation**: GP promote earned to date and remaining hurdles to next promote tier`,
+    tags: [
+      'real estate',
+      'realestate',
+      'waterfall',
+      'distribution',
+      'gp/lp',
+      'fund',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Allocate quarterly distributions through the GP/LP waterfall structure',
+  },
+  {
+    id: 'default-irr-equity-multiple',
+    name: 'IRR & Equity Multiple Report',
+    description: `### Tasks Required
+- Compile the complete cash flow history for each investment: contributions, distributions, and current value
+- Calculate gross and net IRR using actual cash flow dates and amounts
+- Calculate equity multiple: total value (distributions + current value) / total invested capital
+- Separate realized returns (from distributions) and unrealized returns (from current asset value)
+- Compare actual returns to underwritten projections and partnership return targets
+- Benchmark returns against relevant indices and peer funds
+
+### Data Sources
+- **Capital Account Ledger** — contribution dates and amounts, distribution dates and amounts by investor
+- **Property Valuations** — current appraised or estimated market value for unrealized return calculation
+- **Investment Underwriting** — original projected IRR, equity multiple, and cash flow assumptions
+- **Fund Administration Platform** (Juniper Square / IMS / Investran) — investor-level cash flow records and NAV
+- **Benchmark Data** (NCREIF / Cambridge Associates / Preqin) — peer fund return data by vintage and strategy
+
+### Computation Process
+1. Assemble the complete cash flow timeline: contribution outflows (negative) and distribution inflows (positive) with exact dates
+2. Include current NAV or estimated value as a terminal cash flow for unrealized return calculation
+3. Calculate gross IRR using the XIRR method on property-level cash flows before fees and promote
+4. Calculate net IRR using investor-level cash flows after management fees, promote, and expenses
+5. Compute gross equity multiple: (cumulative distributions + current value) / total invested capital
+6. Compute net equity multiple: (cumulative net distributions + current NAV) / total LP capital invested
+7. Decompose returns: realized multiple = cumulative distributions / invested capital; unrealized = current value / invested capital
+8. Compare actual IRR and multiple to original underwriting targets and compute the variance
+9. Benchmark against NCREIF ODCE, NFI, or vintage-appropriate peer index
+
+### Output Structure
+- **Return Summary Dashboard**: Gross and net IRR, gross and net equity multiple for each investment
+- **Cash Flow Timeline**: Contribution and distribution history with dates and amounts
+- **Realized vs Unrealized Split**: Breakdown of returns into distributed and remaining value components
+- **Underwriting Comparison**: Actual vs projected IRR and multiple with variance analysis
+- **Peer Benchmarking**: Return metrics compared to relevant indices and quartile rankings
+- **Investor-Level Returns**: Net returns by LP including the effect of fees, promote, and timing of capital calls`,
+    tags: [
+      'real estate',
+      'realestate',
+      'irr',
+      'equity multiple',
+      'fund performance',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Calculate gross and net IRR for each investment in Fund III',
+  },
+  // CRE — Compliance & Control Reports
+  {
+    id: 'default-cam-recoverability',
+    name: 'CAM Recoverability Matrix',
+    description: `### Tasks Required
+- Extract all recoverable and non-recoverable expense categories from each lease
+- Build a tenant-by-expense-category matrix showing recoverability status
+- Identify gaps where expenses are incurred but not recoverable under any lease
+- Calculate total recoverable amount vs total operating expenses to determine landlord exposure
+- Assess the impact of CAM caps, exclusions, and gross-up provisions on recoverability
+- Recommend lease language improvements for future negotiations to close recovery gaps
+
+### Data Sources
+- **Lease Abstracts** — recovery provisions, expense stop / base year, CAM caps, exclusions, and pro-rata methodology
+- **Property Management System** (Yardi / MRI) — actual operating expense detail by GL account
+- **Standard Lease Template** — current form lease recovery language for comparison
+- **Prior Year Reconciliations** — historical recovery rates and landlord-absorbed amounts
+
+### Computation Process
+1. List all operating expense GL accounts for the property
+2. For each tenant, review the lease abstract to classify each expense category as recoverable, excluded, or capped
+3. Build the matrix: rows = expense categories, columns = tenants, cells = recoverable / excluded / capped
+4. Calculate total expense amount per category and the portion recoverable across all tenants
+5. Compute the recovery gap: total expense minus total recoverable amount by category
+6. Apply CAM cap limitations to determine additional landlord absorption above caps
+7. Factor in gross-up provisions for properties below stabilized occupancy
+8. Calculate the overall recovery ratio: total recoveries / total operating expenses
+9. Identify the largest recovery gaps by dollar amount and recommend remediation strategies
+
+### Output Structure
+- **Recoverability Matrix**: Tenant vs expense category grid with recovery status indicators
+- **Recovery Gap Analysis**: Expense categories with largest landlord-absorbed amounts
+- **CAM Cap Impact**: Tenant-level cap analysis showing projected landlord absorption
+- **Gross-Up Analysis**: Impact of occupancy-based gross-up on recovery calculations
+- **Overall Recovery Ratio**: Total recoveries as a percentage of total operating expenses
+- **Recommendations**: Lease language improvements and renegotiation priorities to improve recoveries`,
+    tags: [
+      'real estate',
+      'realestate',
+      'cam',
+      'recoverability',
+      'lease compliance',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Map recoverable vs non-recoverable expenses by tenant for the office tower',
+  },
+  {
+    id: 'default-lease-compliance',
+    name: 'Lease Compliance Report',
+    description: `### Tasks Required
+- Audit tenant billing accuracy: verify base rent, escalations, and recovery charges match lease terms
+- Verify escalation enforcement: confirm annual increases were applied on schedule at the correct rate
+- Track option exercise deadlines: renewal, expansion, termination, and ROFO/ROFR notice dates
+- Monitor co-tenancy and exclusive use clause compliance across the tenant roster
+- Identify billing errors, missed escalations, and under-collected amounts for correction
+- Prepare a compliance scorecard for asset management and investor reporting
+
+### Data Sources
+- **Lease Abstracts** — all financial terms, escalation schedules, option deadlines, and restrictive covenants
+- **Property Management System** (Yardi / MRI / AppFolio) — actual billing records, charge codes, and payment history
+- **Rent Roll** — current billing amounts for cross-reference to lease terms
+- **Critical Date Calendar** — upcoming deadlines for options, notices, and milestones
+- **Tenant Correspondence Files** — notice letters, estoppel certificates, and amendment records
+
+### Computation Process
+1. For each tenant, compare current base rent billing to the lease-specified amount including all effective escalations
+2. Verify that each scheduled escalation was implemented on the correct date and at the correct amount
+3. Recalculate recovery billings using lease-specified methodology and compare to actual billings
+4. Compile all option exercise deadlines for the next 12 months and flag unresolved items
+5. Review co-tenancy clauses and verify that anchor/co-tenant occupancy requirements are met
+6. Check exclusive use provisions against current tenant roster for potential conflicts
+7. Quantify billing errors: under-billings (revenue opportunity) and over-billings (refund risk)
+8. Calculate compliance score for each property: percentage of leases with zero billing discrepancies
+
+### Output Structure
+- **Billing Accuracy Report**: Tenant-level comparison of actual billing vs lease-specified amounts
+- **Escalation Enforcement Log**: Each scheduled escalation with implementation status (applied/missed/late)
+- **Under-Billing Recovery Schedule**: Missed revenue identified with retroactive collection amounts
+- **Critical Date Tracker**: Option deadlines within the next 12 months with status and responsible party
+- **Covenant Compliance Matrix**: Co-tenancy and exclusive use status across the tenant roster
+- **Property Compliance Scorecard**: Summary score with drill-down to specific issues by property`,
+    tags: [
+      'real estate',
+      'realestate',
+      'lease compliance',
+      'audit',
+      'billing',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Audit billing accuracy and escalation enforcement for all retail leases',
+  },
+  {
+    id: 'default-insurance-compliance',
+    name: 'Insurance Compliance Report',
+    description: `### Tasks Required
+- Extract insurance requirements from each lease: coverage types, minimum limits, and additional insured provisions
+- Collect current certificates of insurance (COIs) from all tenants
+- Compare COI coverage to lease requirements and identify gaps or deficiencies
+- Track COI expiration dates and flag upcoming renewals requiring updated certificates
+- Monitor additional insured and waiver of subrogation endorsement compliance
+- Generate non-compliance notices for tenants with missing or insufficient coverage
+
+### Data Sources
+- **Lease Abstracts** — tenant insurance requirements: GL limits, property coverage, umbrella, workers comp, and endorsements
+- **Certificate of Insurance Repository** (COINS / Jones / manual files) — current COIs on file for each tenant
+- **Property Management System** (Yardi / MRI) — tenant contact information for notice distribution
+- **Insurance Broker** — property-level landlord insurance policy details for coordination
+- **Landlord Master Policy** — coverage terms to identify landlord exposure from tenant non-compliance
+
+### Computation Process
+1. Build a requirements matrix: tenant vs coverage type (GL, property, umbrella, auto, workers comp) with minimum limits
+2. Parse current COIs to extract coverage types, limits, additional insured status, and expiration dates
+3. Compare COI data to lease requirements for each tenant and each coverage type
+4. Flag deficiencies: missing coverage types, limits below requirements, missing endorsements, expired certificates
+5. Calculate compliance rate: number of fully compliant tenants / total tenants requiring insurance
+6. Identify landlord risk exposure: aggregate insurable value for tenants with non-compliant or missing coverage
+7. Generate deficiency notices listing specific gaps and cure deadlines per lease provisions
+8. Track cure progress and update compliance status as updated COIs are received
+
+### Output Structure
+- **Compliance Dashboard**: Overall compliance rate with breakdown by coverage type
+- **Tenant-Level Compliance Matrix**: Tenant vs coverage requirements with pass/fail/expired status
+- **Deficiency Detail Report**: Each gap with tenant name, required coverage, actual coverage, and shortfall
+- **Expiration Calendar**: COIs expiring in the next 30/60/90 days requiring renewal
+- **Non-Compliance Notices**: Draft letters for tenants with deficiencies including cure deadlines
+- **Risk Exposure Summary**: Aggregate insurable value at risk due to non-compliance by property`,
+    tags: [
+      'real estate',
+      'realestate',
+      'insurance',
+      'compliance',
+      'risk management',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Track tenant insurance certificate compliance across the portfolio',
+  },
+  {
+    id: 'default-property-tax-recon',
+    name: 'Property Tax Reconciliation',
+    description: `### Tasks Required
+- Compile assessed values, tax rates, and actual tax bills for each property
+- Compare assessed values to budgeted and appraised values to identify assessment discrepancies
+- Reconcile actual tax payments to budgeted amounts and to lender escrow disbursements
+- Track tax appeal status, deadlines, and potential refund amounts
+- Analyze effective tax rate trends and compare to comparable properties in the jurisdiction
+- Project next-year tax liability based on reassessment indicators and millage rate changes
+
+### Data Sources
+- **County Assessor / Tax Authority** — assessed values, tax rates, levy amounts, and payment records
+- **Property Management System** (Yardi / MRI) — tax expense GL accounts and escrow payment tracking
+- **Budget / Pro Forma** — budgeted property tax amounts by property
+- **Appraisal Reports** — current appraised values for comparison to assessed values
+- **Tax Counsel / Consultant** — appeal filings, hearing dates, and potential refund estimates
+- **Lender Escrow Statements** — tax escrow balance, disbursements, and shortage/surplus analysis
+
+### Computation Process
+1. Pull current assessed value and applicable tax rate (millage) for each property and tax parcel
+2. Calculate expected tax liability: assessed value x tax rate, adjusted for exemptions or abatements
+3. Compare expected tax to actual tax bill received to identify assessment errors
+4. Calculate budget variance: actual tax expense minus budgeted amount for each property
+5. Reconcile lender escrow: verify escrow disbursements match actual tax payments and identify shortfalls
+6. Compare assessed value to appraised value — flag properties where assessment exceeds market value as appeal candidates
+7. Track appeal status: filing date, hearing date, requested value, and estimated refund if successful
+8. Project next-year tax liability using reassessment cycle timing and anticipated rate changes
+
+### Output Structure
+- **Tax Summary by Property**: Assessed value, tax rate, actual tax, budget, and variance
+- **Assessment vs Market Value**: Comparison of assessed values to appraised values with appeal opportunity flags
+- **Budget Variance Analysis**: Actual vs budgeted tax expense with dollar and percentage variance
+- **Escrow Reconciliation**: Escrow balance, disbursements, and surplus/shortage by property
+- **Appeal Tracker**: Properties under appeal with status, hearing dates, and estimated refund
+- **Next-Year Projection**: Estimated tax liability based on anticipated reassessment and rate changes`,
+    tags: [
+      'real estate',
+      'realestate',
+      'property tax',
+      'tax reconciliation',
+      'compliance',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Reconcile property taxes and identify appeal opportunities across the fund',
+  },
+  {
+    id: 'default-tenant-sales',
+    name: 'Tenant Sales Report',
+    description: `### Tasks Required
+- Collect monthly and annual gross sales figures from percentage rent tenants
+- Compare reported sales to lease breakpoints and calculate percentage rent owed
+- Analyze sales trends by tenant: MoM, YoY, and same-store growth
+- Benchmark tenant sales PSF against category averages and mall/center performance
+- Identify tenants performing below breakpoint and assess viability risk
+- Verify sales reporting compliance with lease audit rights provisions
+
+### Data Sources
+- **Tenant Sales Reports** — monthly certified gross sales statements submitted per lease requirements
+- **Lease Abstracts** — percentage rent breakpoints, natural vs artificial breakpoints, exclusions, and audit rights
+- **Property Management System** (Yardi / MRI) — percentage rent billing and collection history
+- **Industry Benchmarks** (ICSC / Green Street) — sales PSF by retail category and center type
+- **Center Traffic Data** — foot traffic counts and conversion rate estimates for context
+
+### Computation Process
+1. Compile monthly gross sales for each percentage rent tenant from submitted sales reports
+2. Apply lease-specified exclusions (e.g., online sales, returns, employee sales) to calculate reportable sales
+3. Compare reportable sales to the applicable breakpoint (natural or artificial)
+4. Calculate percentage rent due: (reportable sales - breakpoint) x percentage rent rate
+5. Compute sales PSF: annual reportable sales / tenant GLA
+6. Calculate same-store sales growth: compare current period to same period prior year for tenants in occupancy both periods
+7. Benchmark sales PSF against category peers: compare tenant performance to industry averages
+8. Flag tenants below breakpoint for 2+ consecutive periods as potential viability concerns
+9. Identify audit candidates: tenants with declining sales trends or suspected reporting inconsistencies
+
+### Output Structure
+- **Tenant Sales Summary**: Monthly and annual sales by tenant with breakpoint and percentage rent calculation
+- **Sales Trend Analysis**: MoM and YoY sales growth by tenant with trend indicators
+- **Sales PSF Benchmarking**: Tenant sales PSF vs category average and center average
+- **Percentage Rent Revenue Schedule**: Calculated percentage rent by tenant with cumulative annual total
+- **Below-Breakpoint Watchlist**: Tenants not generating percentage rent with viability assessment
+- **Audit Priority List**: Tenants flagged for sales audit based on reporting patterns and materiality`,
+    tags: [
+      'real estate',
+      'realestate',
+      'tenant sales',
+      'percentage rent',
+      'retail',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Analyze tenant sales performance and percentage rent at the shopping center',
+  },
+  // CRE — Strategic-Level Reports
+  {
+    id: 'default-mark-to-market',
+    name: 'Mark-to-Market Analysis',
+    description: `### Tasks Required
+- Extract in-place rent for every lease from the current rent roll
+- Gather current market asking and effective rents by submarket, property type, and class
+- Calculate the rent spread: in-place rent minus market rent for each tenant on a PSF basis
+- Quantify total mark-to-market opportunity: aggregate positive spread (upside) and negative spread (risk)
+- Assess reversion timing based on lease expiration schedule and renewal probability
+- Estimate the NOI and value impact of marking all leases to market at expiration
+
+### Data Sources
+- **Rent Roll** — current in-place base rent by tenant, suite, and GLA
+- **Market Rent Surveys** (CoStar / CBRE / Cushman & Wakefield) — asking and effective rents by submarket and property class
+- **Lease Abstracts** — lease expiration dates, renewal option terms, and existing escalation schedules
+- **Broker Opinions of Value** — localized market rent estimates for specific suites or floor plates
+- **Recent Leasing Comps** — new lease and renewal transactions in the same building or competitive set
+
+### Computation Process
+1. Pull in-place rent PSF for each tenant from the rent roll
+2. Determine applicable market rent PSF using submarket data adjusted for property quality, floor level, and amenities
+3. Calculate rent spread per tenant: in-place rent PSF minus market rent PSF
+4. Classify each lease as below-market (positive reversion), at-market, or above-market (negative reversion)
+5. Quantify total portfolio mark-to-market: sum of (spread x GLA) across all tenants
+6. Weight by expiration timing: apply present value discount to future reversion amounts
+7. Estimate NOI impact at reversion: incremental rent x (1 - vacancy allowance) for each expiring lease
+8. Calculate implied value impact: incremental NOI / market cap rate for each reversion event
+9. Build a reversion schedule by year showing cumulative mark-to-market capture over time
+
+### Output Structure
+- **Rent Spread Summary**: Tenant-level in-place rent, market rent, and spread ($ PSF and total)
+- **Mark-to-Market Opportunity**: Total portfolio upside and downside by property and in aggregate
+- **Reversion Schedule**: Year-by-year mark-to-market capture based on lease expiration timing
+- **NOI Impact Projection**: Incremental NOI from marking expiring leases to market
+- **Value Impact Analysis**: Implied property value change from full mark-to-market reversion
+- **Below-Market Lease Priority List**: Largest positive-spread leases ranked by total dollar opportunity`,
+    tags: [
+      'real estate',
+      'realestate',
+      'mark to market',
+      'rent spread',
+      'leasing strategy',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Quantify mark-to-market rent upside across the office portfolio',
+  },
+  {
+    id: 'default-break-even-occupancy',
+    name: 'Break-Even Occupancy',
+    description: `### Tasks Required
+- Compile fixed costs for each property: debt service (P&I), fixed operating expenses, and required reserves
+- Identify variable costs that scale with occupancy: utilities, janitorial, management fee (if percentage-based)
+- Calculate the revenue per occupied square foot based on current rent roll and recovery income
+- Determine the minimum occupancy level required to cover all fixed obligations
+- Compare break-even occupancy to current actual occupancy to assess the safety margin
+- Stress test break-even under varying rent, expense, and debt scenarios
+
+### Data Sources
+- **Property Operating Statement** — fixed and variable expense detail by property
+- **Loan Agreements** — debt service schedule (principal and interest) and reserve requirements
+- **Rent Roll** — average rent PSF and recovery income per occupied square foot
+- **Budget / Pro Forma** — planned expenses and fixed cost commitments for the current year
+- **Capital Plan** — mandatory CapEx or reserve contributions that represent fixed cash obligations
+
+### Computation Process
+1. Calculate total fixed costs: debt service + fixed operating expenses + required reserve contributions
+2. Separate variable operating expenses that decline with vacancy (e.g., utilities savings, reduced janitorial)
+3. Calculate effective revenue per occupied SF: (base rent + recoveries + other income) / occupied GLA
+4. Calculate net revenue per occupied SF: effective revenue minus variable cost per occupied SF
+5. Compute break-even GLA: total fixed costs / net revenue per occupied SF
+6. Convert to break-even occupancy rate: break-even GLA / total building GLA
+7. Calculate safety margin: current occupancy rate minus break-even occupancy rate
+8. Stress test: recalculate break-even under scenarios — rent decline (5%, 10%), expense increase (5%), rate reset
+
+### Output Structure
+- **Break-Even Summary by Property**: Fixed costs, revenue per SF, break-even GLA, and break-even occupancy %
+- **Current vs Break-Even Comparison**: Actual occupancy vs break-even with safety margin in SF and percentage
+- **Fixed Cost Decomposition**: Debt service, taxes, insurance, and other fixed obligations as components of break-even
+- **Sensitivity Analysis**: Break-even occupancy under varying rent, expense, and interest rate scenarios
+- **Portfolio Ranking**: Properties sorted by safety margin from tightest to widest
+- **Risk Flags**: Properties where break-even exceeds 80% occupancy or safety margin is below 10%`,
+    tags: [
+      'real estate',
+      'realestate',
+      'break even',
+      'occupancy',
+      'risk analysis',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Calculate minimum occupancy to cover debt service and operating costs',
+  },
+  {
+    id: 'default-tenant-concentration',
+    name: 'Tenant Concentration Report',
+    description: `### Tasks Required
+- Rank all tenants by annualized base rent contribution and by GLA occupied
+- Calculate concentration metrics: top 1, top 5, top 10, and top 20 tenant share of total rent and GLA
+- Compute the Herfindahl-Hirschman Index (HHI) for portfolio diversification measurement
+- Assess credit quality distribution across the tenant base
+- Evaluate industry sector concentration to identify correlated default risk
+- Compare concentration metrics to institutional investor guidelines and fund-level thresholds
+
+### Data Sources
+- **Rent Roll** — tenant name, GLA, annualized base rent, and lease expiration for all properties
+- **Tenant Credit Files** — credit ratings, D&B scores, or internal credit tier assignments
+- **Industry Classification** (NAICS / SIC codes) — tenant industry sector for sector concentration analysis
+- **Partnership / Fund Guidelines** — maximum single-tenant and sector concentration limits
+- **Market Data** — industry default rates and sector outlook for risk context
+
+### Computation Process
+1. Compile all tenants across the portfolio with annualized base rent and GLA
+2. Rank tenants by rent contribution (descending) and calculate cumulative share
+3. Calculate top-N concentration: rent and GLA share for top 1, 5, 10, and 20 tenants
+4. Compute HHI: sum of squared rent share percentages for all tenants (scale 0-10,000)
+5. Classify HHI: <1,000 = diversified, 1,000-2,500 = moderate concentration, >2,500 = high concentration
+6. Group tenants by credit tier and calculate rent-weighted credit quality distribution
+7. Group tenants by industry sector and calculate sector concentration percentages
+8. Compare all concentration metrics to fund guidelines and flag any threshold breaches
+9. Model the impact of losing the top tenant: NOI reduction, DSCR impact, and recovery timeline
+
+### Output Structure
+- **Top Tenant Rankings**: Tenants ranked by rent contribution with cumulative share percentages
+- **Concentration Metrics**: Top 1/5/10/20 tenant share of rent and GLA with HHI score
+- **Credit Quality Distribution**: Pie chart of rent by credit tier (investment grade, non-investment grade, unrated)
+- **Industry Sector Breakdown**: Rent concentration by NAICS sector with diversification assessment
+- **Guideline Compliance**: Comparison of actual concentration to fund or investor concentration limits
+- **Stress Scenario**: Financial impact of losing the largest tenant including NOI, DSCR, and occupancy effect`,
+    tags: [
+      'real estate',
+      'realestate',
+      'tenant concentration',
+      'diversification',
+      'risk',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Analyze top tenant exposure and diversification across the fund portfolio',
+  },
+  {
+    id: 'default-walt-report',
+    name: 'WALT Report',
+    description: `### Tasks Required
+- Calculate weighted average lease term (WALT) by annualized rent and by GLA for each property
+- Segment WALT by tenant size, credit quality, and property type
+- Analyze WALT trend over time as leases expire and new leases commence
+- Assess expiration risk weighting: combine WALT with renewal probability for a risk-adjusted metric
+- Compare WALT to market benchmarks and investor expectations
+- Project forward WALT under various leasing assumptions
+
+### Data Sources
+- **Rent Roll** — tenant name, GLA, annualized base rent, lease commencement, and lease expiration
+- **Lease Abstracts** — renewal option terms, remaining option periods, and notice deadlines
+- **Property Management System** (Yardi / MRI) — historical rent roll snapshots for trend analysis
+- **Market Benchmarks** (NCREIF / CBRE / JLL) — market average WALT by property type and geography
+- **Leasing Pipeline** — pending lease executions and LOIs that will affect future WALT
+
+### Computation Process
+1. For each tenant, calculate remaining lease term in years: (expiration date - reporting date) / 365
+2. Calculate rent-weighted WALT: sum of (remaining term x annualized rent) / total annualized rent
+3. Calculate GLA-weighted WALT: sum of (remaining term x GLA) / total GLA
+4. Segment WALT by tenant category: top 10 tenants, tenants >10,000 SF, tenants <5,000 SF, etc.
+5. Segment by credit tier: investment-grade tenant WALT vs non-investment-grade tenant WALT
+6. Calculate risk-adjusted WALT: apply renewal probability to each lease and weight by expected occupancy duration
+7. Compute trailing WALT trend: calculate WALT at each quarter-end for the past 2 years
+8. Project forward WALT under scenarios: current pipeline executed, 50% renewal rate, and 80% renewal rate
+9. Benchmark against market averages and identify properties with below-market WALT requiring leasing focus
+
+### Output Structure
+- **WALT Summary**: Rent-weighted and GLA-weighted WALT by property and portfolio-wide
+- **WALT by Segment**: Breakdown by tenant size, credit quality, and property type
+- **Risk-Adjusted WALT**: WALT incorporating renewal probability and expected occupancy duration
+- **Trend Analysis**: Quarterly WALT over the trailing 2 years with directional commentary
+- **Peer Comparison**: Portfolio WALT vs market benchmark by property type
+- **Forward Projection**: Expected WALT under various leasing scenarios with sensitivity analysis`,
+    tags: [
+      'real estate',
+      'realestate',
+      'walt',
+      'lease term',
+      'portfolio analysis',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Calculate WALT by rent and GLA with risk-adjusted expiration weighting',
+  },
 ];
