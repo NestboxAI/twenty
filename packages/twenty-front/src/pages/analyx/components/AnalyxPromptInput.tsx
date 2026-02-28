@@ -8,7 +8,13 @@ import { DropdownMenuSeparator } from '@/ui/layout/dropdown/components/DropdownM
 import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
-import { type ChangeEvent, type RefObject } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type RefObject,
+} from 'react';
 import {
   IconArrowRight,
   IconChevronLeft,
@@ -20,8 +26,84 @@ import {
 } from 'twenty-ui/display';
 import { MenuItem } from 'twenty-ui/navigation';
 import { StyledIconButton } from '../AnalyxSharedStyles';
-import { type NestboxAgent, type SelectedContext } from '../AnalyxTypes';
+import {
+  type AnalyxSkill,
+  type NestboxAgent,
+  type SelectedContext,
+} from '../AnalyxTypes';
 import { CONTEXT_TYPE_OPTIONS, getTaskType, getTypeIcon } from '../AnalyxUtils';
+import { useSlashCommandAutocomplete } from '../hooks/useSlashCommandAutocomplete';
+import { SlashCommandPopup } from './SlashCommandPopup';
+
+const MIRROR_STYLE_PROPERTIES = [
+  'boxSizing',
+  'borderTopWidth',
+  'borderRightWidth',
+  'borderBottomWidth',
+  'borderLeftWidth',
+  'fontFamily',
+  'fontSize',
+  'fontWeight',
+  'fontStyle',
+  'letterSpacing',
+  'lineHeight',
+  'overflowWrap',
+  'paddingTop',
+  'paddingRight',
+  'paddingBottom',
+  'paddingLeft',
+  'textIndent',
+  'textTransform',
+  'wordBreak',
+  'wordSpacing',
+] as const;
+
+// Measures the pixel position of the caret in a textarea using a mirror div
+const getCaretCoordinates = (
+  element: HTMLTextAreaElement,
+  position: number,
+): { top: number; left: number; height: number } => {
+  const mirror = document.createElement('div');
+  const computed = window.getComputedStyle(element);
+
+  mirror.style.position = 'absolute';
+  mirror.style.visibility = 'hidden';
+  mirror.style.whiteSpace = 'pre-wrap';
+  mirror.style.overflow = 'hidden';
+  mirror.style.width = `${element.offsetWidth}px`;
+
+  for (const prop of MIRROR_STYLE_PROPERTIES) {
+    (mirror.style as unknown as Record<string, string>)[prop] =
+      computed.getPropertyValue(
+        prop.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`),
+      );
+  }
+
+  mirror.appendChild(
+    document.createTextNode(element.value.substring(0, position)),
+  );
+
+  const marker = document.createElement('span');
+  marker.textContent = '\u200b';
+  mirror.appendChild(marker);
+
+  document.body.appendChild(mirror);
+
+  const height =
+    marker.offsetHeight ||
+    parseInt(computed.lineHeight) ||
+    parseInt(computed.fontSize) * 1.2;
+
+  const coordinates = {
+    top: marker.offsetTop,
+    left: marker.offsetLeft,
+    height,
+  };
+
+  document.body.removeChild(mirror);
+
+  return coordinates;
+};
 
 const shakeAnimation = keyframes`
   0%, 100% { transform: translateX(0); }
@@ -53,6 +135,41 @@ const StyledInputSection = styled.div`
   }
   @media (max-width: 768px) {
     margin-bottom: 30px;
+  }
+`;
+
+const StyledTextareaWrapper = styled.div`
+  position: relative;
+`;
+
+const StyledCommandChip = styled.div`
+  align-items: center;
+  background: ${({ theme }) => theme.background.tertiary};
+  border: 1px solid ${({ theme }) => theme.border.color.light};
+  border-radius: 4px;
+  color: ${({ theme }) => theme.color.blue};
+  display: inline-flex;
+  font-family: 'Fira Code', 'Roboto Mono', 'SF Mono', monospace;
+  font-size: 13px;
+  gap: 6px;
+  margin: 12px 0 0 20px;
+  padding: 2px 8px;
+  width: fit-content;
+`;
+
+const StyledChipDismiss = styled.button`
+  align-items: center;
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.font.color.tertiary};
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  justify-content: center;
+  padding: 0;
+
+  &:hover {
+    color: ${({ theme }) => theme.font.color.primary};
   }
 `;
 
@@ -157,6 +274,7 @@ type AnalyxPromptInputProps = {
   onAgentToggle: (agentId: string) => void;
   onMorphItemSelected: (item?: RecordPickerPickableMorphItem) => void;
   onSubmit: () => void;
+  skills: AnalyxSkill[];
 };
 
 export const AnalyxPromptInput = ({
@@ -177,24 +295,102 @@ export const AnalyxPromptInput = ({
   onAgentToggle,
   onMorphItemSelected,
   onSubmit,
+  skills,
 }: AnalyxPromptInputProps) => {
   const { closeDropdown } = useCloseDropdown();
   const ContextTypeIcon = getTypeIcon(getTaskType(contextType));
+
+  const {
+    isOpen: isSlashOpen,
+    filteredCommands,
+    selectedIndex,
+    handleKeyDown: handleSlashKeyDown,
+    selectCommand,
+    activeCommand,
+    activePlaceholder,
+  } = useSlashCommandAutocomplete({ skills, prompt, onPromptChange });
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
+
+  const textareaValue = activeCommand
+    ? prompt.slice(activeCommand.length + 1)
+    : prompt;
+
+  useEffect(() => {
+    if (!isSlashOpen || !textareaRef.current) return;
+    const pos = getCaretCoordinates(
+      textareaRef.current,
+      textareaRef.current.value.length,
+    );
+    setPopupPosition({
+      top: pos.top + pos.height + 4,
+      left: pos.left,
+    });
+  }, [prompt, isSlashOpen]);
+
   const unselectedAgents = agents.filter(
     (a) => !selectedAgentIds.includes(a.id),
   );
 
   return (
     <StyledInputSection>
-      <StyledPromptInput
-        $shake={shakePrompt}
-        placeholder="Example: 'Compare Stripe vs Adyen: TAM, margins, risks, valuation'"
-        value={prompt}
-        onChange={(e) => onPromptChange(e.target.value)}
-        onKeyDown={(e) => e.stopPropagation()}
-        onKeyUp={(e) => e.stopPropagation()}
-        onKeyPress={(e) => e.stopPropagation()}
-      />
+      {activeCommand && (
+        <StyledCommandChip>
+          {activeCommand}
+          <StyledChipDismiss
+            onMouseDown={(e) => {
+              e.preventDefault();
+              onPromptChange(textareaValue);
+            }}
+          >
+            &times;
+          </StyledChipDismiss>
+        </StyledCommandChip>
+      )}
+      <StyledTextareaWrapper>
+        <StyledPromptInput
+          ref={textareaRef}
+          $shake={shakePrompt}
+          placeholder={
+            activePlaceholder ??
+            "Example: 'Compare Stripe vs Adyen: TAM, margins, risks, valuation'"
+          }
+          value={textareaValue}
+          onChange={(e) => {
+            if (activeCommand) {
+              onPromptChange(activeCommand + ' ' + e.target.value);
+            } else {
+              onPromptChange(e.target.value);
+            }
+          }}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            if (
+              activeCommand &&
+              e.key === 'Backspace' &&
+              textareaRef.current?.selectionStart === 0 &&
+              textareaRef.current?.selectionEnd === 0
+            ) {
+              e.preventDefault();
+              onPromptChange(textareaValue);
+              return;
+            }
+            handleSlashKeyDown(e);
+          }}
+          onKeyUp={(e) => e.stopPropagation()}
+          onKeyPress={(e) => e.stopPropagation()}
+        />
+        {isSlashOpen && (
+          <SlashCommandPopup
+            commands={filteredCommands}
+            selectedIndex={selectedIndex}
+            onSelect={selectCommand}
+            top={popupPosition.top}
+            left={popupPosition.left}
+          />
+        )}
+      </StyledTextareaWrapper>
 
       <StyledFooter>
         <input

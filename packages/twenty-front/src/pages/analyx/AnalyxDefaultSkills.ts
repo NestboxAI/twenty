@@ -53,6 +53,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'cfo', 'revenue', 'fp&a', 'reporting'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Break down Q4 revenue by product line and geography',
   },
   {
     id: 'default-cash-flow-forecast',
@@ -108,6 +109,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'cfo', 'cash flow', 'treasury', 'forecasting'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Project next 12 months cash position with debt maturities',
   },
   {
     id: 'default-expense-breakdown',
@@ -147,6 +149,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'cfo', 'expenses', 'budgeting', 'cost optimization'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Categorize OpEx by department for the last two quarters',
   },
   {
     id: 'default-competitor-benchmarking',
@@ -193,6 +196,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Compare our margins to Stripe, Adyen, and Square',
   },
   {
     id: 'default-unit-economics',
@@ -235,6 +239,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'saas', 'unit economics', 'cac', 'ltv', 'growth'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Calculate LTV/CAC ratio for enterprise vs SMB cohorts',
   },
   {
     id: 'default-board-deck-summary',
@@ -289,6 +294,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'cfo', 'board', 'executive', 'reporting', 'governance'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Summarize Q3 performance and outlook for the board',
   },
   {
     id: 'default-fundraising-memo',
@@ -354,6 +360,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Draft a Series B memo highlighting ARR growth and retention',
   },
   {
     id: 'default-kpi-dashboard',
@@ -411,6 +418,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'cfo', 'kpi', 'dashboard', 'reporting', 'metrics'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Build a monthly dashboard with MRR, churn, and NRR',
   },
   // Finance - Debt & Capital
   {
@@ -462,6 +470,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'debt', 'leverage', 'capital structure', 'credit'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Calculate net debt and leverage ratios as of quarter-end',
   },
   {
     id: 'default-working-capital',
@@ -505,6 +514,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Analyze DSO, DPO, and DIO trends over the past year',
   },
   {
     id: 'default-debt-schedule',
@@ -542,6 +552,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'debt', 'amortization', 'interest', 'capital structure'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Map all outstanding debt instruments with covenants and maturities',
   },
   {
     id: 'default-dcf-valuation',
@@ -597,6 +608,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'valuation', 'dcf', 'modeling', 'investment banking'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Run a 5-year DCF for Acme Corp using 10% WACC',
   },
   {
     id: 'default-budget-variance',
@@ -634,6 +646,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'fp&a', 'budgeting', 'variance analysis', 'reporting'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Explain the top 5 drivers of budget-to-actual variance in Q2',
   },
   {
     id: 'default-capex-tracker',
@@ -671,6 +684,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'capex', 'capital allocation', 'project tracking', 'roi'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Track capital projects and spending vs approved budget',
   },
   {
     id: 'default-ebitda-bridge',
@@ -710,6 +724,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'ebitda', 'profitability', 'fp&a', 'executive reporting'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Build a YoY EBITDA bridge from revenue through operating costs',
   },
   {
     id: 'default-treasury-dashboard',
@@ -748,6 +763,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'treasury', 'cash management', 'banking', 'liquidity'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Summarize cash positions across all bank accounts today',
   },
   {
     id: 'default-scenario-modeling',
@@ -802,6 +818,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'fp&a', 'modeling', 'forecasting', 'scenario analysis'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Model base, upside, and downside cases for 2025 revenue',
   },
   {
     id: 'default-ma-screening',
@@ -861,6 +878,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Screen fintech targets under $500M EV with 20%+ growth',
   },
   {
     id: 'default-dividend-analysis',
@@ -905,6 +923,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Assess dividend sustainability given projected free cash flow',
   },
   {
     id: 'default-fx-exposure',
@@ -952,6 +971,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Quantify EUR and GBP exposure across our subsidiaries',
   },
   {
     id: 'default-financial-covenant',
@@ -989,6 +1009,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['finance', 'debt', 'covenants', 'compliance', 'credit', 'banking'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Check compliance on all debt covenants as of last quarter',
   },
   {
     id: 'default-investor-update',
@@ -1034,6 +1055,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Draft a quarterly investor letter with key metrics and highlights',
   },
   // Real Estate
   {
@@ -1077,6 +1099,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Reconcile CAM charges for the downtown office portfolio',
   },
   {
     id: 'default-noi-analysis',
@@ -1119,6 +1142,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Calculate NOI and NOI margin for each property in the fund',
   },
   {
     id: 'default-rent-roll',
@@ -1162,6 +1186,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Review lease expirations and occupancy for the retail portfolio',
   },
   {
     id: 'default-cap-rate',
@@ -1199,6 +1224,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['real estate', 'realestate', 'cap rate', 'valuation', 'investment'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Compare implied cap rates across our industrial properties',
   },
   {
     id: 'default-lease-abstracting',
@@ -1244,6 +1270,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Extract key terms from the new 10-year office lease',
   },
   {
     id: 'default-property-valuation',
@@ -1297,6 +1324,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['real estate', 'realestate', 'valuation', 'appraisal', 'investment'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Value 123 Main St using income, sales comp, and cost approaches',
   },
   {
     id: 'default-tenant-credit',
@@ -1334,6 +1362,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['real estate', 'realestate', 'tenant', 'credit', 'risk', 'leasing'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Assess creditworthiness of our top 5 tenants by exposure',
   },
   {
     id: 'default-construction-draw',
@@ -1378,6 +1407,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Review the Phase 2 draw request against budget and milestones',
   },
   {
     id: 'default-deal-underwriting',
@@ -1446,6 +1476,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Underwrite the 200-unit multifamily acquisition at $45M',
   },
   {
     id: 'default-opex-benchmarking',
@@ -1489,6 +1520,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Benchmark property operating expenses against market averages',
   },
   {
     id: 'default-portfolio-performance',
@@ -1534,6 +1566,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Summarize IRR, equity multiple, and cash yield by property',
   },
   {
     id: 'default-debt-financing',
@@ -1579,6 +1612,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Compare term sheet options for the warehouse refinancing',
   },
   {
     id: 'default-market-survey',
@@ -1624,6 +1658,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Survey asking rents and vacancy in the downtown submarket',
   },
   // Accounting
   {
@@ -1665,6 +1700,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['accounting', 'accounts payable', 'invoicing', 'ap', 'procurement'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Process and code this batch of 50 vendor invoices',
   },
   {
     id: 'default-month-end-close',
@@ -1728,6 +1764,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Run the full close checklist for January with accruals',
   },
   {
     id: 'default-bank-reconciliation',
@@ -1774,6 +1811,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Reconcile the operating account for the month of March',
   },
   {
     id: 'default-ar-aging',
@@ -1814,6 +1852,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['accounting', 'accounts receivable', 'ar', 'collections', 'dso'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Flag all receivables over 90 days and draft collection notes',
   },
   {
     id: 'default-ap-aging',
@@ -1854,6 +1893,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['accounting', 'accounts payable', 'ap', 'vendor management', 'dpo'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Identify payables approaching due date for cash planning',
   },
   {
     id: 'default-revenue-recognition',
@@ -1901,6 +1941,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Assess ASC 606 treatment for new multi-year contracts',
   },
   {
     id: 'default-fixed-asset-register',
@@ -1947,6 +1988,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Update the register with Q1 additions and disposals',
   },
   {
     id: 'default-intercompany-recon',
@@ -1994,6 +2036,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Reconcile intercompany balances across US, UK, and DE entities',
   },
   {
     id: 'default-tax-provision',
@@ -2035,6 +2078,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['accounting', 'tax', 'tax provision', 'asc 740', 'compliance'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Estimate the quarterly income tax provision for US and EU',
   },
   {
     id: 'default-gl-account-recon',
@@ -2082,6 +2126,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Reconcile prepaid expenses and accrued liabilities at month-end',
   },
   {
     id: 'default-expense-report-audit',
@@ -2124,6 +2169,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['accounting', 'expense management', 'audit', 'compliance', 'policy'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Audit T&E reports over $5K for policy compliance',
   },
   {
     id: 'default-lease-accounting',
@@ -2165,6 +2211,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['accounting', 'lease accounting', 'asc 842', 'gaap', 'real estate'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Calculate ROU assets and lease liabilities under ASC 842',
   },
   {
     id: 'default-consolidation',
@@ -2227,6 +2274,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Consolidate financials for all 5 subsidiaries with eliminations',
   },
   {
     id: 'default-audit-prep',
@@ -2270,6 +2318,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     tags: ['accounting', 'audit', 'external audit', 'compliance', 'sox'],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Prepare PBC list items and supporting schedules for year-end audit',
   },
   {
     id: 'default-sales-tax-compliance',
@@ -2318,5 +2367,6 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
+    placeholder: 'e.g. Calculate nexus exposure and file obligations for Q4',
   },
 ];

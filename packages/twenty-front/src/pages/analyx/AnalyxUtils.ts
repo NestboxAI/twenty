@@ -13,6 +13,15 @@ import {
 } from 'twenty-ui/display';
 import { type StatusEvent } from './AnalyxTypes';
 
+export const slugifySkillName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+};
+
 export const CONTEXT_TYPE_OPTIONS = [
   'Document',
   'Presentation',

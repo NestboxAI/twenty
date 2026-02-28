@@ -92,4 +92,12 @@ export type AnalyxSkill = {
   tags: string[];
   createdAt: string;
   isDefault: boolean;
+  placeholder?: string;
+};
+
+export type SlashCommand = {
+  command: string;
+  skillName: string;
+  skillId: string;
+  placeholder?: string;
 };

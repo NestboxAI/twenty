@@ -13,6 +13,7 @@ import styled from '@emotion/styled';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 import { IconBrain, IconFolder, useIcons } from 'twenty-ui/display';
+import { DEFAULT_SKILLS } from './AnalyxDefaultSkills';
 import {
   type AnalyxSkill,
   type NestboxAgent,
@@ -20,7 +21,6 @@ import {
   type Task,
   type TaskTab,
 } from './AnalyxTypes';
-import { DEFAULT_SKILLS } from './AnalyxDefaultSkills';
 import {
   CONTEXT_TYPE_OPTIONS,
   generateMockScores,
@@ -56,7 +56,7 @@ const StyledHeader = styled.div`
   align-self: center;
   width: 100%;
   max-width: 1100px;
-  margin-bottom: 24px;
+  margin-bottom: 40px;
   text-align: center;
 `;
 
@@ -461,6 +461,7 @@ export const AnalyxPage = () => {
             onAgentToggle={handleAgentToggle}
             onMorphItemSelected={handleMorphItemSelected}
             onSubmit={handleSubmit}
+            skills={skills}
           />
 
           <AnalyxSkillsBar
