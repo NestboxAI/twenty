@@ -1,3 +1,35 @@
+export type StatusEvent =
+  | {
+      type: 'status_change';
+      timestamp: string;
+      message: string;
+      agent?: string;
+    }
+  | { type: 'thinking'; timestamp: string; content: string; agent?: string }
+  | { type: 'text'; timestamp: string; content: string; agent?: string }
+  | {
+      type: 'tool_use';
+      timestamp: string;
+      toolName: string;
+      input: string;
+      agent?: string;
+    }
+  | {
+      type: 'tool_result';
+      timestamp: string;
+      toolName: string;
+      output: string;
+      agent?: string;
+      success?: boolean;
+    }
+  | {
+      type: 'sub_agent';
+      timestamp: string;
+      agentName: string;
+      action: 'start' | 'end';
+      parentAgent?: string;
+    };
+
 export type TaskStatus =
   | 'Processing'
   | 'Ready'
@@ -43,6 +75,7 @@ export interface Task {
   f1Score?: number;
   factCheckScore?: number;
   agentCount?: number;
+  statusEvents?: StatusEvent[];
 }
 
 export type NestboxAgent = {

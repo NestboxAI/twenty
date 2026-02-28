@@ -24,6 +24,7 @@ import { DEFAULT_SKILLS } from './AnalyxDefaultSkills';
 import {
   CONTEXT_TYPE_OPTIONS,
   generateMockScores,
+  generateMockStatusEvents,
   generateRandomTitle,
   getTaskType,
 } from './AnalyxUtils';
@@ -122,17 +123,34 @@ export const AnalyxPage = () => {
           return {
             ...task,
             tab: task.tab || 'Tasks',
-            documentVersions: task.documentVersions || (() => {
-              const base = new Date(task.date).getTime() || Date.now();
-              return [
-                { version: 1, date: new Date(base - 47 * 60000).toISOString(), summary: 'Initial draft' },
-                { version: 2, date: new Date(base - 18 * 60000).toISOString(), summary: 'Added sources & data tables' },
-                { version: 3, date: new Date(base).toISOString(), summary: 'Final review & formatting' },
-              ];
-            })(),
+            documentVersions:
+              task.documentVersions ||
+              (() => {
+                const base = new Date(task.date).getTime() || Date.now();
+                return [
+                  {
+                    version: 1,
+                    date: new Date(base - 47 * 60000).toISOString(),
+                    summary: 'Initial draft',
+                  },
+                  {
+                    version: 2,
+                    date: new Date(base - 18 * 60000).toISOString(),
+                    summary: 'Added sources & data tables',
+                  },
+                  {
+                    version: 3,
+                    date: new Date(base).toISOString(),
+                    summary: 'Final review & formatting',
+                  },
+                ];
+              })(),
             f1Score: task.f1Score ?? scores.f1,
             factCheckScore: task.factCheckScore ?? scores.factCheck,
             agentCount: task.agentCount ?? scores.agents,
+            statusEvents:
+              task.statusEvents ||
+              generateMockStatusEvents(task.id, task.prompt || ''),
           };
         });
         setTasks(migratedTasks);
@@ -159,9 +177,7 @@ export const AnalyxPage = () => {
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as AnalyxSkill[];
-        const defaultSkillMap = new Map(
-          DEFAULT_SKILLS.map((s) => [s.id, s]),
-        );
+        const defaultSkillMap = new Map(DEFAULT_SKILLS.map((s) => [s.id, s]));
         const storedIds = new Set(parsed.map((s) => s.id));
 
         // For default skills, always use the latest from code.
@@ -369,6 +385,7 @@ export const AnalyxPage = () => {
       f1Score: scores.f1,
       factCheckScore: scores.factCheck,
       agentCount: scores.agents,
+      statusEvents: generateMockStatusEvents(taskId, prompt),
     };
 
     setTasks((prev) => [newTask, ...prev]);

@@ -22,6 +22,7 @@ import {
 } from '../AnalyxSharedStyles';
 import { type Task } from '../AnalyxTypes';
 import { formatTaskDateTime, getEntityIcon, getTypeIcon } from '../AnalyxUtils';
+import { ResearchLogTimeline } from './ResearchLogTimeline';
 
 const DrawerOverlay = styled.div<{ isOpen: boolean }>`
   backdrop-filter: blur(2px);
@@ -219,6 +220,33 @@ const TaskNameText = styled.div`
   white-space: nowrap;
 `;
 
+const DrawerTabBar = styled.div`
+  border-bottom: 1px solid ${({ theme }) => theme.border.color.light};
+  display: flex;
+  gap: 0;
+  padding: 0 16px;
+`;
+
+const DrawerTab = styled.button<{ active: boolean }>`
+  background: none;
+  border: none;
+  border-bottom: 2px solid
+    ${({ active, theme }) => (active ? theme.color.blue : 'transparent')};
+  color: ${({ active, theme }) =>
+    active ? theme.color.blue : theme.font.color.tertiary};
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: ${({ active }) => (active ? 600 : 500)};
+  margin-bottom: -1px;
+  padding: 10px 16px;
+  transition: color 0.15s;
+
+  &:hover {
+    color: ${({ active, theme }) =>
+      active ? theme.color.blue : theme.font.color.secondary};
+  }
+`;
+
 const VersionDropdownWrapper = styled.div`
   position: relative;
 `;
@@ -390,12 +418,20 @@ export const TaskDetailDrawer = ({
   onUpdateTask: (updatedTask: Task) => void;
 }) => {
   const [chatInput, setChatInput] = useState('');
+  const [activeDrawerTab, setActiveDrawerTab] = useState<'report' | 'research'>(
+    'report',
+  );
   const [versionMenuOpen, setVersionMenuOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const versionMenuRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const theme = useTheme();
   const { getIcon } = useIcons();
+
+  // Reset tab to report when task changes
+  useEffect(() => {
+    setActiveDrawerTab('report');
+  }, [task?.id]);
 
   // Scroll to bottom of chat when messages change
   useEffect(() => {
@@ -645,232 +681,261 @@ export const TaskDetailDrawer = ({
             </div>
           </DrawerHeader>
 
-          <DrawerContent>
-            {/* Header: name + status */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '8px',
-              }}
+          <DrawerTabBar>
+            <DrawerTab
+              active={activeDrawerTab === 'report'}
+              onClick={() => setActiveDrawerTab('report')}
             >
-              <TaskNameText title={task.name}>{task.name}</TaskNameText>
-              <StyledStatusBadge status={task.status}>
-                <StyledStatusIcon status={task.status}>
-                  {task.status === 'Processing' && <IconLoader size={16} />}
-                  {task.status === 'Ready' && <IconCheck size={10} />}
-                  {task.status === 'Verified' && <IconCheck size={10} />}
-                  {task.status === 'Reviewed' && <IconCheck size={10} />}
-                  {task.status === 'Archived' && <IconArchive size={16} />}
-                </StyledStatusIcon>
-                {task.status}
-              </StyledStatusBadge>
-            </div>
+              Report
+            </DrawerTab>
+            <DrawerTab
+              active={activeDrawerTab === 'research'}
+              onClick={() => setActiveDrawerTab('research')}
+            >
+              Research Log
+            </DrawerTab>
+          </DrawerTabBar>
 
-            {/* Meta: type, date, context — single compact line */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                flexWrap: 'wrap',
-                fontSize: '12px',
-                color: theme.font.color.tertiary,
-              }}
-            >
-              <span
-                style={{ fontWeight: 500, color: theme.font.color.secondary }}
+          {activeDrawerTab === 'research' ? (
+            <ResearchLogTimeline
+              events={task.statusEvents || []}
+              taskDate={task.date}
+            />
+          ) : (
+            <DrawerContent>
+              {/* Header: name + status */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
               >
-                {task.contextType || 'General'}
-              </span>
-              <span>{'·'}</span>
-              <span>{formatTaskDateTime(task.date)}</span>
-              {task.entities && task.entities.length > 0 && (
-                <>
-                  <span>{'·'}</span>
-                  {task.entities.map((entity, idx) => {
-                    const EntityIcon = entity.objectIcon
-                      ? getIcon(entity.objectIcon)
-                      : getEntityIcon(entity.objectName || entity.name);
-                    return (
-                      <span
-                        key={idx}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '3px',
-                        }}
-                      >
-                        <EntityIcon
-                          size={12}
-                          color={theme.font.color.tertiary}
-                        />
-                        {entity.objectName &&
-                          entity.objectName !== entity.name && (
-                            <span>{entity.objectName}:</span>
-                          )}
-                        <span style={{ color: theme.font.color.secondary }}>
-                          {entity.name}
-                        </span>
-                        {idx < task.entities.length - 1 && (
-                          <span style={{ marginLeft: '2px' }}>{','}</span>
-                        )}
-                      </span>
-                    );
-                  })}
-                </>
-              )}
-            </div>
+                <TaskNameText title={task.name}>{task.name}</TaskNameText>
+                <StyledStatusBadge status={task.status}>
+                  <StyledStatusIcon status={task.status}>
+                    {task.status === 'Processing' && <IconLoader size={16} />}
+                    {task.status === 'Ready' && <IconCheck size={10} />}
+                    {task.status === 'Verified' && <IconCheck size={10} />}
+                    {task.status === 'Reviewed' && <IconCheck size={10} />}
+                    {task.status === 'Archived' && <IconArchive size={16} />}
+                  </StyledStatusIcon>
+                  {task.status}
+                </StyledStatusBadge>
+              </div>
 
-            {/* Prompt — compact */}
-            <PromptBox>{task.prompt}</PromptBox>
-
-            {/* Trust & Accuracy Score Widget */}
-            {hasScores && (
-              <TrustScoreCard>
-                <TrustScoreHeader>
-                  <IconLock size={12} />
-                  Trust & Accuracy
-                </TrustScoreHeader>
-                <ScoreColumnsRow>
-                  <ScoreColumn>
-                    <ScoreRing
-                      value={task.f1Score!}
-                      maxValue={100}
-                      color={theme.color.blue}
-                    />
-                    <ScoreColumnLabel>Accuracy (F1)</ScoreColumnLabel>
-                    <ScoreColumnValue>
-                      {testCases.toLocaleString()} test cases
-                    </ScoreColumnValue>
-                    <ScoreColumnCI>
-                      {'\u00B1'} {ciMargin}% (95% CI)
-                    </ScoreColumnCI>
-                  </ScoreColumn>
-                  <ScoreColumn>
-                    <ScoreRing
-                      value={task.factCheckScore!}
-                      maxValue={100}
-                      color="#4CAF50"
-                    />
-                    <ScoreColumnLabel>Claim Verification</ScoreColumnLabel>
-                    <ScoreColumnValue>
-                      {externalSources} external sources
-                    </ScoreColumnValue>
-                  </ScoreColumn>
-                  <ScoreColumn>
-                    <ScoreRing
-                      value={Math.min(
-                        99,
-                        Math.round(
-                          (task.f1Score! + task.factCheckScore!) / 2 + 5,
-                        ),
-                      )}
-                      maxValue={100}
-                      color="#E67E22"
-                    />
-                    <ScoreColumnLabel>Consensus</ScoreColumnLabel>
-                    <ScoreColumnValue>
-                      {validatorCount} validators
-                    </ScoreColumnValue>
-                  </ScoreColumn>
-                </ScoreColumnsRow>
-              </TrustScoreCard>
-            )}
-
-            {/* Attachments Section */}
-            {task.attachments && task.attachments.length > 0 && (
-              <DetailSection>
-                <SectionLabel>Attachments</SectionLabel>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {task.attachments.map((file, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '8px 12px',
-                        border: `1px solid ${theme.border.color.medium}`,
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                      }}
-                    >
-                      <IconFile size={16} color={theme.font.color.secondary} />
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontWeight: 500 }}>{file.name}</span>
+              {/* Meta: type, date, context — single compact line */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  flexWrap: 'wrap',
+                  fontSize: '12px',
+                  color: theme.font.color.tertiary,
+                }}
+              >
+                <span
+                  style={{ fontWeight: 500, color: theme.font.color.secondary }}
+                >
+                  {task.contextType || 'General'}
+                </span>
+                <span>{'·'}</span>
+                <span>{formatTaskDateTime(task.date)}</span>
+                {task.entities && task.entities.length > 0 && (
+                  <>
+                    <span>{'·'}</span>
+                    {task.entities.map((entity, idx) => {
+                      const EntityIcon = entity.objectIcon
+                        ? getIcon(entity.objectIcon)
+                        : getEntityIcon(entity.objectName || entity.name);
+                      return (
                         <span
+                          key={idx}
                           style={{
-                            fontSize: '11px',
-                            color: theme.font.color.tertiary,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px',
                           }}
                         >
-                          {Math.round(file.size / 1024)} KB
+                          <EntityIcon
+                            size={12}
+                            color={theme.font.color.tertiary}
+                          />
+                          {entity.objectName &&
+                            entity.objectName !== entity.name && (
+                              <span>{entity.objectName}:</span>
+                            )}
+                          <span style={{ color: theme.font.color.secondary }}>
+                            {entity.name}
+                          </span>
+                          {idx < task.entities.length - 1 && (
+                            <span style={{ marginLeft: '2px' }}>{','}</span>
+                          )}
                         </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </DetailSection>
-            )}
+                      );
+                    })}
+                  </>
+                )}
+              </div>
 
-            {/* Chat Interface */}
-            <DetailSection style={{ flex: 1, minHeight: 0 }}>
-              <SectionLabel
-                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <IconSparkles size={14} color={theme.color.purple} />
-                Ask AI about this task
-              </SectionLabel>
-              <ChatContainer>
-                <ChatMessages>
-                  {task.messages?.length === 0 && (
-                    <div
-                      style={{
-                        textAlign: 'center',
-                        color: theme.font.color.tertiary,
-                        marginTop: '40px',
-                      }}
-                    >
-                      <IconSparkles
-                        size={32}
-                        style={{ marginBottom: '8px', opacity: 0.5 }}
+              {/* Prompt — compact */}
+              <PromptBox>{task.prompt}</PromptBox>
+
+              {/* Trust & Accuracy Score Widget */}
+              {hasScores && (
+                <TrustScoreCard>
+                  <TrustScoreHeader>
+                    <IconLock size={12} />
+                    Trust & Accuracy
+                  </TrustScoreHeader>
+                  <ScoreColumnsRow>
+                    <ScoreColumn>
+                      <ScoreRing
+                        value={task.f1Score!}
+                        maxValue={100}
+                        color={theme.color.blue}
                       />
-                      <div>Start a conversation about this task.</div>
-                    </div>
-                  )}
-                  {task.messages?.map((msg, idx) => (
-                    <MessageBubble key={idx} role={msg.role}>
-                      {msg.content}
-                    </MessageBubble>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </ChatMessages>
-                <ChatInputArea>
-                  <ChatInput
-                    ref={chatInputRef}
-                    placeholder="Ask a question or request changes..."
-                    value={chatInput}
-                    onChange={(e) => {
-                      setChatInput(e.target.value);
-                      resizeChatInput();
-                    }}
-                    onFocus={handleChatFocus}
-                    onBlur={handleChatBlur}
-                    onKeyDown={(e) => {
-                      e.stopPropagation();
-                      handleKeyDown(e);
-                    }}
-                    rows={1}
-                  />
-                  <SendButton onClick={handleSendMessage}>
-                    <IconArrowRight size={18} stroke={3} />
-                  </SendButton>
-                </ChatInputArea>
-              </ChatContainer>
-            </DetailSection>
-          </DrawerContent>
+                      <ScoreColumnLabel>Accuracy (F1)</ScoreColumnLabel>
+                      <ScoreColumnValue>
+                        {testCases.toLocaleString()} test cases
+                      </ScoreColumnValue>
+                      <ScoreColumnCI>
+                        {'\u00B1'} {ciMargin}% (95% CI)
+                      </ScoreColumnCI>
+                    </ScoreColumn>
+                    <ScoreColumn>
+                      <ScoreRing
+                        value={task.factCheckScore!}
+                        maxValue={100}
+                        color="#4CAF50"
+                      />
+                      <ScoreColumnLabel>Claim Verification</ScoreColumnLabel>
+                      <ScoreColumnValue>
+                        {externalSources} external sources
+                      </ScoreColumnValue>
+                    </ScoreColumn>
+                    <ScoreColumn>
+                      <ScoreRing
+                        value={Math.min(
+                          99,
+                          Math.round(
+                            (task.f1Score! + task.factCheckScore!) / 2 + 5,
+                          ),
+                        )}
+                        maxValue={100}
+                        color="#E67E22"
+                      />
+                      <ScoreColumnLabel>Consensus</ScoreColumnLabel>
+                      <ScoreColumnValue>
+                        {validatorCount} validators
+                      </ScoreColumnValue>
+                    </ScoreColumn>
+                  </ScoreColumnsRow>
+                </TrustScoreCard>
+              )}
+
+              {/* Attachments Section */}
+              {task.attachments && task.attachments.length > 0 && (
+                <DetailSection>
+                  <SectionLabel>Attachments</SectionLabel>
+                  <div
+                    style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}
+                  >
+                    {task.attachments.map((file, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '8px 12px',
+                          border: `1px solid ${theme.border.color.medium}`,
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                        }}
+                      >
+                        <IconFile
+                          size={16}
+                          color={theme.font.color.secondary}
+                        />
+                        <div
+                          style={{ display: 'flex', flexDirection: 'column' }}
+                        >
+                          <span style={{ fontWeight: 500 }}>{file.name}</span>
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              color: theme.font.color.tertiary,
+                            }}
+                          >
+                            {Math.round(file.size / 1024)} KB
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </DetailSection>
+              )}
+
+              {/* Chat Interface */}
+              <DetailSection style={{ flex: 1, minHeight: 0 }}>
+                <SectionLabel
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <IconSparkles size={14} color={theme.color.purple} />
+                  Ask AI about this task
+                </SectionLabel>
+                <ChatContainer>
+                  <ChatMessages>
+                    {task.messages?.length === 0 && (
+                      <div
+                        style={{
+                          textAlign: 'center',
+                          color: theme.font.color.tertiary,
+                          marginTop: '40px',
+                        }}
+                      >
+                        <IconSparkles
+                          size={32}
+                          style={{ marginBottom: '8px', opacity: 0.5 }}
+                        />
+                        <div>Start a conversation about this task.</div>
+                      </div>
+                    )}
+                    {task.messages?.map((msg, idx) => (
+                      <MessageBubble key={idx} role={msg.role}>
+                        {msg.content}
+                      </MessageBubble>
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </ChatMessages>
+                  <ChatInputArea>
+                    <ChatInput
+                      ref={chatInputRef}
+                      placeholder="Ask a question or request changes..."
+                      value={chatInput}
+                      onChange={(e) => {
+                        setChatInput(e.target.value);
+                        resizeChatInput();
+                      }}
+                      onFocus={handleChatFocus}
+                      onBlur={handleChatBlur}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                        handleKeyDown(e);
+                      }}
+                      rows={1}
+                    />
+                    <SendButton onClick={handleSendMessage}>
+                      <IconArrowRight size={18} stroke={3} />
+                    </SendButton>
+                  </ChatInputArea>
+                </ChatContainer>
+              </DetailSection>
+            </DrawerContent>
+          )}
         </DrawerContainer>
       </DrawerOverlay>
     </>

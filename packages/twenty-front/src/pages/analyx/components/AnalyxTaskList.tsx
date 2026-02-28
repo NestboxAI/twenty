@@ -352,7 +352,9 @@ export const AnalyxTaskList = ({
                 onClick={() => onTaskClick(task.id)}
               >
                 <StyledCell style={{ fontWeight: 500 }}>{task.name}</StyledCell>
-                <StyledDateCell>{formatTaskDateShort(task.date)}</StyledDateCell>
+                <StyledDateCell>
+                  {formatTaskDateShort(task.date)}
+                </StyledDateCell>
 
                 <StyledCell>
                   <StyledIconWrapper>
