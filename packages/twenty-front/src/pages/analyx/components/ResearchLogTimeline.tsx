@@ -3,12 +3,16 @@ import styled from '@emotion/styled';
 import { useState } from 'react';
 import {
   IconArrowRight,
+  IconBolt,
   IconCheck,
+  IconClockPlay,
+  IconCpu,
   IconFileText,
   IconLoader,
+  IconRobot,
   IconX,
 } from 'twenty-ui/display';
-import { type StatusEvent } from '../AnalyxTypes';
+import { type StatusEvent, type TokenUsage } from '../AnalyxTypes';
 import { formatRelativeTimestamp } from '../AnalyxUtils';
 
 const TimelineContainer = styled.div`
@@ -115,6 +119,145 @@ const SubAgentIndent = styled.div`
   padding-left: 20px;
 `;
 
+const UsageStatsCard = styled.div`
+  background: ${({ theme }) => theme.background.secondary};
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 10px;
+  margin-bottom: 16px;
+`;
+
+const UsageStatsHeader = styled.div`
+  align-items: center;
+  color: ${({ theme }) => theme.font.color.tertiary};
+  display: flex;
+  font-size: 10px;
+  font-weight: 600;
+  gap: 5px;
+  letter-spacing: 0.6px;
+  padding: 12px 16px 0;
+  text-transform: uppercase;
+`;
+
+const UsageStatsGrid = styled.div`
+  display: grid;
+  gap: 1px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  padding: 12px 16px;
+`;
+
+const UsageStatCell = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+`;
+
+const UsageStatValue = styled.div`
+  color: ${({ theme }) => theme.font.color.primary};
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+`;
+
+const UsageStatLabel = styled.div`
+  color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+`;
+
+const AgentBreakdownSection = styled.div`
+  border-top: 1px solid ${({ theme }) => theme.border.color.light};
+  padding: 10px 16px 12px;
+`;
+
+const AgentBreakdownTitle = styled.div`
+  color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+`;
+
+const AgentRow = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+`;
+
+const AgentName = styled.div`
+  color: ${({ theme }) => theme.font.color.secondary};
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+`;
+
+const AgentTokens = styled.div`
+  color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+`;
+
+const AgentBar = styled.div`
+  border-radius: 2px;
+  height: 4px;
+  overflow: hidden;
+  width: 60px;
+`;
+
+const AgentBarFill = styled.div<{ width: number; color: string }>`
+  background: ${({ color }) => color};
+  border-radius: 2px;
+  height: 100%;
+  transition: width 0.4s ease;
+  width: ${({ width }) => width}%;
+`;
+
+const AgentIconWrapper = styled.div<{ color: string }>`
+  align-items: center;
+  background: ${({ color }) => color}18;
+  border-radius: 4px;
+  color: ${({ color }) => color};
+  display: flex;
+  flex-shrink: 0;
+  height: 20px;
+  justify-content: center;
+  width: 20px;
+`;
+
+const formatTokenCount = (count: number): string => {
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1)}M`;
+  }
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}k`;
+  }
+  return count.toLocaleString();
+};
+
+const formatDuration = (seconds: number): string => {
+  if (seconds >= 60) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}m ${secs}s`;
+  }
+  return `${seconds}s`;
+};
+
+const AGENT_COLORS = [
+  '#3B82F6',
+  '#8B5CF6',
+  '#F59E0B',
+  '#10B981',
+  '#EF4444',
+  '#EC4899',
+];
+
 const CONTENT_LINE_THRESHOLD = 3;
 const CONTENT_CHAR_THRESHOLD = 120;
 
@@ -173,9 +316,13 @@ const getEventAgent = (event: StatusEvent): string | undefined => {
 export const ResearchLogTimeline = ({
   events,
   taskDate,
+  agentCount,
+  tokenUsage,
 }: {
   events: StatusEvent[];
   taskDate: string;
+  agentCount?: number;
+  tokenUsage?: TokenUsage;
 }) => {
   const theme = useTheme();
   const [expandedEntries, setExpandedEntries] = useState<Set<number>>(
@@ -343,9 +490,78 @@ export const ResearchLogTimeline = ({
     return entryContent;
   };
 
+  const maxAgentTokens = tokenUsage
+    ? Math.max(
+        ...tokenUsage.agentBreakdown.map((a) => a.inputTokens + a.outputTokens),
+      )
+    : 0;
+
+  const renderUsageStats = () => {
+    if (!tokenUsage) return null;
+
+    return (
+      <UsageStatsCard>
+        <UsageStatsHeader>
+          <IconCpu size={12} />
+          Agent & Token Usage
+        </UsageStatsHeader>
+        <UsageStatsGrid>
+          <UsageStatCell>
+            <IconRobot size={16} color={theme.color.blue} />
+            <UsageStatValue>{agentCount ?? 0}</UsageStatValue>
+            <UsageStatLabel>Agents</UsageStatLabel>
+          </UsageStatCell>
+          <UsageStatCell>
+            <IconBolt size={16} color="#F59E0B" />
+            <UsageStatValue>
+              {formatTokenCount(tokenUsage.totalTokens)}
+            </UsageStatValue>
+            <UsageStatLabel>Total Tokens</UsageStatLabel>
+          </UsageStatCell>
+          <UsageStatCell>
+            <IconClockPlay size={16} color="#8B5CF6" />
+            <UsageStatValue>
+              {formatDuration(tokenUsage.durationSeconds)}
+            </UsageStatValue>
+            <UsageStatLabel>Duration</UsageStatLabel>
+          </UsageStatCell>
+          <UsageStatCell>
+            <IconCpu size={16} color="#10B981" />
+            <UsageStatValue>
+              {formatTokenCount(tokenUsage.outputTokens)}
+            </UsageStatValue>
+            <UsageStatLabel>Output</UsageStatLabel>
+          </UsageStatCell>
+        </UsageStatsGrid>
+        <AgentBreakdownSection>
+          <AgentBreakdownTitle>Token Breakdown by Agent</AgentBreakdownTitle>
+          {tokenUsage.agentBreakdown.map((agent, idx) => {
+            const agentTotal = agent.inputTokens + agent.outputTokens;
+            const barPercent =
+              maxAgentTokens > 0 ? (agentTotal / maxAgentTokens) * 100 : 0;
+            const color = AGENT_COLORS[idx % AGENT_COLORS.length];
+            return (
+              <AgentRow key={idx}>
+                <AgentIconWrapper color={color}>
+                  <IconRobot size={12} />
+                </AgentIconWrapper>
+                <AgentName>{agent.agentName}</AgentName>
+                <AgentBar>
+                  <AgentBarFill width={barPercent} color={color} />
+                </AgentBar>
+                <AgentTokens>{formatTokenCount(agentTotal)}</AgentTokens>
+              </AgentRow>
+            );
+          })}
+        </AgentBreakdownSection>
+      </UsageStatsCard>
+    );
+  };
+
   if (events.length === 0) {
     return (
       <TimelineContainer>
+        {renderUsageStats()}
         <div
           style={{
             color: theme.font.color.tertiary,
@@ -360,5 +576,10 @@ export const ResearchLogTimeline = ({
     );
   }
 
-  return <TimelineContainer>{events.map(renderEntry)}</TimelineContainer>;
+  return (
+    <TimelineContainer>
+      {renderUsageStats()}
+      {events.map(renderEntry)}
+    </TimelineContainer>
+  );
 };

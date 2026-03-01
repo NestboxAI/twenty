@@ -11,7 +11,7 @@ import {
   IconUser,
   IconUsers,
 } from 'twenty-ui/display';
-import { type StatusEvent } from './AnalyxTypes';
+import { type StatusEvent, type TokenUsage } from './AnalyxTypes';
 
 export const slugifySkillName = (name: string): string => {
   return name
@@ -157,6 +157,56 @@ export const generateMockScores = (
     f1: 65 + (r1 % 31),
     factCheck: 70 + (r2 % 26),
     agents: 2 + (r3 % 5),
+  };
+};
+
+export const generateMockTokenUsage = (
+  taskId: string,
+  agentCount: number,
+): TokenUsage => {
+  let hash = 0;
+  for (let i = 0; i < taskId.length; i++) {
+    hash = (hash * 37 + taskId.charCodeAt(i)) | 0;
+  }
+  const pseudoRandom = (seed: number) => Math.abs((seed * 16807) % 2147483647);
+
+  const agentNames = [
+    'orchestrator',
+    'data_collector',
+    'fact_checker',
+    'analyst',
+    'report_writer',
+    'validator',
+  ];
+
+  let totalInput = 0;
+  let totalOutput = 0;
+  const agentBreakdown: TokenUsage['agentBreakdown'] = [];
+  let r = pseudoRandom(hash + 7);
+
+  for (let i = 0; i < agentCount; i++) {
+    r = pseudoRandom(r);
+    const input = 8000 + (r % 42000);
+    r = pseudoRandom(r);
+    const output = 2000 + (r % 18000);
+    totalInput += input;
+    totalOutput += output;
+    agentBreakdown.push({
+      agentName: agentNames[i % agentNames.length],
+      inputTokens: input,
+      outputTokens: output,
+    });
+  }
+
+  r = pseudoRandom(r);
+  const durationSeconds = 45 + (r % 170);
+
+  return {
+    inputTokens: totalInput,
+    outputTokens: totalOutput,
+    totalTokens: totalInput + totalOutput,
+    agentBreakdown,
+    durationSeconds,
   };
 };
 

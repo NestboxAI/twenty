@@ -308,7 +308,7 @@ export const AnalyxPromptInput = ({
     selectCommand,
     activeCommand,
     activePlaceholder,
-  } = useSlashCommandAutocomplete({ skills, prompt, onPromptChange });
+  } = useSlashCommandAutocomplete({ skills, prompt, onPromptChange, onContextTypeChange });
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
@@ -354,7 +354,7 @@ export const AnalyxPromptInput = ({
           $shake={shakePrompt}
           placeholder={
             activePlaceholder ??
-            "Example: 'Compare Stripe vs Adyen: TAM, margins, risks, valuation'"
+            "e.g. 'Analyze Q4 revenue by segment' — or type / for skills"
           }
           value={textareaValue}
           onChange={(e) => {

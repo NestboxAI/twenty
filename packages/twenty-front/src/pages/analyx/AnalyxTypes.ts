@@ -52,6 +52,18 @@ export interface SelectedContext {
   objectIcon?: string;
 }
 
+export type TokenUsage = {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  agentBreakdown: Array<{
+    agentName: string;
+    inputTokens: number;
+    outputTokens: number;
+  }>;
+  durationSeconds: number;
+};
+
 export interface Task {
   id: string;
   name: string;
@@ -75,6 +87,7 @@ export interface Task {
   f1Score?: number;
   factCheckScore?: number;
   agentCount?: number;
+  tokenUsage?: TokenUsage;
   statusEvents?: StatusEvent[];
 }
 
@@ -93,6 +106,7 @@ export type AnalyxSkill = {
   createdAt: string;
   isDefault: boolean;
   placeholder?: string;
+  defaultOutput?: string;
 };
 
 export type SlashCommand = {
@@ -100,4 +114,5 @@ export type SlashCommand = {
   skillName: string;
   skillId: string;
   placeholder?: string;
+  defaultOutput?: string;
 };

@@ -54,6 +54,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Break down Q4 revenue by product line and geography',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-cash-flow-forecast',
@@ -110,6 +111,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Project next 12 months cash position with debt maturities',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-expense-breakdown',
@@ -150,6 +152,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Categorize OpEx by department for the last two quarters',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-competitor-benchmarking',
@@ -197,6 +200,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Compare our margins to Stripe, Adyen, and Square',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-unit-economics',
@@ -240,6 +244,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate LTV/CAC ratio for enterprise vs SMB cohorts',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-board-deck-summary',
@@ -295,6 +300,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Summarize Q3 performance and outlook for the board',
+    defaultOutput: 'Presentation',
   },
   {
     id: 'default-fundraising-memo',
@@ -361,6 +367,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Draft a Series B memo highlighting ARR growth and retention',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-kpi-dashboard',
@@ -419,6 +426,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Build a monthly dashboard with MRR, churn, and NRR',
+    defaultOutput: 'Presentation',
   },
   // Finance - Debt & Capital
   {
@@ -471,6 +479,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate net debt and leverage ratios as of quarter-end',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-working-capital',
@@ -515,6 +524,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Analyze DSO, DPO, and DIO trends over the past year',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-debt-schedule',
@@ -553,6 +563,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Map all outstanding debt instruments with covenants and maturities',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-dcf-valuation',
@@ -609,6 +620,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Run a 5-year DCF for Acme Corp using 10% WACC',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-budget-variance',
@@ -647,6 +659,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Explain the top 5 drivers of budget-to-actual variance in Q2',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-capex-tracker',
@@ -685,6 +698,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Track capital projects and spending vs approved budget',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-ebitda-bridge',
@@ -725,6 +739,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Build a YoY EBITDA bridge from revenue through operating costs',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-treasury-dashboard',
@@ -764,6 +779,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Summarize cash positions across all bank accounts today',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-scenario-modeling',
@@ -819,6 +835,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Model base, upside, and downside cases for 2025 revenue',
+    defaultOutput: 'Ask',
   },
   {
     id: 'default-ma-screening',
@@ -879,6 +896,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Screen fintech targets under $500M EV with 20%+ growth',
+    defaultOutput: 'Presentation',
   },
   {
     id: 'default-dividend-analysis',
@@ -924,6 +942,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Assess dividend sustainability given projected free cash flow',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-fx-exposure',
@@ -972,6 +991,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Quantify EUR and GBP exposure across our subsidiaries',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-financial-covenant',
@@ -1010,6 +1030,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Check compliance on all debt covenants as of last quarter',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-investor-update',
@@ -1056,6 +1077,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Draft a quarterly investor letter with key metrics and highlights',
+    defaultOutput: 'Presentation',
   },
   // Real Estate
   {
@@ -1100,6 +1122,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Reconcile CAM charges for the downtown office portfolio',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-noi-analysis',
@@ -1143,6 +1166,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate NOI and NOI margin for each property in the fund',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-rent-roll',
@@ -1187,6 +1211,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Review lease expirations and occupancy for the retail portfolio',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-cap-rate',
@@ -1225,6 +1250,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Compare implied cap rates across our industrial properties',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-lease-abstracting',
@@ -1271,6 +1297,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Extract key terms from the new 10-year office lease',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-property-valuation',
@@ -1325,6 +1352,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Value 123 Main St using income, sales comp, and cost approaches',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-tenant-credit',
@@ -1363,6 +1391,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Assess creditworthiness of our top 5 tenants by exposure',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-construction-draw',
@@ -1408,6 +1437,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Review the Phase 2 draw request against budget and milestones',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-deal-underwriting',
@@ -1477,6 +1507,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Underwrite the 200-unit multifamily acquisition at $45M',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-opex-benchmarking',
@@ -1521,6 +1552,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Benchmark property operating expenses against market averages',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-portfolio-performance',
@@ -1567,6 +1599,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Summarize IRR, equity multiple, and cash yield by property',
+    defaultOutput: 'Presentation',
   },
   {
     id: 'default-debt-financing',
@@ -1613,6 +1646,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Compare term sheet options for the warehouse refinancing',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-market-survey',
@@ -1659,6 +1693,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Survey asking rents and vacancy in the downtown submarket',
+    defaultOutput: 'Document',
   },
   // Accounting
   {
@@ -1701,6 +1736,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Process and code this batch of 50 vendor invoices',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-month-end-close',
@@ -1765,6 +1801,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Run the full close checklist for January with accruals',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-bank-reconciliation',
@@ -1812,6 +1849,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Reconcile the operating account for the month of March',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-ar-aging',
@@ -1853,6 +1891,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Flag all receivables over 90 days and draft collection notes',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-ap-aging',
@@ -1894,6 +1933,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Identify payables approaching due date for cash planning',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-revenue-recognition',
@@ -1942,6 +1982,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Assess ASC 606 treatment for new multi-year contracts',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-fixed-asset-register',
@@ -1989,6 +2030,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Update the register with Q1 additions and disposals',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-intercompany-recon',
@@ -2037,6 +2079,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Reconcile intercompany balances across US, UK, and DE entities',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-tax-provision',
@@ -2079,6 +2122,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Estimate the quarterly income tax provision for US and EU',
+    defaultOutput: 'Ask',
   },
   {
     id: 'default-gl-account-recon',
@@ -2127,6 +2171,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Reconcile prepaid expenses and accrued liabilities at month-end',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-expense-report-audit',
@@ -2170,6 +2215,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Audit T&E reports over $5K for policy compliance',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-lease-accounting',
@@ -2212,6 +2258,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate ROU assets and lease liabilities under ASC 842',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-consolidation',
@@ -2275,6 +2322,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Consolidate financials for all 5 subsidiaries with eliminations',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-audit-prep',
@@ -2319,6 +2367,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Prepare PBC list items and supporting schedules for year-end audit',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-sales-tax-compliance',
@@ -2368,6 +2417,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate nexus exposure and file obligations for Q4',
+    defaultOutput: 'Document',
   },
   // CRE — Lease & Revenue Reports
   {
@@ -2414,6 +2464,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Map lease expirations for the office portfolio over the next 5 years',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-lease-abstract-summary',
@@ -2459,6 +2510,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Summarize escalation clauses and TI obligations across the retail portfolio',
+    defaultOutput: 'Document',
   },
   // CRE — Operating & CAM Reports
   {
@@ -2507,6 +2559,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Produce monthly P&L for each property in the office portfolio',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-property-budget-variance',
@@ -2554,6 +2607,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Analyze YTD budget variances across the industrial portfolio',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-property-ar-aging',
@@ -2600,6 +2654,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Review tenant delinquencies and cash flow impact across all properties',
+    defaultOutput: 'Spreadsheet',
   },
   // CRE — Asset Performance Reports
   {
@@ -2647,6 +2702,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Show NOI trajectory and YoY growth for each asset over the past 24 months',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-property-capex',
@@ -2693,6 +2749,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Track CapEx spend vs budget for TI and building projects this year',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-dscr-report',
@@ -2740,6 +2797,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate DSCR for each financed property and flag covenant risks',
+    defaultOutput: 'Spreadsheet',
   },
   // CRE — Investor / Fund-Level Reports
   {
@@ -2788,6 +2846,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate cash available for distribution after debt service and CapEx',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-distribution-waterfall',
@@ -2836,6 +2895,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Allocate quarterly distributions through the GP/LP waterfall structure',
+    defaultOutput: 'Presentation',
   },
   {
     id: 'default-irr-equity-multiple',
@@ -2883,6 +2943,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate gross and net IRR for each investment in Fund III',
+    defaultOutput: 'Spreadsheet',
   },
   // CRE — Compliance & Control Reports
   {
@@ -2930,6 +2991,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Map recoverable vs non-recoverable expenses by tenant for the office tower',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-lease-compliance',
@@ -2976,6 +3038,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Audit billing accuracy and escalation enforcement for all retail leases',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-insurance-compliance',
@@ -3022,6 +3085,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Track tenant insurance certificate compliance across the portfolio',
+    defaultOutput: 'Document',
   },
   {
     id: 'default-property-tax-recon',
@@ -3069,6 +3133,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Reconcile property taxes and identify appeal opportunities across the fund',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-tenant-sales',
@@ -3116,6 +3181,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Analyze tenant sales performance and percentage rent at the shopping center',
+    defaultOutput: 'Spreadsheet',
   },
   // CRE — Strategic-Level Reports
   {
@@ -3164,6 +3230,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Quantify mark-to-market rent upside across the office portfolio',
+    defaultOutput: 'Presentation',
   },
   {
     id: 'default-break-even-occupancy',
@@ -3210,6 +3277,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate minimum occupancy to cover debt service and operating costs',
+    defaultOutput: 'Spreadsheet',
   },
   {
     id: 'default-tenant-concentration',
@@ -3257,6 +3325,7 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Analyze top tenant exposure and diversification across the fund portfolio',
+    defaultOutput: 'Presentation',
   },
   {
     id: 'default-walt-report',
@@ -3304,5 +3373,572 @@ export const DEFAULT_SKILLS: AnalyxSkill[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     isDefault: true,
     placeholder: 'e.g. Calculate WALT by rent and GLA with risk-adjusted expiration weighting',
+    defaultOutput: 'Spreadsheet',
+  },
+  // Data Architecture & Engineering — CFO Data Team
+  {
+    id: 'default-document-abstraction',
+    name: 'Document Abstraction Engine',
+    description: `### Tasks Required
+- Ingest unstructured documents (PDF, DOCX, scanned images) from finance, legal, and operations
+- Apply OCR and layout analysis to extract text, tables, and key-value pairs from each document
+- Classify documents by type: invoice, contract, lease, financial statement, board resolution, tax form
+- Extract structured fields per document type using configurable extraction templates
+- Validate extracted data against business rules and flag low-confidence extractions for human review
+- Write normalized output to the target data warehouse or staging tables
+
+### Data Sources
+- **Document Repository** (SharePoint, Google Drive, Box) — source files organized by department and document type
+- **OCR Engine** (Textract, Document AI, Azure Form Recognizer) — text extraction and layout detection
+- **Classification Model** — trained document classifier for routing to the correct extraction template
+- **Extraction Templates** — field-level rules per document type: field name, data type, location hints, validation regex
+- **Master Data** — vendor master, chart of accounts, entity list for cross-reference validation
+
+### Computation Process
+1. Scan the ingestion folder or API queue for new documents; log file metadata (name, size, source, timestamp)
+2. Run OCR with layout analysis to produce a structured representation: text blocks, tables, and bounding boxes
+3. Classify the document type using the trained model; route to the matching extraction template
+4. Apply the extraction template: locate target fields using positional rules, regex, or NLP entity recognition
+5. For tabular data (line items, schedules), detect table boundaries and parse rows and columns into structured arrays
+6. Validate each extracted field: data type checks, range checks, cross-field consistency, and master data lookups
+7. Score extraction confidence per field; flag fields below the confidence threshold for human review
+8. Write validated records to the staging schema with full provenance: source file, page, bounding box coordinates
+
+### Output Structure
+- **Extraction Summary Dashboard**: Documents processed, pass/fail rates, average confidence scores by document type
+- **Extracted Data Tables**: Structured output per document type with all target fields populated
+- **Confidence Scorecard**: Field-level confidence scores with flagged items requiring human review
+- **Validation Exception Report**: Failed validations with field name, extracted value, rule violated, and source location
+- **Processing Audit Log**: Full trace from source file to extracted record with timestamps and model versions
+- **Template Performance Metrics**: Extraction accuracy and coverage rates per template for continuous improvement`,
+    tags: [
+      'data engineering',
+      'document abstraction',
+      'ocr',
+      'etl',
+      'automation',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Extract key fields from 500 vendor invoices and load to Snowflake',
+    defaultOutput: 'Document',
+  },
+  {
+    id: 'default-etl-pipeline-builder',
+    name: 'ETL Pipeline Builder',
+    description: `### Tasks Required
+- Design extract-transform-load pipelines for financial and operational data sources
+- Define source connections: ERP, CRM, billing, banking, HRIS, and third-party APIs
+- Specify transformation logic: cleansing, deduplication, type casting, currency conversion, and business rule application
+- Map source fields to the target dimensional model (facts and dimensions)
+- Implement incremental load strategies: CDC, watermark columns, or full refresh with merge
+- Build error handling, retry logic, and dead-letter queues for failed records
+- Schedule orchestration with dependency management across pipeline stages
+
+### Data Sources
+- **Source Systems** — ERP (NetSuite, SAP), CRM (Salesforce, Twenty CRM), billing (Stripe, Chargebee), banking (Plaid)
+- **ETL / ELT Platform** (dbt, Fivetran, Airbyte, Apache Airflow, Dagster) — pipeline orchestration and transformation
+- **Data Warehouse** (Snowflake, BigQuery, Redshift) — target landing, staging, and presentation schemas
+- **Schema Registry** — source schema definitions and change tracking for drift detection
+- **Data Quality Framework** — validation rules, freshness SLAs, and anomaly detection thresholds
+
+### Computation Process
+1. Catalog source systems: document connection method (API, JDBC, file), authentication, rate limits, and schema
+2. Design the target schema: fact tables (transactions, journal entries, invoices) and dimension tables (accounts, entities, dates, vendors)
+3. Define extraction logic per source: full vs incremental, extraction frequency, and watermark strategy
+4. Build transformation DAG: staging → cleansing → enrichment → conforming → loading, with dependencies
+5. Implement data quality checks at each stage: null checks, referential integrity, uniqueness, and freshness
+6. Configure error handling: log failed records to dead-letter tables, alert on threshold breaches, enable manual reprocessing
+7. Set up orchestration schedule: define run frequency, dependency chains, retry policies, and SLA monitoring
+8. Deploy with CI/CD: version-controlled pipeline code, automated testing, and promotion across environments
+
+### Output Structure
+- **Pipeline Architecture Diagram**: Visual DAG showing sources, transformations, and targets with data flow
+- **Source-to-Target Mapping**: Field-level mapping document with transformation rules and business logic
+- **Pipeline Configuration**: Orchestration definitions (Airflow DAGs, dbt models, Fivetran connectors) ready for deployment
+- **Data Quality Rules Catalog**: Validation rules per table and column with severity levels and alert routing
+- **Run Monitoring Dashboard**: Pipeline execution history, duration, record counts, and error rates
+- **SLA Compliance Report**: Freshness tracking per table with actual vs target load times`,
+    tags: [
+      'data engineering',
+      'etl',
+      'pipeline',
+      'data warehouse',
+      'orchestration',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Build an incremental ETL pipeline from NetSuite GL to Snowflake',
+    defaultOutput: 'Spreadsheet',
+  },
+  {
+    id: 'default-sql-query-generator',
+    name: 'SQL Query Generator',
+    description: `### Tasks Required
+- Translate natural-language financial questions into optimized SQL queries against the data warehouse
+- Resolve entity references: map business terms (revenue, EBITDA, headcount) to the correct tables and columns
+- Apply appropriate joins across fact and dimension tables based on the query context
+- Include standard filters: date ranges, entity hierarchies, currency, and elimination entries
+- Optimize query performance: partition pruning, predicate pushdown, and materialized view usage
+- Format results for downstream consumption: pivot, rank, window functions, and CTEs
+
+### Data Sources
+- **Data Warehouse Schema** (Snowflake, BigQuery, Redshift) — table definitions, column metadata, and relationships
+- **Business Glossary** — mapping of business terms to physical columns and calculation logic
+- **Query History** — previously executed queries for pattern matching and optimization hints
+- **Access Control Metadata** — row-level and column-level security policies for the requesting user
+- **Performance Catalog** — table statistics, clustering keys, and materialized view definitions
+
+### Computation Process
+1. Parse the natural-language request and identify the target metrics, dimensions, filters, and sort order
+2. Resolve business terms to physical columns using the business glossary (e.g., "revenue" → fact_gl.amount WHERE account_type = 'Revenue')
+3. Determine required tables and construct the join graph: fact tables, dimension tables, and bridge tables
+4. Apply standard filters: fiscal period, legal entity, currency conversion, intercompany elimination
+5. Generate the SQL statement using CTEs for readability: WITH clause for intermediate calculations, final SELECT for output
+6. Add window functions for running totals, rankings, period-over-period comparisons, and moving averages
+7. Optimize: check for partition alignment, suggest clustering keys, and evaluate materialized view applicability
+8. Validate the query against the schema catalog to ensure all references resolve and types are compatible
+
+### Output Structure
+- **Generated SQL**: Production-ready query with CTEs, joins, filters, and window functions, fully commented
+- **Query Explanation**: Plain-English walkthrough of what the query does and why each join and filter is applied
+- **Execution Plan Summary**: Estimated cost, rows scanned, and optimization recommendations
+- **Result Preview**: First 100 rows of output with column headers and data types
+- **Alternative Queries**: Variant queries for different granularity levels or time windows
+- **Performance Tips**: Suggestions for indexing, clustering, or materialization to improve recurring query performance`,
+    tags: [
+      'data engineering',
+      'sql',
+      'query',
+      'data warehouse',
+      'analytics',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Write a query to compare revenue by entity and product line for the trailing 4 quarters',
+    defaultOutput: 'Spreadsheet',
+  },
+  {
+    id: 'default-data-catalog',
+    name: 'Data Catalog & Lineage',
+    description: `### Tasks Required
+- Inventory all data assets across the finance data ecosystem: tables, views, models, and reports
+- Document each asset: description, owner, refresh frequency, grain, and primary/foreign keys
+- Map end-to-end data lineage from source systems through transformations to final reports
+- Classify data sensitivity: PII, financial confidential, SOX-relevant, and publicly reportable
+- Track schema changes and assess downstream impact before migrations or refactors
+- Maintain a searchable business glossary linking business terms to physical assets
+
+### Data Sources
+- **Data Warehouse Metadata** (Snowflake INFORMATION_SCHEMA, BigQuery metadata tables) — table and column definitions
+- **ETL / ELT Platform** (dbt manifest, Airflow DAGs, Fivetran logs) — transformation logic and execution history
+- **BI Platform** (Tableau, Looker, Power BI) — report and dashboard definitions with data source references
+- **Data Catalog Tool** (Atlan, Alation, DataHub, OpenMetadata) — centralized metadata management
+- **Access Control System** (IAM, Snowflake RBAC) — permissions and data classification tags
+
+### Computation Process
+1. Crawl the data warehouse to extract table, view, and column metadata including statistics and usage patterns
+2. Parse ETL/ELT definitions (dbt models, Airflow DAGs) to build transformation lineage graphs
+3. Connect BI report definitions to their underlying queries and data sources for report-level lineage
+4. Merge lineage from extraction, transformation, and presentation layers into a unified graph
+5. Apply data classification rules: scan column names, sample data, and metadata tags to assign sensitivity levels
+6. Generate impact analysis for proposed changes: identify all downstream tables, models, and reports affected
+7. Populate the business glossary: link business terms to physical columns with calculation logic and ownership
+8. Set up automated freshness and quality monitoring tied to each catalog entry
+
+### Output Structure
+- **Asset Inventory**: Searchable catalog of all tables, views, models, and reports with metadata
+- **Lineage Map**: Interactive graph showing data flow from source to report with transformation steps
+- **Business Glossary**: Term definitions linked to physical assets, calculation logic, and data stewards
+- **Data Classification Report**: Assets tagged by sensitivity level with policy compliance status
+- **Impact Analysis Tool**: Change simulator showing downstream effects of schema modifications
+- **Freshness & Quality Dashboard**: Staleness alerts, quality scores, and SLA compliance by asset`,
+    tags: [
+      'data architecture',
+      'data catalog',
+      'lineage',
+      'governance',
+      'metadata',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Map lineage from NetSuite GL through dbt models to the board reporting dashboard',
+    defaultOutput: 'Workflow Builder',
+  },
+  {
+    id: 'default-data-quality-framework',
+    name: 'Data Quality Framework',
+    description: `### Tasks Required
+- Define data quality dimensions for financial data: accuracy, completeness, timeliness, consistency, and uniqueness
+- Implement automated quality checks at ingestion, transformation, and presentation layers
+- Build anomaly detection for key financial metrics: revenue, expenses, balances, and ratios
+- Create data quality scorecards for each critical data asset and pipeline
+- Establish remediation workflows for quality exceptions with SLA tracking
+- Monitor and report on data quality trends to identify systemic issues
+
+### Data Sources
+- **Data Warehouse** (Snowflake, BigQuery) — production tables subject to quality monitoring
+- **Data Quality Tool** (Great Expectations, dbt tests, Monte Carlo, Soda) — test definitions and execution results
+- **ETL Pipeline Logs** — record-level processing outcomes, error counts, and rejection reasons
+- **Business Rules Repository** — validation rules derived from accounting standards, policy, and regulatory requirements
+- **Historical Quality Metrics** — trend data for quality scores, exception volumes, and resolution times
+
+### Computation Process
+1. Catalog critical data assets and assign quality dimensions and ownership per asset
+2. Define quality rules per dimension: null checks (completeness), range checks (accuracy), cross-table joins (consistency), uniqueness constraints, and freshness thresholds (timeliness)
+3. Implement rules in the quality framework: dbt tests, Great Expectations suites, or custom SQL checks
+4. Schedule quality checks to run after each pipeline execution; capture pass/fail results with record-level detail
+5. Build anomaly detection models for key metrics: statistical process control, Z-score, or ML-based detection on time series
+6. Calculate composite quality scores per asset: weighted average across dimensions based on business criticality
+7. Route exceptions to data stewards via automated workflows with severity, context, and suggested remediation
+8. Track resolution SLAs and compute mean-time-to-detect (MTTD) and mean-time-to-resolve (MTTR) trends
+
+### Output Structure
+- **Quality Scorecard Dashboard**: Asset-level scores by dimension with trend sparklines and RAG status
+- **Exception Management Queue**: Open quality issues with severity, owner, SLA deadline, and resolution status
+- **Anomaly Detection Alerts**: Flagged metrics with expected range, actual value, and statistical significance
+- **Rule Coverage Matrix**: Quality rules mapped to assets showing coverage gaps by dimension
+- **Trend Analysis**: Quality score trends over time with root cause annotations for degradation events
+- **Executive Quality Summary**: Portfolio-level data health metrics for CFO and audit committee reporting`,
+    tags: [
+      'data engineering',
+      'data quality',
+      'governance',
+      'testing',
+      'monitoring',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Build quality checks for the GL staging tables and set up anomaly detection on revenue',
+    defaultOutput: 'Spreadsheet',
+  },
+  {
+    id: 'default-dimensional-model',
+    name: 'Dimensional Model Designer',
+    description: `### Tasks Required
+- Analyze financial reporting requirements and map to a star or snowflake schema design
+- Define fact tables for key business processes: journal entries, invoices, payments, budgets, and forecasts
+- Design conformed dimensions: date, account, entity, cost center, vendor, customer, and currency
+- Specify grain, measures, and aggregation rules for each fact table
+- Implement slowly changing dimensions (SCD Type 1/2/3) for historical tracking
+- Document the model with ERD diagrams, grain statements, and business rule annotations
+
+### Data Sources
+- **Source System Schemas** — ERP, CRM, billing, and HRIS table structures for reverse-engineering business processes
+- **Reporting Requirements** — CFO reporting pack, board deck, regulatory filings, and ad-hoc analysis patterns
+- **Existing Data Models** — current warehouse schema for gap analysis and migration planning
+- **Kimball Methodology Reference** — dimensional modeling patterns and best practices for financial data
+- **Data Volume Estimates** — row counts, growth rates, and query patterns for performance sizing
+
+### Computation Process
+1. Inventory the business processes to be modeled: general ledger, accounts payable, accounts receivable, payroll, budgeting
+2. For each process, declare the grain: one row per journal entry line, one row per invoice line item, etc.
+3. Identify the fact table measures: amount, quantity, budget amount, forecast amount, with additive/semi-additive/non-additive classification
+4. Design conformed dimensions shared across fact tables: date (fiscal and calendar), account (hierarchy), entity (legal structure), cost center, currency
+5. Apply SCD strategy per dimension: Type 1 for attributes where history is irrelevant, Type 2 for attributes requiring full history tracking
+6. Define surrogate key strategy, hash keys for incremental loading, and bridge tables for many-to-many relationships
+7. Validate the model against reporting requirements: confirm every report metric can be derived from the model
+8. Generate DDL scripts and dbt model definitions for deployment
+
+### Output Structure
+- **Entity-Relationship Diagram**: Visual schema showing fact tables, dimensions, keys, and relationships
+- **Grain Statement Document**: Precise grain definition for each fact table with business context
+- **Dimension Specification**: Column-level detail for each dimension including SCD type, hierarchy levels, and default values
+- **Fact Table Specification**: Measures, foreign keys, degenerate dimensions, and aggregation rules per fact
+- **DDL / dbt Models**: Deployment-ready schema definitions and transformation logic
+- **Model Validation Matrix**: Reporting requirements mapped to model elements confirming full coverage`,
+    tags: [
+      'data architecture',
+      'dimensional model',
+      'star schema',
+      'data warehouse',
+      'design',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Design a star schema for the general ledger with conformed date and account dimensions',
+    defaultOutput: 'Document',
+  },
+  {
+    id: 'default-ai-anomaly-detection',
+    name: 'AI Anomaly Detection',
+    description: `### Tasks Required
+- Deploy ML-based anomaly detection across financial transaction streams and metric time series
+- Train models on historical patterns: journal entries, vendor payments, expense claims, and revenue streams
+- Detect statistical outliers, pattern breaks, and emerging trends before they appear in standard reports
+- Classify anomalies by risk tier: informational, review-required, and critical-escalation
+- Integrate alerts into the finance workflow: Slack, email, and ticketing system notifications
+- Build feedback loops so analysts can confirm or dismiss anomalies to improve model accuracy
+
+### Data Sources
+- **Data Warehouse** (Snowflake, BigQuery) — financial transaction tables, metric time series, and aggregated KPIs
+- **ML Platform** (SageMaker, Vertex AI, Databricks ML) — model training, deployment, and inference infrastructure
+- **Historical Anomaly Labels** — previously identified irregularities, audit findings, and restatement records
+- **Business Calendar** — fiscal periods, holidays, seasonal patterns, and known one-time events for context
+- **Threshold Configuration** — business-defined sensitivity levels and escalation rules per metric
+
+### Computation Process
+1. Select target datasets: GL transactions, AP disbursements, expense reports, revenue accruals, and key financial ratios
+2. Feature engineering: extract time-based features (day of week, month-end proximity, fiscal period), entity features, and rolling statistics
+3. Train baseline models: isolation forest for transaction-level anomalies, Prophet or ARIMA for time series, and autoencoders for multi-dimensional patterns
+4. Score incoming data against trained models; compute anomaly scores and statistical significance levels
+5. Apply business rules overlay: suppress known patterns (month-end accruals, payroll cycles) and adjust thresholds by entity
+6. Classify detected anomalies by risk tier using score magnitude, business impact, and recurrence patterns
+7. Route alerts to the appropriate reviewers based on anomaly type, entity, and dollar impact
+8. Capture analyst feedback (confirmed anomaly, false positive, known event) and retrain models on an ongoing basis
+
+### Output Structure
+- **Anomaly Detection Dashboard**: Real-time view of detected anomalies with severity, category, and trend
+- **Transaction-Level Alerts**: Individual flagged transactions with anomaly score, context, and suggested investigation steps
+- **Time Series Monitoring**: Metric trends with confidence bands and breakout detection annotations
+- **Model Performance Report**: Precision, recall, and F1 scores based on analyst feedback with drift tracking
+- **Root Cause Analysis**: Automated drill-down from anomaly to contributing transactions and dimensions
+- **Escalation Workflow**: Alert routing, acknowledgment tracking, and resolution documentation`,
+    tags: [
+      'data science',
+      'ai',
+      'anomaly detection',
+      'machine learning',
+      'finance',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Deploy anomaly detection on AP disbursements and GL journal entries',
+    defaultOutput: 'Document',
+  },
+  {
+    id: 'default-data-migration-playbook',
+    name: 'Data Migration Playbook',
+    description: `### Tasks Required
+- Plan end-to-end data migration from legacy systems to the modern finance data stack
+- Inventory source data assets: tables, files, reports, and undocumented spreadsheets
+- Define mapping rules from legacy schemas to target dimensional model
+- Build and execute data validation and reconciliation between source and target
+- Manage cutover sequencing: parallel runs, data freeze windows, and rollback plans
+- Document the migration for SOX compliance and audit trail requirements
+
+### Data Sources
+- **Legacy Systems** — on-premise ERP, Access databases, Excel workbooks, flat files, and custom applications
+- **Target Platform** (Snowflake, BigQuery) — destination warehouse with the new dimensional model
+- **Migration Tool** (Talend, Informatica, custom scripts) — extraction and loading automation
+- **Reconciliation Framework** — row counts, hash totals, and balance tie-outs for validation
+- **SOX Documentation** — change management procedures, approval workflows, and audit evidence requirements
+
+### Computation Process
+1. Inventory all data assets in the legacy environment: tables, views, stored procedures, reports, and manual files
+2. Profile source data: record counts, null rates, distinct values, min/max ranges, and data type distributions
+3. Map source fields to target schema: direct mappings, transformations, derivations, and fields with no target (deprecated)
+4. Build migration scripts with full error handling, logging, and checkpoint/restart capability
+5. Execute test migration in a sandbox environment; run reconciliation checks: row counts, control totals, and sample verification
+6. Perform user acceptance testing: finance team validates key reports and balances match between source and target
+7. Execute production migration during the approved cutover window with pre-defined rollback triggers
+8. Run parallel operations for one close cycle; reconcile all material accounts between old and new systems
+
+### Output Structure
+- **Migration Plan Document**: Scope, timeline, resource requirements, risks, and mitigation strategies
+- **Source-to-Target Mapping**: Complete field mapping with transformation logic and data type conversions
+- **Data Profiling Report**: Source data quality assessment with issues that require pre-migration remediation
+- **Reconciliation Report**: Row counts, control totals, and balance comparisons between source and target
+- **Cutover Runbook**: Step-by-step cutover procedure with timing, responsibility, and rollback triggers
+- **SOX Evidence Package**: Change approvals, test results, and reconciliation documentation for audit`,
+    tags: [
+      'data engineering',
+      'migration',
+      'etl',
+      'legacy systems',
+      'data architecture',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Plan the GL data migration from on-premise SAP to Snowflake',
+    defaultOutput: 'Spreadsheet',
+  },
+  {
+    id: 'default-semantic-layer',
+    name: 'Semantic Layer Configuration',
+    description: `### Tasks Required
+- Define a universal semantic layer that provides consistent metric definitions across all BI and reporting tools
+- Map business metrics (revenue, EBITDA, working capital, burn rate) to their SQL computation logic
+- Configure dimensions, hierarchies, and drill paths for self-service exploration
+- Implement row-level and column-level security policies aligned with finance data access controls
+- Ensure the semantic layer stays synchronized with the underlying warehouse schema
+- Enable governed self-service: business users can explore without writing SQL while maintaining data consistency
+
+### Data Sources
+- **Data Warehouse** (Snowflake, BigQuery) — physical tables and views that the semantic layer abstracts
+- **Semantic Layer Tool** (dbt Metrics, Cube, AtScale, Looker LookML) — metric and dimension definitions
+- **BI Platforms** (Tableau, Looker, Power BI, Sigma) — consumer tools that query the semantic layer
+- **Business Glossary** — authoritative metric definitions approved by the CFO and FP&A team
+- **Access Control Policies** — role-based data access rules by entity, department, and sensitivity level
+
+### Computation Process
+1. Catalog all financial metrics from the reporting pack, board deck, and operational dashboards
+2. For each metric, define the SQL calculation logic: source table, filters, aggregation, and time grain
+3. Specify dimension associations: which dimensions apply to each metric and how they filter or group
+4. Build hierarchies within dimensions: account hierarchy (L1-L4), entity hierarchy (holding → subsidiary), date hierarchy (year → quarter → month → day)
+5. Implement security policies: row-level security by entity and department, column-level masking for sensitive fields
+6. Configure caching and materialization strategies for frequently queried metrics to optimize performance
+7. Test metric consistency: verify that every metric produces identical results regardless of the consuming BI tool
+8. Deploy change management process: metric definition changes require FP&A approval and versioning
+
+### Output Structure
+- **Metric Catalog**: All defined metrics with SQL logic, dimensions, grain, and business owner
+- **Dimension Specifications**: Hierarchies, attributes, and drill paths for each conformed dimension
+- **Security Policy Matrix**: Row and column access rules by role, entity, and data sensitivity
+- **BI Tool Integration Guide**: Connection instructions and verified metric availability per BI platform
+- **Consistency Validation Report**: Cross-tool metric comparison ensuring identical results from the semantic layer
+- **Performance Baseline**: Query response times and caching effectiveness metrics for SLA monitoring`,
+    tags: [
+      'data architecture',
+      'semantic layer',
+      'metrics',
+      'bi',
+      'governance',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Define the semantic layer for revenue, EBITDA, and working capital metrics',
+    defaultOutput: 'Workflow Builder',
+  },
+  {
+    id: 'default-reverse-etl',
+    name: 'Reverse ETL & Data Activation',
+    description: `### Tasks Required
+- Push enriched data from the warehouse back into operational systems: CRM, ERP, email, and Slack
+- Define sync configurations: which warehouse tables feed which operational destinations
+- Map warehouse fields to destination system fields with transformation rules
+- Implement sync schedules, change detection, and conflict resolution logic
+- Build monitoring and alerting for sync failures, latency, and data drift
+- Enable finance-triggered automations: alert on covenant breaches, flag overdue invoices, update CRM with payment status
+
+### Data Sources
+- **Data Warehouse** (Snowflake, BigQuery) — source of enriched, validated, and scored data
+- **Reverse ETL Tool** (Census, Hightouch, Polytouch) — sync orchestration and destination connectors
+- **Operational Systems** — CRM (Salesforce, Twenty CRM), ERP (NetSuite, SAP), Slack, email, and ticketing
+- **Sync Configuration** — mapping definitions, schedule, change detection method, and conflict rules
+- **Monitoring Platform** — sync execution logs, row-level outcomes, and alerting thresholds
+
+### Computation Process
+1. Identify activation use cases: push customer health scores to CRM, sync payment status to AR, alert on budget overruns in Slack
+2. Define the source query or model in the warehouse that produces the data to be synced
+3. Map source columns to destination fields; apply transformations (formatting, enum mapping, null handling)
+4. Configure change detection: hash-based diff, timestamp watermark, or full comparison to minimize API calls
+5. Set sync schedule: real-time (CDC), hourly, daily, or event-triggered based on the use case urgency
+6. Implement conflict resolution: warehouse-wins, destination-wins, or merge with field-level priority
+7. Build error handling: retry logic for transient failures, dead-letter queue for persistent errors, alert on threshold breach
+8. Monitor sync health: record counts, latency, error rates, and destination system acknowledgment
+
+### Output Structure
+- **Activation Use Case Catalog**: All reverse ETL syncs with source, destination, schedule, and business purpose
+- **Sync Configuration Document**: Field mappings, transformation rules, and conflict resolution policies
+- **Execution Dashboard**: Sync history with status, record counts, duration, and error rates
+- **Error Management Queue**: Failed records with error type, context, and retry status
+- **Latency Monitoring**: Time from warehouse update to destination system reflection with SLA tracking
+- **Business Impact Report**: Downstream actions enabled by each sync (e.g., automated AR follow-ups, CRM enrichment)`,
+    tags: [
+      'data engineering',
+      'reverse etl',
+      'data activation',
+      'automation',
+      'integration',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Sync customer payment status from Snowflake back to Salesforce and Slack',
+    defaultOutput: 'Workflow Builder',
+  },
+  {
+    id: 'default-llm-finance-agent',
+    name: 'LLM Finance Agent Builder',
+    description: `### Tasks Required
+- Design and deploy LLM-powered agents that answer financial questions using the organization's own data
+- Connect agents to the data warehouse, document store, and semantic layer as tool-callable data sources
+- Implement retrieval-augmented generation (RAG) over financial documents: 10-Ks, board decks, policies, and memos
+- Build guardrails: prevent hallucination on financial figures, enforce citation of source data, and restrict access by role
+- Create agent workflows for recurring CFO tasks: variance commentary, board question prep, and audit inquiry responses
+- Monitor agent accuracy, usage, and cost to optimize performance and manage API spend
+
+### Data Sources
+- **Data Warehouse** (Snowflake, BigQuery) — SQL-callable financial data for agent tool use
+- **Document Vector Store** (Pinecone, Weaviate, pgvector) — embedded financial documents for RAG retrieval
+- **Semantic Layer** — governed metric definitions the agent uses for consistent calculations
+- **LLM API** (Claude, GPT-4) — language model inference for reasoning, summarization, and generation
+- **Agent Framework** (LangChain, LlamaIndex, custom) — orchestration of tools, memory, and conversation
+
+### Computation Process
+1. Define agent personas and their permitted data scope: CFO analyst agent, audit response agent, board prep agent
+2. Configure tool access: SQL query tool (warehouse), document search tool (RAG), calculation tool (semantic layer), and web search
+3. Build the RAG pipeline: chunk financial documents, generate embeddings, store in the vector database, and configure retrieval parameters
+4. Implement guardrails: numeric fact-checking against the warehouse, mandatory source citation, hallucination detection, and confidence scoring
+5. Design agent workflows: multi-step reasoning chains for complex questions (e.g., "Why did EBITDA margin decline in Q3?")
+6. Set up role-based access: agents respect the same data security policies as the semantic layer and warehouse
+7. Build evaluation suite: test agent responses against known-correct answers for accuracy benchmarking
+8. Deploy monitoring: track query volume, token usage, response latency, accuracy scores, and cost per query
+
+### Output Structure
+- **Agent Configuration**: Persona definitions, tool access policies, and system prompts for each agent type
+- **RAG Pipeline Documentation**: Document processing flow, embedding model, chunk strategy, and retrieval parameters
+- **Guardrail Specification**: Fact-checking rules, citation requirements, and hallucination detection thresholds
+- **Workflow Library**: Pre-built agent workflows for variance analysis, board prep, audit responses, and ad-hoc Q&A
+- **Evaluation Report**: Accuracy benchmarks, response quality scores, and identified failure modes
+- **Usage & Cost Dashboard**: Query volume, token consumption, cost per query, and ROI metrics`,
+    tags: [
+      'ai',
+      'llm',
+      'rag',
+      'finance agent',
+      'data architecture',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Build a RAG-powered agent that answers board questions using our financial data',
+    defaultOutput: 'Workflow Builder',
+  },
+  {
+    id: 'default-data-platform-cost',
+    name: 'Data Platform Cost Optimization',
+    description: `### Tasks Required
+- Analyze compute and storage costs across the data platform: warehouse, ETL, BI, and ML infrastructure
+- Attribute costs to business units, teams, and specific pipelines or queries
+- Identify optimization opportunities: unused tables, expensive queries, over-provisioned warehouses, and redundant pipelines
+- Implement cost controls: resource monitors, auto-suspend policies, and query governance
+- Build chargeback or showback models for finance data platform consumption
+- Forecast platform costs under growth scenarios and propose budget recommendations
+
+### Data Sources
+- **Cloud Cost APIs** (Snowflake ACCOUNT_USAGE, BigQuery INFORMATION_SCHEMA, AWS Cost Explorer) — granular compute and storage costs
+- **Query History** — individual query costs, frequency, and user attribution
+- **Pipeline Execution Logs** — ETL run costs, duration, and resource consumption per pipeline
+- **Table Metadata** — storage sizes, access frequency, and last query dates for identifying unused assets
+- **Budget / Forecast** — approved data platform budget and projected growth rates
+
+### Computation Process
+1. Extract granular cost data: compute credits/slots by warehouse/project, storage costs by database/schema, and data transfer costs
+2. Attribute costs to owners: map warehouses and queries to teams, projects, and business units using tags and naming conventions
+3. Identify waste: tables not queried in 90+ days, queries that scan full tables without filters, warehouses with <10% utilization
+4. Analyze query patterns: find the top 20 most expensive queries and recommend optimization (clustering, materialization, rewrite)
+5. Model cost projections: current growth rate applied to compute and storage with scenario analysis for new workloads
+6. Design governance policies: max query cost limits, auto-suspend schedules, concurrency controls, and approval workflows for large warehouses
+7. Build chargeback model: allocate shared infrastructure costs using consumption-based or fixed-allocation methodology
+8. Implement monitoring: daily cost alerts, budget burn rate tracking, and anomaly detection on spending spikes
+
+### Output Structure
+- **Cost Breakdown Dashboard**: Total platform cost by category (compute, storage, transfer) with team attribution
+- **Optimization Recommendations**: Prioritized list of cost savings opportunities with estimated impact
+- **Expensive Query Report**: Top queries by cost with optimization suggestions and responsible owners
+- **Unused Asset Inventory**: Tables, pipelines, and warehouses flagged for decommissioning
+- **Cost Forecast**: 12-month projection under base, growth, and optimization scenarios
+- **Chargeback Report**: Cost allocation by business unit with consumption metrics and trends`,
+    tags: [
+      'data architecture',
+      'cost optimization',
+      'finops',
+      'cloud',
+      'governance',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder: 'e.g. Analyze Snowflake costs by team and find the top optimization opportunities',
+    defaultOutput: 'Document',
   },
 ];

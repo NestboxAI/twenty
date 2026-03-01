@@ -10,7 +10,6 @@ import {
   IconFile,
   IconFileText,
   IconLoader,
-  IconLock,
   IconSparkles,
   IconX,
   useIcons,
@@ -23,6 +22,7 @@ import {
 import { type Task } from '../AnalyxTypes';
 import { formatTaskDateTime, getEntityIcon, getTypeIcon } from '../AnalyxUtils';
 import { ResearchLogTimeline } from './ResearchLogTimeline';
+import { TrustAccuracyTab } from './TrustAccuracyTab';
 
 const DrawerOverlay = styled.div<{ isOpen: boolean }>`
   backdrop-filter: blur(2px);
@@ -41,7 +41,7 @@ const DrawerOverlay = styled.div<{ isOpen: boolean }>`
 `;
 
 const DrawerContainer = styled.div<{ isOpen: boolean }>`
-  width: 500px;
+  width: 600px;
   height: 100%;
   background: ${({ theme }) => theme.background.primary};
   color: ${({ theme }) => theme.font.color.primary};
@@ -100,17 +100,30 @@ const SectionLabel = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 
-const PromptBox = styled.div`
-  background: ${({ theme }) => theme.background.secondary};
-  border: 1px solid ${({ theme }) => theme.border.color.medium};
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 13px;
-  line-height: 1.4;
-  color: ${({ theme }) => theme.font.color.primary};
+const PROMPT_LINE_HEIGHT = 1.4;
+const PROMPT_MAX_LINES = 8;
+
+const PromptBubbleText = styled.div<{ $collapsed: boolean }>`
+  overflow: hidden;
   white-space: pre-wrap;
-  max-height: 60px;
-  overflow-y: auto;
+  ${({ $collapsed }) =>
+    $collapsed
+      ? `display: -webkit-box; -webkit-line-clamp: ${PROMPT_MAX_LINES}; -webkit-box-orient: vertical;`
+      : ''}
+`;
+
+const PromptToggle = styled.button`
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 4px;
+  padding: 0;
+
+  &:hover {
+    color: white;
+  }
 `;
 
 const ChatContainer = styled.div`
@@ -299,113 +312,6 @@ const VersionMenuItem = styled.div<{ isLatest: boolean }>`
   }
 `;
 
-const TrustScoreCard = styled.div`
-  background: ${({ theme }) => theme.background.secondary};
-  border: 1px solid ${({ theme }) => theme.border.color.medium};
-  border-radius: 10px;
-  padding: 12px 16px;
-`;
-
-const TrustScoreHeader = styled.div`
-  align-items: center;
-  color: ${({ theme }) => theme.font.color.tertiary};
-  display: flex;
-  font-size: 10px;
-  font-weight: 600;
-  gap: 5px;
-  letter-spacing: 0.6px;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-`;
-
-const ScoreColumnsRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-`;
-
-const ScoreColumn = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const ScoreColumnLabel = styled.div`
-  color: ${({ theme }) => theme.font.color.primary};
-  font-size: 11px;
-  font-weight: 600;
-  text-align: center;
-`;
-
-const ScoreColumnValue = styled.div`
-  color: ${({ theme }) => theme.font.color.tertiary};
-  font-size: 10px;
-  text-align: center;
-`;
-
-const ScoreColumnCI = styled.div`
-  color: ${({ theme }) => theme.font.color.light};
-  font-size: 9px;
-  text-align: center;
-`;
-
-const ScoreRing = ({
-  value,
-  maxValue,
-  color,
-  size = 52,
-}: {
-  value: number;
-  maxValue: number;
-  color: string;
-  size?: number;
-}) => {
-  const strokeWidth = 4;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const progress = Math.min(value / maxValue, 1);
-  const dashOffset = circumference * (1 - progress);
-
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={strokeWidth}
-        opacity={0.08}
-      />
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeDasharray={circumference}
-        strokeDashoffset={dashOffset}
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
-      />
-      <text
-        x={size / 2}
-        y={size / 2}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={14}
-        fontWeight={700}
-        fill="currentColor"
-      >
-        {value}%
-      </text>
-    </svg>
-  );
-};
-
 export const TaskDetailDrawer = ({
   task,
   isOpen,
@@ -418,20 +324,31 @@ export const TaskDetailDrawer = ({
   onUpdateTask: (updatedTask: Task) => void;
 }) => {
   const [chatInput, setChatInput] = useState('');
-  const [activeDrawerTab, setActiveDrawerTab] = useState<'report' | 'research'>(
-    'report',
-  );
+  const [activeDrawerTab, setActiveDrawerTab] = useState<
+    'report' | 'research' | 'trust'
+  >('report');
   const [versionMenuOpen, setVersionMenuOpen] = useState(false);
+  const [promptExpanded, setPromptExpanded] = useState(false);
+  const [promptOverflows, setPromptOverflows] = useState(false);
+  const promptBubbleRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const versionMenuRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const theme = useTheme();
   const { getIcon } = useIcons();
 
-  // Reset tab to report when task changes
+  // Reset tab and prompt collapse when task changes
   useEffect(() => {
     setActiveDrawerTab('report');
+    setPromptExpanded(false);
   }, [task?.id]);
+
+  // Detect if prompt text overflows the 8-line clamp
+  useEffect(() => {
+    const el = promptBubbleRef.current;
+    if (!el) return;
+    setPromptOverflows(el.scrollHeight > el.clientHeight);
+  }, [task?.prompt]);
 
   // Scroll to bottom of chat when messages change
   useEffect(() => {
@@ -538,15 +455,6 @@ export const TaskDetailDrawer = ({
   const TypeIcon = getTypeIcon(task.type);
   const hasScores =
     task.f1Score !== undefined && task.factCheckScore !== undefined;
-  const testCases =
-    task.f1Score !== undefined ? Math.round(task.f1Score * 55) : 0;
-  const ciMargin =
-    task.f1Score !== undefined ? (100 / Math.sqrt(testCases)).toFixed(1) : '0';
-  const externalSources =
-    task.factCheckScore !== undefined
-      ? Math.max(3, Math.round(task.factCheckScore / 18))
-      : 0;
-  const validatorCount = task.agentCount ?? 3;
 
   return (
     <>
@@ -692,14 +600,30 @@ export const TaskDetailDrawer = ({
               active={activeDrawerTab === 'research'}
               onClick={() => setActiveDrawerTab('research')}
             >
-              Research Log
+              Research
             </DrawerTab>
+            {hasScores && (
+              <DrawerTab
+                active={activeDrawerTab === 'trust'}
+                onClick={() => setActiveDrawerTab('trust')}
+              >
+                Trust Score
+              </DrawerTab>
+            )}
           </DrawerTabBar>
 
           {activeDrawerTab === 'research' ? (
             <ResearchLogTimeline
               events={task.statusEvents || []}
               taskDate={task.date}
+              agentCount={task.agentCount}
+              tokenUsage={task.tokenUsage}
+            />
+          ) : activeDrawerTab === 'trust' && hasScores ? (
+            <TrustAccuracyTab
+              f1Score={task.f1Score!}
+              factCheckScore={task.factCheckScore!}
+              agentCount={task.agentCount}
             />
           ) : (
             <DrawerContent>
@@ -780,62 +704,6 @@ export const TaskDetailDrawer = ({
                 )}
               </div>
 
-              {/* Prompt — compact */}
-              <PromptBox>{task.prompt}</PromptBox>
-
-              {/* Trust & Accuracy Score Widget */}
-              {hasScores && (
-                <TrustScoreCard>
-                  <TrustScoreHeader>
-                    <IconLock size={12} />
-                    Trust & Accuracy
-                  </TrustScoreHeader>
-                  <ScoreColumnsRow>
-                    <ScoreColumn>
-                      <ScoreRing
-                        value={task.f1Score!}
-                        maxValue={100}
-                        color={theme.color.blue}
-                      />
-                      <ScoreColumnLabel>Accuracy (F1)</ScoreColumnLabel>
-                      <ScoreColumnValue>
-                        {testCases.toLocaleString()} test cases
-                      </ScoreColumnValue>
-                      <ScoreColumnCI>
-                        {'\u00B1'} {ciMargin}% (95% CI)
-                      </ScoreColumnCI>
-                    </ScoreColumn>
-                    <ScoreColumn>
-                      <ScoreRing
-                        value={task.factCheckScore!}
-                        maxValue={100}
-                        color="#4CAF50"
-                      />
-                      <ScoreColumnLabel>Claim Verification</ScoreColumnLabel>
-                      <ScoreColumnValue>
-                        {externalSources} external sources
-                      </ScoreColumnValue>
-                    </ScoreColumn>
-                    <ScoreColumn>
-                      <ScoreRing
-                        value={Math.min(
-                          99,
-                          Math.round(
-                            (task.f1Score! + task.factCheckScore!) / 2 + 5,
-                          ),
-                        )}
-                        maxValue={100}
-                        color="#E67E22"
-                      />
-                      <ScoreColumnLabel>Consensus</ScoreColumnLabel>
-                      <ScoreColumnValue>
-                        {validatorCount} validators
-                      </ScoreColumnValue>
-                    </ScoreColumn>
-                  </ScoreColumnsRow>
-                </TrustScoreCard>
-              )}
-
               {/* Attachments Section */}
               {task.attachments && task.attachments.length > 0 && (
                 <DetailSection>
@@ -889,21 +757,21 @@ export const TaskDetailDrawer = ({
                 </SectionLabel>
                 <ChatContainer>
                   <ChatMessages>
-                    {task.messages?.length === 0 && (
-                      <div
-                        style={{
-                          textAlign: 'center',
-                          color: theme.font.color.tertiary,
-                          marginTop: '40px',
-                        }}
+                    <MessageBubble role="user">
+                      <PromptBubbleText
+                        ref={promptBubbleRef}
+                        $collapsed={!promptExpanded}
                       >
-                        <IconSparkles
-                          size={32}
-                          style={{ marginBottom: '8px', opacity: 0.5 }}
-                        />
-                        <div>Start a conversation about this task.</div>
-                      </div>
-                    )}
+                        {task.prompt}
+                      </PromptBubbleText>
+                      {(promptOverflows || promptExpanded) && (
+                        <PromptToggle
+                          onClick={() => setPromptExpanded((prev) => !prev)}
+                        >
+                          {promptExpanded ? 'Show less' : 'Show more'}
+                        </PromptToggle>
+                      )}
+                    </MessageBubble>
                     {task.messages?.map((msg, idx) => (
                       <MessageBubble key={idx} role={msg.role}>
                         {msg.content}

@@ -25,6 +25,7 @@ import {
   CONTEXT_TYPE_OPTIONS,
   generateMockScores,
   generateMockStatusEvents,
+  generateMockTokenUsage,
   generateRandomTitle,
   getTaskType,
 } from './AnalyxUtils';
@@ -148,6 +149,12 @@ export const AnalyxPage = () => {
             f1Score: task.f1Score ?? scores.f1,
             factCheckScore: task.factCheckScore ?? scores.factCheck,
             agentCount: task.agentCount ?? scores.agents,
+            tokenUsage:
+              task.tokenUsage ||
+              generateMockTokenUsage(
+                task.id,
+                task.agentCount ?? scores.agents,
+              ),
             statusEvents:
               task.statusEvents ||
               generateMockStatusEvents(task.id, task.prompt || ''),
@@ -385,6 +392,7 @@ export const AnalyxPage = () => {
       f1Score: scores.f1,
       factCheckScore: scores.factCheck,
       agentCount: scores.agents,
+      tokenUsage: generateMockTokenUsage(taskId, scores.agents),
       statusEvents: generateMockStatusEvents(taskId, prompt),
     };
 

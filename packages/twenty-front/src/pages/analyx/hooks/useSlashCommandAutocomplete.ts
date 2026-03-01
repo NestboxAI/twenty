@@ -10,12 +10,14 @@ type UseSlashCommandAutocompleteParams = {
   skills: AnalyxSkill[];
   prompt: string;
   onPromptChange: (value: string) => void;
+  onContextTypeChange?: (value: string) => void;
 };
 
 export const useSlashCommandAutocomplete = ({
   skills,
   prompt,
   onPromptChange,
+  onContextTypeChange,
 }: UseSlashCommandAutocompleteParams) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -27,6 +29,7 @@ export const useSlashCommandAutocomplete = ({
           skillName: skill.name,
           skillId: skill.id,
           placeholder: skill.placeholder,
+          defaultOutput: skill.defaultOutput,
         }))
         .filter((cmd) => cmd.command.length > 0),
     [skills],
@@ -62,6 +65,9 @@ export const useSlashCommandAutocomplete = ({
 
   const selectCommand = (cmd: SlashCommand) => {
     onPromptChange(`/${cmd.command} `);
+    if (cmd.defaultOutput && onContextTypeChange) {
+      onContextTypeChange(cmd.defaultOutput);
+    }
     setSelectedIndex(0);
   };
 
