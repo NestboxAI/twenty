@@ -13,9 +13,9 @@ import styled from '@emotion/styled';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 import { IconBrain, IconFolder, useIcons } from 'twenty-ui/display';
-import { DEFAULT_SKILLS } from './AnalyxDefaultSkills';
+import { DEFAULT_COMMANDS } from './AnalyxDefaultCommands';
 import {
-  type AnalyxSkill,
+  type AnalyxCommand,
   type NestboxAgent,
   type SelectedContext,
   type Task,
@@ -29,14 +29,14 @@ import {
   generateRandomTitle,
   getTaskType,
 } from './AnalyxUtils';
-import { AnalyxAddSkillForm } from './components/AnalyxAddSkillForm';
+import { AnalyxAddCommandForm } from './components/AnalyxAddCommandForm';
 import { AnalyxChipsBar } from './components/AnalyxChipsBar';
 import {
   AnalyxPromptInput,
   type ContextObjectOption,
 } from './components/AnalyxPromptInput';
-import { AnalyxSkillDetailPopup } from './components/AnalyxSkillDetailPopup';
-import { AnalyxSkillsBar } from './components/AnalyxSkillsBar';
+import { AnalyxCommandDetailPopup } from './components/AnalyxCommandDetailPopup';
+import { AnalyxCommandsBar } from './components/AnalyxCommandsBar';
 import { AnalyxTaskList } from './components/AnalyxTaskList';
 import { TaskDetailDrawer } from './components/TaskDetailDrawer';
 
@@ -106,10 +106,10 @@ export const AnalyxPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Skills state
-  const [skills, setSkills] = useState<AnalyxSkill[]>([]);
+  const [skills, setSkills] = useState<AnalyxCommand[]>([]);
   const [skillsInitialized, setSkillsInitialized] = useState(false);
   const [skillSearchQuery, setSkillSearchQuery] = useState('');
-  const [selectedSkill, setSelectedSkill] = useState<AnalyxSkill | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<AnalyxCommand | null>(null);
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
 
   // Load tasks from localStorage on mount
@@ -178,13 +178,13 @@ export const AnalyxPage = () => {
     }
   }, [tasks]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load skills from localStorage on mount, merging with latest DEFAULT_SKILLS
+  // Load skills from localStorage on mount, merging with latest DEFAULT_COMMANDS
   useEffect(() => {
     const stored = localStorage.getItem('analyx-skills');
     if (stored) {
       try {
-        const parsed = JSON.parse(stored) as AnalyxSkill[];
-        const defaultSkillMap = new Map(DEFAULT_SKILLS.map((s) => [s.id, s]));
+        const parsed = JSON.parse(stored) as AnalyxCommand[];
+        const defaultSkillMap = new Map(DEFAULT_COMMANDS.map((s) => [s.id, s]));
         const storedIds = new Set(parsed.map((s) => s.id));
 
         // For default skills, always use the latest from code.
@@ -196,7 +196,7 @@ export const AnalyxPage = () => {
         );
 
         // Add any new default skills that weren't in localStorage yet
-        for (const ds of DEFAULT_SKILLS) {
+        for (const ds of DEFAULT_COMMANDS) {
           if (!storedIds.has(ds.id)) {
             merged.push(ds);
           }
@@ -205,10 +205,10 @@ export const AnalyxPage = () => {
         setSkills(merged);
       } catch (e) {
         console.error('Failed to parse stored skills:', e);
-        setSkills(DEFAULT_SKILLS);
+        setSkills(DEFAULT_COMMANDS);
       }
     } else {
-      setSkills(DEFAULT_SKILLS);
+      setSkills(DEFAULT_COMMANDS);
     }
     setSkillsInitialized(true);
   }, []);
@@ -313,7 +313,7 @@ export const AnalyxPage = () => {
   });
 
   const handleAddSkill = (name: string, description: string) => {
-    const newSkill: AnalyxSkill = {
+    const newSkill: AnalyxCommand = {
       id: Date.now().toString(),
       name,
       description,
@@ -330,7 +330,7 @@ export const AnalyxPage = () => {
     );
   };
 
-  const handleUpdateSkill = (updatedSkill: AnalyxSkill) => {
+  const handleUpdateSkill = (updatedSkill: AnalyxCommand) => {
     setSkills((prev) =>
       prev.map((skill) =>
         skill.id === updatedSkill.id ? updatedSkill : skill,
@@ -472,7 +472,7 @@ export const AnalyxPage = () => {
             skills={skills}
           />
 
-          <AnalyxSkillsBar
+          <AnalyxCommandsBar
             skills={filteredSkills}
             searchQuery={skillSearchQuery}
             onSearchChange={setSkillSearchQuery}
@@ -514,14 +514,14 @@ export const AnalyxPage = () => {
         }
       />
 
-      <AnalyxSkillDetailPopup
+      <AnalyxCommandDetailPopup
         skill={selectedSkill}
         onClose={() => setSelectedSkill(null)}
         onDelete={handleDeleteSkill}
         onUpdate={handleUpdateSkill}
       />
 
-      <AnalyxAddSkillForm
+      <AnalyxAddCommandForm
         isOpen={isAddSkillOpen}
         onClose={() => setIsAddSkillOpen(false)}
         onSave={handleAddSkill}

@@ -6,7 +6,7 @@ import { t } from '@lingui/core/macro';
 import { useCallback, useRef } from 'react';
 import { IconCheck, IconTrash, IconX } from 'twenty-ui/display';
 import { StyledIconButton } from '../AnalyxSharedStyles';
-import { type AnalyxSkill } from '../AnalyxTypes';
+import { type AnalyxCommand } from '../AnalyxTypes';
 
 const StyledOverlay = styled.div`
   align-items: center;
@@ -56,18 +56,18 @@ const StyledBody = styled.div`
   padding: 20px;
 `;
 
-type AnalyxSkillDetailPopupProps = {
-  skill: AnalyxSkill | null;
+type AnalyxCommandDetailPopupProps = {
+  skill: AnalyxCommand | null;
   onClose: () => void;
   onDelete: (skillId: string) => void;
-  onUpdate: (updatedSkill: AnalyxSkill) => void;
+  onUpdate: (updatedSkill: AnalyxCommand) => void;
 };
 
-const AnalyxSkillDetailPopupEditor = ({
+const AnalyxCommandDetailPopupEditor = ({
   skill,
   draftRef,
 }: {
-  skill: AnalyxSkill;
+  skill: AnalyxCommand;
   draftRef: React.MutableRefObject<string | null>;
 }) => {
   const handleEditorUpdate = useCallback(
@@ -101,12 +101,12 @@ const AnalyxSkillDetailPopupEditor = ({
   );
 };
 
-export const AnalyxSkillDetailPopup = ({
+export const AnalyxCommandDetailPopup = ({
   skill,
   onClose,
   onDelete,
   onUpdate,
-}: AnalyxSkillDetailPopupProps) => {
+}: AnalyxCommandDetailPopupProps) => {
   const draftRef = useRef<string | null>(null);
 
   if (!skill) return null;
@@ -151,7 +151,7 @@ export const AnalyxSkillDetailPopup = ({
           </StyledIconButton>
         </StyledHeader>
         <StyledBody>
-          <AnalyxSkillDetailPopupEditor skill={skill} draftRef={draftRef} />
+          <AnalyxCommandDetailPopupEditor skill={skill} draftRef={draftRef} />
         </StyledBody>
       </StyledCard>
     </StyledOverlay>

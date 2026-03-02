@@ -98,7 +98,7 @@ export type NestboxAgent = {
   type?: string | null;
 };
 
-export type AnalyxSkill = {
+export type AnalyxCommand = {
   id: string;
   name: string;
   description: string;

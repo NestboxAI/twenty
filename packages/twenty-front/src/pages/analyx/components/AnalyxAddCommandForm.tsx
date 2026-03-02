@@ -128,17 +128,17 @@ const StyledSaveButton = styled.button<{ disabled: boolean }>`
   }
 `;
 
-type AnalyxAddSkillFormProps = {
+type AnalyxAddCommandFormProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string, description: string) => void;
 };
 
-export const AnalyxAddSkillForm = ({
+export const AnalyxAddCommandForm = ({
   isOpen,
   onClose,
   onSave,
-}: AnalyxAddSkillFormProps) => {
+}: AnalyxAddCommandFormProps) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -164,7 +164,7 @@ export const AnalyxAddSkillForm = ({
     <StyledOverlay onClick={handleOverlayClick}>
       <StyledCard>
         <StyledHeader>
-          <StyledTitle>Add Skill</StyledTitle>
+          <StyledTitle>Add Command</StyledTitle>
           <StyledIconButton onClick={onClose}>
             <IconX size={16} />
           </StyledIconButton>
@@ -172,7 +172,7 @@ export const AnalyxAddSkillForm = ({
 
         <StyledBody>
           <StyledFieldGroup>
-            <StyledLabel>Skill Name</StyledLabel>
+            <StyledLabel>Command Name</StyledLabel>
             <TextInput
               value={name}
               onChange={setName}

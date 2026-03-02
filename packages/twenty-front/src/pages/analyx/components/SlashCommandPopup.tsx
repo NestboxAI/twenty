@@ -64,7 +64,7 @@ const StyledCommandSlug = styled.span`
   white-space: nowrap;
 `;
 
-const StyledSkillName = styled.span`
+const StyledCommandName = styled.span`
   color: ${({ theme }) => theme.font.color.tertiary};
   font-size: 11px;
   overflow: hidden;
@@ -112,7 +112,7 @@ export const SlashCommandPopup = ({
 
   return (
     <StyledPopup $top={top} $left={left}>
-      <StyledHeader>Skills</StyledHeader>
+      <StyledHeader>Commands</StyledHeader>
       <StyledCommandList>
         {commands.map((cmd, index) => (
           <StyledCommandItem
@@ -124,7 +124,7 @@ export const SlashCommandPopup = ({
             }}
           >
             <StyledCommandSlug>/{cmd.command}</StyledCommandSlug>
-            <StyledSkillName>{cmd.skillName}</StyledSkillName>
+            <StyledCommandName>{cmd.skillName}</StyledCommandName>
           </StyledCommandItem>
         ))}
       </StyledCommandList>

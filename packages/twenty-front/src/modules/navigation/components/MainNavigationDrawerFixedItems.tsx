@@ -15,6 +15,7 @@ import {
   IconBrain,
   IconSearch,
   IconSettings,
+  IconSitemap,
   IconSparkles,
 } from 'twenty-ui/display';
 import { useIsMobile } from 'twenty-ui/utilities';
@@ -64,6 +65,11 @@ export const MainNavigationDrawerFixedItems = () => {
           label={`Analyx`}
           Icon={IconBrain}
           to={'/analyx'}
+        />
+        <NavigationDrawerItem
+          label={`Operating Model`}
+          Icon={IconSitemap}
+          to={'/operating-model'}
         />
         <NavigationDrawerItem
           label={t`Settings`}

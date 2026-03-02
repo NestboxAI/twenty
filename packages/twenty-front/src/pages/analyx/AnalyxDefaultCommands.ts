@@ -1,6 +1,6 @@
-import { type AnalyxSkill } from './AnalyxTypes';
+import { type AnalyxCommand } from './AnalyxTypes';
 
-export const DEFAULT_SKILLS: AnalyxSkill[] = [
+export const DEFAULT_COMMANDS: AnalyxCommand[] = [
   // CFO / General Finance
   {
     id: 'default-revenue-analysis',

@@ -1,13 +1,13 @@
 import { type KeyboardEvent, useEffect, useMemo, useState } from 'react';
 
-import { type AnalyxSkill, type SlashCommand } from '../AnalyxTypes';
+import { type AnalyxCommand, type SlashCommand } from '../AnalyxTypes';
 import { slugifySkillName } from '../AnalyxUtils';
 
 const MAX_VISIBLE_COMMANDS = 3;
 const SLASH_PREFIX_REGEX = /^\/([a-z-]*)$/;
 
 type UseSlashCommandAutocompleteParams = {
-  skills: AnalyxSkill[];
+  skills: AnalyxCommand[];
   prompt: string;
   onPromptChange: (value: string) => void;
   onContextTypeChange?: (value: string) => void;

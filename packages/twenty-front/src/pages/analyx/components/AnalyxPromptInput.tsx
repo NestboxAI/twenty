@@ -27,7 +27,7 @@ import {
 import { MenuItem } from 'twenty-ui/navigation';
 import { StyledIconButton } from '../AnalyxSharedStyles';
 import {
-  type AnalyxSkill,
+  type AnalyxCommand,
   type NestboxAgent,
   type SelectedContext,
 } from '../AnalyxTypes';
@@ -274,7 +274,7 @@ type AnalyxPromptInputProps = {
   onAgentToggle: (agentId: string) => void;
   onMorphItemSelected: (item?: RecordPickerPickableMorphItem) => void;
   onSubmit: () => void;
-  skills: AnalyxSkill[];
+  skills: AnalyxCommand[];
 };
 
 export const AnalyxPromptInput = ({
@@ -354,7 +354,7 @@ export const AnalyxPromptInput = ({
           $shake={shakePrompt}
           placeholder={
             activePlaceholder ??
-            "e.g. 'Analyze Q4 revenue by segment' — or type / for skills"
+            "e.g. 'Analyze Q4 revenue by segment' — or type / for commands"
           }
           value={textareaValue}
           onChange={(e) => {

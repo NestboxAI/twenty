@@ -8,7 +8,7 @@ import {
   IconSearch,
   IconX,
 } from 'twenty-ui/display';
-import { type AnalyxSkill } from '../AnalyxTypes';
+import { type AnalyxCommand } from '../AnalyxTypes';
 
 const SKILL_CARD_COLORS = [
   // Warm
@@ -174,21 +174,21 @@ const StyledSkillDescription = styled.div`
   overflow: hidden;
 `;
 
-type AnalyxSkillsBarProps = {
-  skills: AnalyxSkill[];
+type AnalyxCommandsBarProps = {
+  skills: AnalyxCommand[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  onSkillClick: (skill: AnalyxSkill) => void;
+  onSkillClick: (skill: AnalyxCommand) => void;
   onAddSkillClick: () => void;
 };
 
-export const AnalyxSkillsBar = ({
+export const AnalyxCommandsBar = ({
   skills,
   searchQuery,
   onSearchChange,
   onSkillClick,
   onAddSkillClick,
-}: AnalyxSkillsBarProps) => {
+}: AnalyxCommandsBarProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -262,7 +262,7 @@ export const AnalyxSkillsBar = ({
               ref={searchInputRef}
               value={searchQuery}
               onChange={onSearchChange}
-              placeholder="Filter skills..."
+              placeholder="Filter commands..."
               LeftIcon={IconSearch}
               RightIcon={(props) => (
                 <IconX
