@@ -1,34 +1,14 @@
-export type StatusEvent =
-  | {
-      type: 'status_change';
-      timestamp: string;
-      message: string;
-      agent?: string;
-    }
-  | { type: 'thinking'; timestamp: string; content: string; agent?: string }
-  | { type: 'text'; timestamp: string; content: string; agent?: string }
-  | {
-      type: 'tool_use';
-      timestamp: string;
-      toolName: string;
-      input: string;
-      agent?: string;
-    }
-  | {
-      type: 'tool_result';
-      timestamp: string;
-      toolName: string;
-      output: string;
-      agent?: string;
-      success?: boolean;
-    }
-  | {
-      type: 'sub_agent';
-      timestamp: string;
-      agentName: string;
-      action: 'start' | 'end';
-      parentAgent?: string;
-    };
+export type StatusEvent = {
+  type: string;
+  subtype?: string;
+  timestamp: string;
+  sessionId?: string;
+  jobId?: string;
+  model?: string;
+  content?: string[];
+  data?: Record<string, unknown>;
+  error?: string | null;
+};
 
 export type TaskStatus =
   | 'Working'
@@ -65,6 +45,13 @@ export type TokenUsage = {
   durationSeconds: number;
 };
 
+export type OutputFile = {
+  path: string;
+  sizeBytes: number;
+  mimeType: string;
+  content: string;
+};
+
 export interface Task {
   id: string;
   name: string;
@@ -85,6 +72,9 @@ export interface Task {
   status: TaskStatus;
   tab: TaskTab;
   documentVersions?: DocumentVersion[];
+  fileId?: string | null;
+  output?: string | null;
+  outputFiles?: OutputFile[];
   f1Score?: number;
   factCheckScore?: number;
   agentCount?: number;

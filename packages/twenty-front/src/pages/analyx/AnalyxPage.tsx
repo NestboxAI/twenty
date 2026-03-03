@@ -144,6 +144,7 @@ export const AnalyxPage = () => {
   // Form state
   const [prompt, setPrompt] = useState('');
   const [shakePrompt, setShakePrompt] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [contextType, setContextType] = useState<string>(
     CONTEXT_TYPE_OPTIONS[0],
   );
@@ -228,6 +229,15 @@ export const AnalyxPage = () => {
             : t.status === 'reviewed'
               ? ('Reviewed' as const)
               : ('Tasks' as const),
+        fileId: t.fileId,
+        output: (result?.output as string) ?? null,
+        outputFiles:
+          (result?.outputFiles as {
+            path: string;
+            sizeBytes: number;
+            mimeType: string;
+            content: string;
+          }[]) ?? [],
         f1Score: (result?.f1Score as number) ?? scores.f1,
         factCheckScore: (result?.factCheckScore as number) ?? scores.factCheck,
         agentCount: (result?.agentCount as number) ?? scores.agents,
@@ -424,6 +434,8 @@ export const AnalyxPage = () => {
       return;
     }
 
+    setIsSubmitting(true);
+
     // Convert File objects to base64 for the mutation
     const attachmentPayloads = await Promise.all(
       files.map(async (file) => {
@@ -466,6 +478,7 @@ export const AnalyxPage = () => {
           input: {
             name: generateRandomTitle(prompt, contextType || 'task'),
             prompt,
+            contextType,
             entities: entitiesPayload,
             attachments: attachmentPayloads,
             agentIds: agentIdsPayload,
@@ -493,6 +506,7 @@ export const AnalyxPage = () => {
       setSelectedContexts([]);
       setSelectedAgentIds([]);
       setFiles([]);
+      setIsSubmitting(false);
       setFormAnimation('in');
       setTimeout(() => setFormAnimation(null), 300);
     }, 250);
@@ -593,6 +607,7 @@ export const AnalyxPage = () => {
               onAgentToggle={handleAgentToggle}
               onMorphItemSelected={handleMorphItemSelected}
               onSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
               skills={skills}
             />
 

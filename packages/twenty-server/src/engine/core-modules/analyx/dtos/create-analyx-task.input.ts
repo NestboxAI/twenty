@@ -31,4 +31,9 @@ export class CreateAnalyxTaskInput {
   @Field(() => graphqlTypeJson, { nullable: true })
   @IsOptional()
   agentIds?: { ip: string; apiKey: string; agentId: string }[];
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  contextType?: string;
 }

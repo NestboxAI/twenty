@@ -299,58 +299,68 @@ export const generateMockStatusEvents = (
   const extraTool = r2 % 4 > 1;
 
   const events: StatusEvent[] = [
-    { type: 'status_change', timestamp: ts(0), message: 'Research initiated' },
+    {
+      type: 'system',
+      timestamp: ts(0),
+      data: { message: 'Research initiated' },
+    },
     {
       type: 'thinking',
       timestamp: ts(2 + (r1 % 3)),
-      content: `Analyzing the user's request about ${topicWord}. I need to gather relevant data and verify claims before producing a comprehensive report. Let me start by searching for the most recent information available.`,
+      content: [
+        `Analyzing the user's request about ${topicWord}. I need to gather relevant data and verify claims before producing a comprehensive report. Let me start by searching for the most recent information available.`,
+      ],
     },
     {
       type: 'tool_use',
       timestamp: ts(5 + (r2 % 4)),
-      toolName: tool1,
-      input: `"${topicWord}" latest analysis ${2024 + (r1 % 2)}`,
+      data: { toolName: tool1 },
+      content: [`"${topicWord}" latest analysis ${2024 + (r1 % 2)}`],
     },
     {
       type: 'tool_result',
       timestamp: ts(12 + (r3 % 6)),
-      toolName: tool1,
-      output: `Found ${8 + (r2 % 12)} relevant results including market reports, industry analyses, and recent publications.`,
-      success: true,
+      data: { toolName: tool1, success: true },
+      content: [
+        `Found ${8 + (r2 % 12)} relevant results including market reports, industry analyses, and recent publications.`,
+      ],
     },
     {
       type: 'thinking',
       timestamp: ts(14 + (r1 % 3)),
-      content: `Processing search results. Several key findings are emerging around ${topicWord}. I should cross-reference these with additional data sources to ensure accuracy.`,
+      content: [
+        `Processing search results. Several key findings are emerging around ${topicWord}. I should cross-reference these with additional data sources to ensure accuracy.`,
+      ],
     },
     {
       type: 'sub_agent',
+      subtype: 'start',
       timestamp: ts(18 + (r4 % 5)),
-      agentName: 'fact_checker',
-      action: 'start',
-      parentAgent: 'main',
+      data: { agentName: 'fact_checker' },
     },
     {
       type: 'tool_use',
       timestamp: ts(20 + (r3 % 4)),
-      toolName: tool3,
-      input: `Verifying claims against ${3 + (r4 % 5)} primary sources`,
-      agent: 'fact_checker',
+      data: { toolName: tool3 },
+      content: [
+        `Verifying claims against ${3 + (r4 % 5)} primary sources`,
+      ],
+      sessionId: 'fact_checker',
     },
     {
       type: 'tool_result',
       timestamp: ts(35 + (r1 % 10)),
-      toolName: tool3,
-      output: `All ${8 + (r3 % 8)} claims verified. ${1 + (r2 % 3)} claim(s) required minor corrections.`,
-      success: true,
-      agent: 'fact_checker',
+      data: { toolName: tool3, success: true },
+      content: [
+        `All ${8 + (r3 % 8)} claims verified. ${1 + (r2 % 3)} claim(s) required minor corrections.`,
+      ],
+      sessionId: 'fact_checker',
     },
     {
       type: 'sub_agent',
+      subtype: 'end',
       timestamp: ts(38 + (r2 % 5)),
-      agentName: 'fact_checker',
-      action: 'end',
-      parentAgent: 'main',
+      data: { agentName: 'fact_checker' },
     },
   ];
 
@@ -358,7 +368,9 @@ export const generateMockStatusEvents = (
     events.push({
       type: 'thinking',
       timestamp: ts(40 + (r3 % 4)),
-      content: `Integrating verified data with the initial findings. The fact-checker has confirmed most claims. Now synthesizing the final report structure.`,
+      content: [
+        `Integrating verified data with the initial findings. The fact-checker has confirmed most claims. Now synthesizing the final report structure.`,
+      ],
     });
   }
 
@@ -367,15 +379,18 @@ export const generateMockStatusEvents = (
       {
         type: 'tool_use',
         timestamp: ts(44 + (r1 % 5)),
-        toolName: tool2,
-        input: `Querying internal data for ${topicWord} benchmarks`,
+        data: { toolName: tool2 },
+        content: [
+          `Querying internal data for ${topicWord} benchmarks`,
+        ],
       },
       {
         type: 'tool_result',
         timestamp: ts(52 + (r4 % 8)),
-        toolName: tool2,
-        output: `Retrieved ${5 + (r3 % 10)} benchmark records matching the criteria.`,
-        success: r4 % 7 !== 0,
+        data: { toolName: tool2, success: r4 % 7 !== 0 },
+        content: [
+          `Retrieved ${5 + (r3 % 10)} benchmark records matching the criteria.`,
+        ],
       },
     );
   }
@@ -384,18 +399,21 @@ export const generateMockStatusEvents = (
     {
       type: 'text',
       timestamp: ts(60 + (r2 % 20)),
-      content: `Based on the analysis, the key findings regarding ${topicWord} indicate significant trends. The data has been cross-referenced with ${3 + (r1 % 4)} independent sources and all major claims have been verified.`,
+      content: [
+        `Based on the analysis, the key findings regarding ${topicWord} indicate significant trends. The data has been cross-referenced with ${3 + (r1 % 4)} independent sources and all major claims have been verified.`,
+      ],
     },
     {
       type: 'text',
       timestamp: ts(120 + (r3 % 40)),
-      content:
+      content: [
         'Report generation complete. All sections have been formatted and citations added.',
+      ],
     },
     {
-      type: 'status_change',
+      type: 'system',
       timestamp: ts(185 + (r4 % 30)),
-      message: 'Research completed',
+      data: { message: 'Research completed' },
     },
   );
 

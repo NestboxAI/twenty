@@ -1,7 +1,9 @@
+import { tokenPairState } from '@/auth/states/tokenPairState';
 import { useDialogManager } from '@/ui/feedback/dialog-manager/hooks/useDialogManager';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import React, { useEffect, useRef, useState } from 'react';
+import { useRecoilValue } from 'recoil';
 import {
   IconArchive,
   IconArrowRight,
@@ -16,6 +18,7 @@ import {
   IconX,
   useIcons,
 } from 'twenty-ui/display';
+import { REACT_APP_SERVER_BASE_URL } from '~/config';
 import {
   StyledIconButton,
   StyledStatusBadge,
@@ -23,6 +26,7 @@ import {
 } from '../AnalyxSharedStyles';
 import { type Task } from '../AnalyxTypes';
 import { formatTaskDateTime, getEntityIcon, getTypeIcon } from '../AnalyxUtils';
+import { LazyMarkdownRenderer } from '@/ai/components/LazyMarkdownRenderer';
 import { ResearchLogTimeline } from './ResearchLogTimeline';
 import { TrustAccuracyTab } from './TrustAccuracyTab';
 
@@ -117,9 +121,10 @@ const PromptBubbleText = styled.div<{ $collapsed: boolean }>`
 const PromptToggle = styled.button`
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
   font-size: 12px;
+  font-weight: 500;
   margin-top: 4px;
   padding: 0;
 
@@ -143,7 +148,7 @@ const ChatMessages = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
   overflow-y: auto;
   padding: 16px;
 `;
@@ -151,17 +156,71 @@ const ChatMessages = styled.div`
 const MessageBubble = styled.div<{ role: 'user' | 'ai' }>`
   max-width: 85%;
   align-self: ${({ role }) => (role === 'user' ? 'flex-end' : 'flex-start')};
-  background: ${({ role, theme }) =>
-    role === 'user' ? theme.color.blue : theme.background.primary};
-  color: ${({ role, theme }) =>
-    role === 'user' ? 'white' : theme.font.color.primary};
+  background: ${({ role }) =>
+    role === 'user' ? '#007AFF' : '#E9E9EB'};
+  color: ${({ role }) => (role === 'user' ? '#FFFFFF' : '#1C1C1E')};
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: ${({ role }) =>
+    role === 'user'
+      ? '18px 18px 4px 18px'
+      : '18px 18px 18px 4px'};
   font-size: 14px;
-  line-height: 1.4;
-  box-shadow: ${({ theme }) => theme.boxShadow.light};
-  border: ${({ role, theme }) =>
-    role === 'ai' ? `1px solid ${theme.border.color.light}` : 'none'};
+  line-height: 1.5;
+`;
+
+const TypingIndicator = styled.div`
+  align-self: flex-start;
+  background: #E9E9EB;
+  border-radius: 18px 18px 18px 4px;
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px;
+  align-items: center;
+`;
+
+const typingDotKeyframes = `
+  @keyframes typingDot {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-3px); }
+  }
+`;
+
+const TypingDot = styled.span<{ $delay: number }>`
+  background: #8E8E93;
+  border-radius: 50%;
+  display: inline-block;
+  height: 7px;
+  width: 7px;
+  animation: typingDot 1.4s ease-in-out infinite;
+  animation-delay: ${({ $delay }) => $delay}s;
+`;
+
+const OutputBubbleText = styled.div<{ $collapsed: boolean }>`
+  overflow: hidden;
+  word-break: break-word;
+  ${({ $collapsed }) =>
+    $collapsed
+      ? 'display: -webkit-box; -webkit-line-clamp: 12; -webkit-box-orient: vertical;'
+      : ''}
+
+  .markdown-section {
+    margin: 0;
+  }
+`;
+
+const OutputToggle = styled.button`
+  background: none;
+  border: none;
+  color: #636366;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  padding: 0;
+
+  &:hover {
+    color: #1C1C1E;
+  }
 `;
 
 const ChatInputArea = styled.div`
@@ -355,6 +414,9 @@ export const TaskDetailDrawer = ({
   const [versionMenuOpen, setVersionMenuOpen] = useState(false);
   const [promptExpanded, setPromptExpanded] = useState(false);
   const [promptOverflows, setPromptOverflows] = useState(false);
+  const [outputExpanded, setOutputExpanded] = useState(false);
+  const [outputOverflows, setOutputOverflows] = useState(false);
+  const outputBubbleRef = useRef<HTMLDivElement>(null);
   const promptBubbleRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const versionMenuRef = useRef<HTMLDivElement>(null);
@@ -362,11 +424,13 @@ export const TaskDetailDrawer = ({
   const theme = useTheme();
   const { getIcon } = useIcons();
   const { enqueueDialog } = useDialogManager();
+  const tokenPair = useRecoilValue(tokenPairState);
 
   // Reset tab and prompt collapse when task changes
   useEffect(() => {
     setActiveDrawerTab('report');
     setPromptExpanded(false);
+    setOutputExpanded(false);
   }, [task?.id]);
 
   // Detect if prompt text overflows the 8-line clamp
@@ -376,10 +440,17 @@ export const TaskDetailDrawer = ({
     setPromptOverflows(el.scrollHeight > el.clientHeight);
   }, [task?.prompt]);
 
-  // Scroll to bottom of chat when messages change
+  // Detect if output text overflows the 12-line clamp
+  useEffect(() => {
+    const el = outputBubbleRef.current;
+    if (!el) return;
+    setOutputOverflows(el.scrollHeight > el.clientHeight);
+  }, [task?.output]);
+
+  // Scroll to bottom of chat when messages or status change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [task?.messages]);
+  }, [task?.messages, task?.status, task?.output]);
 
   // Close version dropdown on outside click
   useEffect(() => {
@@ -464,15 +535,86 @@ export const TaskDetailDrawer = ({
     }
   };
 
-  const handleDownload = (version?: number) => {
-    const pdfUrl = '/pdf/report-template.pdf';
-    const link = document.createElement('a');
-    link.href = pdfUrl;
+  const handleDownload = async (version?: number) => {
     const vSuffix = version ? `_v${version}` : '';
-    link.download = `Analyx_Report_${task.name.replace(/\s+/g, '_')}${vSuffix}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const safeName = task.name.replace(/\s+/g, '_');
+
+    // Download from the backend endpoint using the stored file
+    if (task.fileId) {
+      try {
+        const token =
+          tokenPair?.accessOrWorkspaceAgnosticToken?.token ?? '';
+        const response = await fetch(
+          `${REACT_APP_SERVER_BASE_URL}/analyx/download/${task.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Download failed: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        const ext = task.fileId?.split('.').pop() ?? 'pdf';
+
+        link.download = `Analyx_Report_${safeName}${vSuffix}.${ext}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        return;
+      } catch (error) {
+        console.error('Failed to download file from server', error);
+      }
+    }
+
+    // Fallback: decode base64 content from outputFiles
+    const outputFiles = task.outputFiles ?? [];
+    const file =
+      outputFiles.find(
+        (f) => f.content && /\.(pdf|docx?|xlsx?)$/i.test(f.path),
+      ) ?? outputFiles.find((f) => f.content);
+
+    if (!file?.content) {
+      console.warn('No downloadable file found', {
+        fileId: task.fileId,
+        outputFiles,
+      });
+
+      return;
+    }
+
+    try {
+      const byteCharacters = atob(file.content);
+      const byteArray = new Uint8Array(byteCharacters.length);
+
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteArray[i] = byteCharacters.charCodeAt(i);
+      }
+
+      const blob = new Blob([byteArray], {
+        type: file.mimeType ?? 'application/octet-stream',
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = url;
+      const ext = file.path.split('.').pop() ?? 'bin';
+
+      link.download = `Analyx_Report_${safeName}${vSuffix}.${ext}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download file from content', error);
+    }
   };
 
   const versions = task.documentVersions || [];
@@ -486,6 +628,7 @@ export const TaskDetailDrawer = ({
     <>
       <Global
         styles={css`
+          ${typingDotKeyframes}
           @media print {
             body * {
               visibility: hidden;
@@ -835,9 +978,39 @@ export const TaskDetailDrawer = ({
                         </PromptToggle>
                       )}
                     </MessageBubble>
+                    {task.status === 'Working' && (
+                      <TypingIndicator>
+                        <TypingDot $delay={0} />
+                        <TypingDot $delay={0.2} />
+                        <TypingDot $delay={0.4} />
+                      </TypingIndicator>
+                    )}
+                    {task.output && task.status !== 'Working' && (
+                      <MessageBubble role="ai">
+                        <OutputBubbleText
+                          ref={outputBubbleRef}
+                          $collapsed={!outputExpanded}
+                        >
+                          <LazyMarkdownRenderer text={task.output} />
+                        </OutputBubbleText>
+                        {(outputOverflows || outputExpanded) && (
+                          <OutputToggle
+                            onClick={() =>
+                              setOutputExpanded((prev) => !prev)
+                            }
+                          >
+                            {outputExpanded ? 'Show less' : 'Show more'}
+                          </OutputToggle>
+                        )}
+                      </MessageBubble>
+                    )}
                     {task.messages?.map((msg, idx) => (
                       <MessageBubble key={idx} role={msg.role}>
-                        {msg.content}
+                        {msg.role === 'ai' ? (
+                          <LazyMarkdownRenderer text={msg.content} />
+                        ) : (
+                          msg.content
+                        )}
                       </MessageBubble>
                     ))}
                     <div ref={messagesEndRef} />

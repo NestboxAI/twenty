@@ -2,11 +2,19 @@ import {
   All,
   Body,
   Controller,
+  Get,
   Logger,
+  NotFoundException,
+  Param,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 
+import { Response } from 'express';
+
+import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
+import { AuthWorkspace } from 'src/engine/decorators/auth/auth-workspace.decorator';
 import { JwtAuthGuard } from 'src/engine/guards/jwt-auth.guard';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
 import { WorkspaceAuthGuard } from 'src/engine/guards/workspace-auth.guard';
@@ -46,5 +54,29 @@ export class AnalyxController {
     }
 
     return { received: true };
+  }
+
+  @Get('download/:taskId')
+  @UseGuards(JwtAuthGuard, WorkspaceAuthGuard, NoPermissionGuard)
+  async downloadFile(
+    @Param('taskId') taskId: string,
+    @AuthWorkspace() { id: workspaceId }: WorkspaceEntity,
+    @Res() res: Response,
+  ) {
+    const stream = await this.analyxTaskService.getFileStream(
+      taskId,
+      workspaceId,
+    );
+
+    if (!stream) {
+      throw new NotFoundException('No file associated with this task');
+    }
+
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="analyx-report-${taskId}"`,
+    );
+    stream.pipe(res);
   }
 }

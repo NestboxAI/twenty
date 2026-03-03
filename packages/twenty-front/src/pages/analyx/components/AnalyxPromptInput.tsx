@@ -239,6 +239,12 @@ const StyledGoButton = styled.button`
   justify-content: center;
   cursor: pointer;
   color: ${({ theme }) => theme.background.primary};
+  transition: opacity 0.15s ease;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
   transition: transform 0.1s;
 
   &:hover {
@@ -274,6 +280,7 @@ type AnalyxPromptInputProps = {
   onAgentToggle: (agentId: string) => void;
   onMorphItemSelected: (item?: RecordPickerPickableMorphItem) => void;
   onSubmit: () => void;
+  isSubmitting: boolean;
   skills: AnalyxCommand[];
 };
 
@@ -295,6 +302,7 @@ export const AnalyxPromptInput = ({
   onAgentToggle,
   onMorphItemSelected,
   onSubmit,
+  isSubmitting,
   skills,
 }: AnalyxPromptInputProps) => {
   const { closeDropdown } = useCloseDropdown();
@@ -519,7 +527,7 @@ export const AnalyxPromptInput = ({
             }
           />
 
-          <StyledGoButton onClick={onSubmit}>
+          <StyledGoButton onClick={onSubmit} disabled={isSubmitting}>
             <IconArrowUp size={18} stroke={3} />
           </StyledGoButton>
         </div>

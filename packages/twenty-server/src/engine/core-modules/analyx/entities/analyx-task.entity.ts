@@ -54,8 +54,8 @@ export class AnalyxTaskEntity extends WorkspaceRelatedEntity {
   @Column({ type: 'text', nullable: true })
   errorMessage: string | null;
 
-  @Field(() => UUIDScalarType, { nullable: true })
-  @Column({ type: 'uuid', nullable: true })
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   fileId: string | null;
 
   @Field(() => Date)

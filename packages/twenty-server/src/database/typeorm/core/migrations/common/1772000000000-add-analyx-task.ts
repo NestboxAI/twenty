@@ -16,7 +16,7 @@ export class AddAnalyxTask1772000000000 implements MigrationInterface {
         "result" jsonb,
         "queryId" character varying,
         "errorMessage" text,
-        "fileId" uuid,
+        "fileId" character varying,
         "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
         "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
         CONSTRAINT "PK_analyx_task_id" PRIMARY KEY ("id")

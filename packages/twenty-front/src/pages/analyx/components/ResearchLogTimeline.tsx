@@ -82,7 +82,7 @@ const TimelineLabel = styled.span<{ color: string }>`
   font-weight: 600;
 `;
 
-const TimelineAgentTag = styled.span`
+const TimelineTag = styled.span`
   background: ${({ theme }) => theme.background.transparent.lighter};
   border-radius: 4px;
   color: ${({ theme }) => theme.font.color.tertiary};
@@ -97,6 +97,18 @@ const TimelineContentBlock = styled.div<{ collapsed: boolean }>`
   margin-top: 4px;
   max-height: ${({ collapsed }) => (collapsed ? '54px' : 'none')};
   overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+`;
+
+const TimelineErrorBlock = styled.div`
+  background: ${({ theme }) => theme.background.danger};
+  border-radius: 6px;
+  color: ${({ theme }) => theme.font.color.danger};
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 4px;
+  padding: 6px 10px;
   white-space: pre-wrap;
   word-break: break-word;
 `;
@@ -266,51 +278,158 @@ const shouldCollapse = (text: string): boolean => {
   return lines > CONTENT_LINE_THRESHOLD || text.length > CONTENT_CHAR_THRESHOLD;
 };
 
-type EventColors = {
-  status_change: string;
-  thinking: string;
-  text: string;
-  tool_use: string;
-  tool_result_success: string;
-  tool_result_failure: string;
-  sub_agent: string;
-};
-
+// Map event type+subtype to a readable label
 const getEventLabel = (event: StatusEvent): string => {
-  switch (event.type) {
+  const { type, subtype, data } = event;
+
+  // Use data.toolName if available (for tool events)
+  const toolName = data?.toolName as string | undefined;
+  const agentName = data?.agentName as string | undefined;
+  const action = data?.action as string | undefined;
+  const message = data?.message as string | undefined;
+
+  switch (type) {
+    case 'system':
+      return message ?? subtype ?? 'System';
     case 'status_change':
-      return event.message;
+      return message ?? subtype ?? 'Status change';
     case 'thinking':
       return 'Thinking';
+    case 'assistant':
+      if (subtype === 'thinking') return 'Thinking';
+      if (subtype === 'text') return 'Text output';
+      return subtype ?? 'Assistant';
     case 'text':
       return 'Text output';
     case 'tool_use':
-      return event.toolName;
+      return toolName ?? subtype ?? 'Tool call';
     case 'tool_result':
-      return `${event.toolName} result`;
+      return `${toolName ?? subtype ?? 'Tool'} result`;
+    case 'tool':
+      if (subtype === 'use' || subtype === 'call')
+        return toolName ?? 'Tool call';
+      if (subtype === 'result' || subtype === 'output')
+        return `${toolName ?? 'Tool'} result`;
+      return toolName ?? subtype ?? 'Tool';
     case 'sub_agent':
-      return `Sub-agent: ${event.agentName} ${event.action === 'start' ? 'started' : 'completed'}`;
-  }
-};
-
-const getEventContent = (event: StatusEvent): string | null => {
-  switch (event.type) {
-    case 'thinking':
-      return event.content;
-    case 'text':
-      return event.content;
-    case 'tool_use':
-      return event.input;
-    case 'tool_result':
-      return event.output;
+      if (agentName) {
+        return `Sub-agent: ${agentName} ${action === 'start' ? 'started' : 'completed'}`;
+      }
+      return subtype ?? 'Sub-agent';
+    case 'agent':
+      if (subtype === 'start' || subtype === 'spawn')
+        return `Agent: ${agentName ?? 'unknown'} started`;
+      if (subtype === 'end' || subtype === 'complete')
+        return `Agent: ${agentName ?? 'unknown'} completed`;
+      return agentName ?? subtype ?? 'Agent';
+    case 'error':
+      return 'Error';
+    case 'result':
+      return 'Result';
     default:
-      return null;
+      // Show type (and subtype if different) as fallback
+      if (subtype && subtype !== type) return `${type}: ${subtype}`;
+      return type;
   }
 };
 
-const getEventAgent = (event: StatusEvent): string | undefined => {
-  if (event.type === 'sub_agent') return event.parentAgent;
-  return event.agent;
+// Extract displayable content from the event
+const getEventContent = (event: StatusEvent): string | null => {
+  // Join content array into a single string
+  if (event.content && event.content.length > 0) {
+    return event.content.join('\n');
+  }
+
+  // Fallback: check data for common content fields
+  const data = event.data;
+
+  if (data) {
+    if (typeof data.content === 'string') return data.content;
+    if (typeof data.output === 'string') return data.output;
+    if (typeof data.input === 'string') return data.input;
+    if (typeof data.message === 'string') return data.message;
+    if (typeof data.text === 'string') return data.text;
+  }
+
+  return null;
+};
+
+// Determine the icon color based on event type
+type EventColorKey =
+  | 'system'
+  | 'thinking'
+  | 'text'
+  | 'tool'
+  | 'success'
+  | 'failure'
+  | 'agent'
+  | 'error';
+
+const getEventColorKey = (event: StatusEvent): EventColorKey => {
+  const { type, subtype, data, error } = event;
+
+  if (error) return 'failure';
+  if (type === 'error') return 'failure';
+
+  if (
+    type === 'tool_result' ||
+    (type === 'tool' && (subtype === 'result' || subtype === 'output'))
+  ) {
+    const success = data?.success;
+
+    if (success === false) return 'failure';
+
+    return 'success';
+  }
+
+  if (
+    type === 'tool_use' ||
+    type === 'tool' ||
+    (type === 'tool' && (subtype === 'use' || subtype === 'call'))
+  ) {
+    return 'tool';
+  }
+
+  if (
+    type === 'thinking' ||
+    (type === 'assistant' && subtype === 'thinking')
+  ) {
+    return 'thinking';
+  }
+
+  if (type === 'text' || (type === 'assistant' && subtype === 'text')) {
+    return 'text';
+  }
+
+  if (type === 'sub_agent' || type === 'agent') return 'agent';
+  if (type === 'system' || type === 'status_change' || type === 'result') {
+    return 'system';
+  }
+
+  return 'text';
+};
+
+// Check if event represents a sub-agent boundary
+const isSubAgentStart = (event: StatusEvent): boolean => {
+  const action = event.data?.action as string | undefined;
+
+  return (
+    (event.type === 'sub_agent' || event.type === 'agent') &&
+    (event.subtype === 'start' ||
+      event.subtype === 'spawn' ||
+      action === 'start')
+  );
+};
+
+const isSubAgentEnd = (event: StatusEvent): boolean => {
+  const action = event.data?.action as string | undefined;
+
+  return (
+    (event.type === 'sub_agent' || event.type === 'agent') &&
+    (event.subtype === 'end' ||
+      event.subtype === 'complete' ||
+      action === 'end')
+  );
 };
 
 export const ResearchLogTimeline = ({
@@ -329,30 +448,19 @@ export const ResearchLogTimeline = ({
     new Set(),
   );
 
-  const colors: EventColors = {
-    status_change: theme.color.blue,
+  const colorMap: Record<EventColorKey, string> = {
+    system: theme.color.blue,
     thinking: '#9B59B6',
     text: theme.font.color.primary,
-    tool_use: '#E67E22',
-    tool_result_success: '#4CAF50',
-    tool_result_failure: '#E74C3C',
-    sub_agent: theme.font.color.tertiary,
+    tool: '#E67E22',
+    success: '#4CAF50',
+    failure: '#E74C3C',
+    agent: theme.font.color.tertiary,
+    error: '#E74C3C',
   };
 
   const getIconColor = (event: StatusEvent): string => {
-    if (event.type === 'tool_result') {
-      return event.success === false
-        ? colors.tool_result_failure
-        : colors.tool_result_success;
-    }
-    return (
-      colors[
-        event.type as keyof Omit<
-          EventColors,
-          'tool_result_success' | 'tool_result_failure'
-        >
-      ] || colors.text
-    );
+    return colorMap[getEventColorKey(event)];
   };
 
   const baseTimestamp = events.length > 0 ? events[0].timestamp : taskDate;
@@ -360,11 +468,13 @@ export const ResearchLogTimeline = ({
   const toggleExpanded = (index: number) => {
     setExpandedEntries((prev) => {
       const next = new Set(prev);
+
       if (next.has(index)) {
         next.delete(index);
       } else {
         next.add(index);
       }
+
       return next;
     });
   };
@@ -375,9 +485,10 @@ export const ResearchLogTimeline = ({
   const renderIcon = (event: StatusEvent) => {
     const iconColor = getIconColor(event);
     const iconSize = 10;
+    const colorKey = getEventColorKey(event);
 
-    switch (event.type) {
-      case 'status_change':
+    switch (colorKey) {
+      case 'system':
         return (
           <TimelineIcon color={iconColor}>
             <div
@@ -402,33 +513,43 @@ export const ResearchLogTimeline = ({
             <IconFileText size={iconSize} color="white" />
           </TimelineIcon>
         );
-      case 'tool_use':
+      case 'tool':
         return (
           <TimelineIcon color={iconColor}>
             <span style={{ fontSize: 10, lineHeight: 1 }}>{'#'}</span>
           </TimelineIcon>
         );
-      case 'tool_result':
+      case 'success':
         return (
           <TimelineIcon color={iconColor}>
-            {event.success === false ? (
-              <IconX size={iconSize} color="white" />
-            ) : (
-              <IconCheck size={iconSize} color="white" />
-            )}
+            <IconCheck size={iconSize} color="white" />
           </TimelineIcon>
         );
-      case 'sub_agent':
+      case 'failure':
+      case 'error':
+        return (
+          <TimelineIcon color={iconColor}>
+            <IconX size={iconSize} color="white" />
+          </TimelineIcon>
+        );
+      case 'agent':
         return (
           <TimelineIcon color={iconColor}>
             <IconArrowRight
               size={iconSize}
               color="white"
               style={{
-                transform:
-                  event.action === 'end' ? 'rotate(180deg)' : undefined,
+                transform: isSubAgentEnd(event)
+                  ? 'rotate(180deg)'
+                  : undefined,
               }}
             />
+          </TimelineIcon>
+        );
+      default:
+        return (
+          <TimelineIcon color={iconColor}>
+            <IconFileText size={iconSize} color="white" />
           </TimelineIcon>
         );
     }
@@ -437,17 +558,20 @@ export const ResearchLogTimeline = ({
   const renderEntry = (event: StatusEvent, index: number) => {
     const isLast = index === events.length - 1;
     const content = getEventContent(event);
-    const agent = getEventAgent(event);
     const isExpanded = expandedEntries.has(index);
     const needsCollapse = content ? shouldCollapse(content) : false;
     const labelColor = getIconColor(event);
 
     // Track sub-agent nesting
-    if (event.type === 'sub_agent' && event.action === 'start') {
-      subAgentStack.push(event.agentName);
+    if (isSubAgentStart(event)) {
+      subAgentStack.push(
+        (event.data?.agentName as string) ?? event.subtype ?? 'agent',
+      );
     }
-    const isNested = subAgentStack.length > 0 && event.type !== 'sub_agent';
-    if (event.type === 'sub_agent' && event.action === 'end') {
+    const isNested =
+      subAgentStack.length > 0 && !isSubAgentStart(event) && !isSubAgentEnd(event);
+
+    if (isSubAgentEnd(event)) {
       subAgentStack.pop();
     }
 
@@ -465,8 +589,12 @@ export const ResearchLogTimeline = ({
             <TimelineLabel color={labelColor}>
               {getEventLabel(event)}
             </TimelineLabel>
-            {agent && <TimelineAgentTag>{agent}</TimelineAgentTag>}
+            {event.model && <TimelineTag>{event.model}</TimelineTag>}
+            {event.sessionId && <TimelineTag>{event.sessionId}</TimelineTag>}
           </TimelineHeader>
+          {event.error && (
+            <TimelineErrorBlock>{event.error}</TimelineErrorBlock>
+          )}
           {content && (
             <>
               <TimelineContentBlock collapsed={needsCollapse && !isExpanded}>
@@ -540,6 +668,7 @@ export const ResearchLogTimeline = ({
             const barPercent =
               maxAgentTokens > 0 ? (agentTotal / maxAgentTokens) * 100 : 0;
             const color = AGENT_COLORS[idx % AGENT_COLORS.length];
+
             return (
               <AgentRow key={idx}>
                 <AgentIconWrapper color={color}>
