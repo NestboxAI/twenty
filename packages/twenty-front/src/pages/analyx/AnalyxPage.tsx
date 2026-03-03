@@ -3,23 +3,35 @@ import { MainContainerLayoutWithCommandMenu } from '@/object-record/components/M
 import { searchRecordStoreFamilyState } from '@/object-record/record-picker/multiple-record-picker/states/searchRecordStoreComponentFamilyState';
 import { singleRecordPickerSearchFilterComponentState } from '@/object-record/record-picker/single-record-picker/states/singleRecordPickerSearchFilterComponentState';
 import { type RecordPickerPickableMorphItem } from '@/object-record/record-picker/types/RecordPickerPickableMorphItem';
+import { useDialogManager } from '@/ui/feedback/dialog-manager/hooks/useDialogManager';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 import { PageHeader } from '@/ui/layout/page/components/PageHeader';
 import { GET_NESTBOX_AGENTS } from '@/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/graphql/getNestboxAgents';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 import { IconBrain, IconFolder, useIcons } from 'twenty-ui/display';
 import { DEFAULT_COMMANDS } from './AnalyxDefaultCommands';
 import {
+  ARCHIVE_ANALYX_TASK,
+  CREATE_ANALYX_TASK,
+  GET_ANALYX_TASKS,
+  REMOVE_ANALYX_TASK,
+  STOP_ANALYX_TASK,
+} from './graphql/analyxTaskQueries';
+import {
   type AnalyxCommand,
   type NestboxAgent,
   type SelectedContext,
+  type StatusEvent,
   type Task,
+  type TaskStatus,
   type TaskTab,
+  type TokenUsage,
 } from './AnalyxTypes';
 import {
   CONTEXT_TYPE_OPTIONS,
@@ -27,7 +39,6 @@ import {
   generateMockStatusEvents,
   generateMockTokenUsage,
   generateRandomTitle,
-  getTaskType,
 } from './AnalyxUtils';
 import { AnalyxAddCommandForm } from './components/AnalyxAddCommandForm';
 import { AnalyxChipsBar } from './components/AnalyxChipsBar';
@@ -48,9 +59,34 @@ const StyledContentWrapper = styled.div`
   align-items: flex-start;
   width: 100%;
   box-sizing: border-box;
+  overflow-y: auto;
   @media (max-width: 768px) {
     padding: 20px 16px 80px;
   }
+`;
+
+const fadeOut = keyframes`
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const StyledFormArea = styled.div<{ $animating: 'out' | 'in' | null }>`
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  max-width: 1100px;
+  width: 100%;
+  ${({ $animating }) =>
+    $animating === 'out'
+      ? `animation: ${fadeOut} 250ms ease-out forwards;`
+      : $animating === 'in'
+        ? `animation: ${fadeIn} 300ms ease-out forwards;`
+        : ''}
 `;
 
 const StyledHeader = styled.div`
@@ -77,12 +113,33 @@ export const AnalyxPage = () => {
   const { getIcon } = useIcons();
   const { closeDropdown } = useCloseDropdown();
   const { enqueueSuccessSnackBar } = useSnackBar();
+  const { enqueueDialog } = useDialogManager();
 
   // Agents
   const { data: agentsData } = useQuery<{ agents: NestboxAgent[] }>(
     GET_NESTBOX_AGENTS,
   );
   const agents = agentsData?.agents ?? [];
+
+  // Analyx tasks from backend
+  const { data: tasksData, refetch: refetchTasks } = useQuery<{
+    analyxTasks: {
+      id: string;
+      name: string;
+      prompt: string;
+      status: string;
+      input: Record<string, unknown>;
+      result: Record<string, unknown> | null;
+      errorMessage: string | null;
+      fileId: string | null;
+      createdAt: string;
+      updatedAt: string;
+    }[];
+  }>(GET_ANALYX_TASKS);
+  const [createAnalyxTask] = useMutation(CREATE_ANALYX_TASK);
+  const [stopAnalyxTask] = useMutation(STOP_ANALYX_TASK);
+  const [archiveAnalyxTask] = useMutation(ARCHIVE_ANALYX_TASK);
+  const [removeAnalyxTask] = useMutation(REMOVE_ANALYX_TASK);
 
   // Form state
   const [prompt, setPrompt] = useState('');
@@ -100,83 +157,104 @@ export const AnalyxPage = () => {
 
   // Task state
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('Tasks');
   const [searchQuery, setSearchQuery] = useState('');
+  const [formAnimation, setFormAnimation] = useState<'out' | 'in' | null>(null);
+  const [highlightTaskId, setHighlightTaskId] = useState<string | null>(null);
 
   // Skills state
   const [skills, setSkills] = useState<AnalyxCommand[]>([]);
   const [skillsInitialized, setSkillsInitialized] = useState(false);
   const [skillSearchQuery, setSkillSearchQuery] = useState('');
-  const [selectedSkill, setSelectedSkill] = useState<AnalyxCommand | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<AnalyxCommand | null>(
+    null,
+  );
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
 
-  // Load tasks from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem('analyx-tasks');
-    if (stored) {
-      try {
-        const parsedTasks = JSON.parse(stored);
-        // Migrate old tasks: default missing fields
-        const migratedTasks = parsedTasks.map((task: Task) => {
-          const scores = generateMockScores(task.id);
-          return {
-            ...task,
-            tab: task.tab || 'Tasks',
-            documentVersions:
-              task.documentVersions ||
-              (() => {
-                const base = new Date(task.date).getTime() || Date.now();
-                return [
-                  {
-                    version: 1,
-                    date: new Date(base - 47 * 60000).toISOString(),
-                    summary: 'Initial draft',
-                  },
-                  {
-                    version: 2,
-                    date: new Date(base - 18 * 60000).toISOString(),
-                    summary: 'Added sources & data tables',
-                  },
-                  {
-                    version: 3,
-                    date: new Date(base).toISOString(),
-                    summary: 'Final review & formatting',
-                  },
-                ];
-              })(),
-            f1Score: task.f1Score ?? scores.f1,
-            factCheckScore: task.factCheckScore ?? scores.factCheck,
-            agentCount: task.agentCount ?? scores.agents,
-            tokenUsage:
-              task.tokenUsage ||
-              generateMockTokenUsage(
-                task.id,
-                task.agentCount ?? scores.agents,
-              ),
-            statusEvents:
-              task.statusEvents ||
-              generateMockStatusEvents(task.id, task.prompt || ''),
-          };
-        });
-        setTasks(migratedTasks);
-      } catch (e) {
-        console.error('Failed to parse stored tasks:', e);
-      }
+  // Map backend status to UI TaskStatus
+  const mapBackendStatus = useCallback((status: string): TaskStatus => {
+    switch (status) {
+      case 'processing':
+        return 'Working';
+      case 'completed':
+        return 'Ready';
+      case 'failed':
+        return 'Ready';
+      case 'stopped':
+        return 'Stopped';
+      case 'archived':
+        return 'Archived';
+      case 'reviewed':
+        return 'Reviewed';
+      default:
+        return 'Working';
     }
-    setIsInitialized(true);
   }, []);
 
-  // Save tasks to localStorage whenever they change
+  // Sync backend tasks into local state
   useEffect(() => {
-    if (!isInitialized) return;
-    try {
-      localStorage.setItem('analyx-tasks', JSON.stringify(tasks));
-    } catch (e) {
-      console.error('Failed to save tasks to localStorage:', e);
-    }
-  }, [tasks]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!tasksData?.analyxTasks) return;
+
+    const backendTasks: Task[] = tasksData.analyxTasks.map((t) => {
+      const scores = generateMockScores(t.id);
+      const result = t.result as Record<string, unknown> | null;
+
+      return {
+        id: t.id,
+        name: t.name,
+        date: t.createdAt,
+        type: 'task' as const,
+        entities:
+          (t.input?.entities as {
+            name: string;
+            objectName?: string;
+            objectIcon?: string;
+          }[]) ?? [],
+        attachments:
+          (t.input?.attachments as {
+            name: string;
+            type: string;
+            size: number;
+          }[]) ?? [],
+        prompt: t.prompt,
+        contextType: null,
+        version: 'v1',
+        messages: [],
+        status: mapBackendStatus(t.status),
+        tab:
+          t.status === 'archived'
+            ? ('Archive' as const)
+            : t.status === 'reviewed'
+              ? ('Reviewed' as const)
+              : ('Tasks' as const),
+        f1Score: (result?.f1Score as number) ?? scores.f1,
+        factCheckScore: (result?.factCheckScore as number) ?? scores.factCheck,
+        agentCount: (result?.agentCount as number) ?? scores.agents,
+        tokenUsage:
+          (result?.tokenUsage as TokenUsage) ??
+          generateMockTokenUsage(t.id, scores.agents),
+        statusEvents:
+          (result?.statusEvents as StatusEvent[]) ??
+          generateMockStatusEvents(t.id, t.prompt),
+      };
+    });
+
+    setTasks(backendTasks);
+  }, [tasksData, mapBackendStatus]);
+
+  // Poll every 5s while any task is processing
+  useEffect(() => {
+    const hasProcessing = tasks.some((t) => t.status === 'Working');
+
+    if (!hasProcessing) return;
+
+    const interval = setInterval(() => {
+      refetchTasks();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [tasks, refetchTasks]);
 
   // Load skills from localStorage on mount, merging with latest DEFAULT_COMMANDS
   useEffect(() => {
@@ -339,99 +417,144 @@ export const AnalyxPage = () => {
     setSelectedSkill(updatedSkill);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!prompt.trim()) {
       setShakePrompt(true);
       setTimeout(() => setShakePrompt(false), 400);
       return;
     }
 
-    const taskId = Date.now().toString();
-    const now = new Date();
-    const isoDate = now.toISOString();
-    const scores = generateMockScores(taskId);
+    // Convert File objects to base64 for the mutation
+    const attachmentPayloads = await Promise.all(
+      files.map(async (file) => {
+        const buffer = await file.arrayBuffer();
+        const base64 = btoa(
+          new Uint8Array(buffer).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            '',
+          ),
+        );
 
-    const newTask: Task = {
-      id: taskId,
-      name: generateRandomTitle(prompt, contextType || 'task'),
-      date: isoDate,
-      type: getTaskType(contextType || 'task'),
-      entities: selectedContexts.map((ctx) => ({
-        name: ctx.name,
-        objectName: ctx.objectName,
-        objectIcon: ctx.objectIcon,
-      })),
-      status: 'Processing',
-      tab: 'Tasks',
-      attachments: files.map((f) => ({
-        name: f.name,
-        type: f.type,
-        size: f.size,
-      })),
-      prompt: prompt,
-      contextType: contextType,
-      version: 'v1',
-      messages: [],
-      documentVersions: [
-        {
-          version: 1,
-          date: new Date(now.getTime() - 47 * 60000).toISOString(),
-          summary: 'Initial draft',
-        },
-        {
-          version: 2,
-          date: new Date(now.getTime() - 18 * 60000).toISOString(),
-          summary: 'Added sources & data tables',
-        },
-        {
-          version: 3,
-          date: isoDate,
-          summary: 'Final review & formatting',
-        },
-      ],
-      f1Score: scores.f1,
-      factCheckScore: scores.factCheck,
-      agentCount: scores.agents,
-      tokenUsage: generateMockTokenUsage(taskId, scores.agents),
-      statusEvents: generateMockStatusEvents(taskId, prompt),
-    };
+        return {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          content: base64,
+        };
+      }),
+    );
 
-    setTasks((prev) => [newTask, ...prev]);
+    // Build entities payload
+    const entitiesPayload = selectedContexts.map((ctx) => ({
+      objectName: ctx.objectName,
+      id: ctx.id,
+    }));
 
+    // Build agentIds payload
+    const agentIdsPayload = selectedAgentIds.map((agentId) => ({
+      ip: '136.113.51.250',
+      apiKey: 'fd60d0b2-466b-41eb-821f-158fc9f56edd',
+      agentId,
+    }));
+
+    // Start fade-out animation
+    setFormAnimation('out');
+
+    try {
+      const { data } = await createAnalyxTask({
+        variables: {
+          input: {
+            name: generateRandomTitle(prompt, contextType || 'task'),
+            prompt,
+            entities: entitiesPayload,
+            attachments: attachmentPayloads,
+            agentIds: agentIdsPayload,
+          },
+        },
+      });
+
+      const newTaskId = data?.createAnalyxTask?.id;
+
+      await refetchTasks();
+
+      if (newTaskId) {
+        setHighlightTaskId(newTaskId);
+        setTimeout(() => setHighlightTaskId(null), 4000);
+      }
+    } catch (error) {
+      console.error('Failed to create analyx task:', error);
+    }
+
+    // Clear form after fade-out completes
     setTimeout(() => {
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === newTask.id ? { ...task, status: 'Ready' } : task,
-        ),
-      );
-    }, 10000);
-
-    setPrompt('');
-    setContextType(CONTEXT_TYPE_OPTIONS[0]);
-    setContextObject(null);
-    setSelectedContexts([]);
-    setSelectedAgentIds([]);
-    setFiles([]);
+      setPrompt('');
+      setContextType(CONTEXT_TYPE_OPTIONS[0]);
+      setContextObject(null);
+      setSelectedContexts([]);
+      setSelectedAgentIds([]);
+      setFiles([]);
+      setFormAnimation('in');
+      setTimeout(() => setFormAnimation(null), 300);
+    }, 250);
   };
 
-  const handleRemoveTask = (taskId: string) => {
-    if (window.confirm('Are you sure you want to discard this task?')) {
-      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+  const handleStopTask = async (taskId: string) => {
+    try {
+      await stopAnalyxTask({ variables: { id: taskId } });
+      refetchTasks();
+    } catch (error) {
+      console.error('Failed to stop analyx task:', error);
     }
   };
 
-  const handleMoveTask = (taskId: string, newTab: TaskTab) => {
-    setTasks((prev) =>
-      prev.map((task) => {
-        if (task.id === taskId) {
-          let newStatus = task.status;
-          if (newTab === 'Reviewed') newStatus = 'Reviewed';
-          else if (newTab === 'Archive') newStatus = 'Archived';
-          return { ...task, tab: newTab, status: newStatus };
-        }
-        return task;
-      }),
-    );
+  const handleRemoveTask = (taskId: string) => {
+    enqueueDialog({
+      title: 'Discard task',
+      message: 'Are you sure you want to discard this task?',
+      buttons: [
+        {
+          title: 'Cancel',
+          variant: 'secondary',
+        },
+        {
+          title: 'Discard',
+          variant: 'secondary',
+          accent: 'danger',
+          role: 'confirm',
+          onClick: async () => {
+            try {
+              await removeAnalyxTask({ variables: { id: taskId } });
+              refetchTasks();
+            } catch (error) {
+              console.error('Failed to remove analyx task:', error);
+            }
+          },
+        },
+      ],
+    });
+  };
+
+  const handleMoveTask = async (taskId: string, newTab: TaskTab) => {
+    try {
+      if (newTab === 'Archive') {
+        await archiveAnalyxTask({ variables: { id: taskId } });
+      }
+      // Optimistic local update while refetch happens
+      setTasks((prev) =>
+        prev.map((task) => {
+          if (task.id === taskId) {
+            let newStatus = task.status;
+            if (newTab === 'Reviewed') newStatus = 'Reviewed';
+            else if (newTab === 'Archive') newStatus = 'Archived';
+            return { ...task, tab: newTab, status: newStatus };
+          }
+          return task;
+        }),
+      );
+      await refetchTasks();
+    } catch (error) {
+      console.error('Failed to update analyx task:', error);
+    }
 
     if (newTab === 'Reviewed') {
       enqueueSuccessSnackBar({ message: 'Task marked as reviewed' });
@@ -451,49 +574,52 @@ export const AnalyxPage = () => {
             <StyledPageTitle>What should we research next?</StyledPageTitle>
           </StyledHeader>
 
-          <AnalyxPromptInput
-            prompt={prompt}
-            onPromptChange={setPrompt}
-            shakePrompt={shakePrompt}
-            contextType={contextType}
-            onContextTypeChange={setContextType}
-            files={files}
-            fileInputRef={fileInputRef}
-            onFileChange={handleFileChange}
-            contextObjectOptions={contextObjectOptions}
-            selectedContexts={selectedContexts}
-            contextObject={contextObject}
-            onContextObjectChange={setContextObject}
-            selectedAgentIds={selectedAgentIds}
-            agents={agents}
-            onAgentToggle={handleAgentToggle}
-            onMorphItemSelected={handleMorphItemSelected}
-            onSubmit={handleSubmit}
-            skills={skills}
-          />
+          <StyledFormArea $animating={formAnimation}>
+            <AnalyxPromptInput
+              prompt={prompt}
+              onPromptChange={setPrompt}
+              shakePrompt={shakePrompt}
+              contextType={contextType}
+              onContextTypeChange={setContextType}
+              files={files}
+              fileInputRef={fileInputRef}
+              onFileChange={handleFileChange}
+              contextObjectOptions={contextObjectOptions}
+              selectedContexts={selectedContexts}
+              contextObject={contextObject}
+              onContextObjectChange={setContextObject}
+              selectedAgentIds={selectedAgentIds}
+              agents={agents}
+              onAgentToggle={handleAgentToggle}
+              onMorphItemSelected={handleMorphItemSelected}
+              onSubmit={handleSubmit}
+              skills={skills}
+            />
 
-          <AnalyxCommandsBar
-            skills={filteredSkills}
-            searchQuery={skillSearchQuery}
-            onSearchChange={setSkillSearchQuery}
-            onSkillClick={setSelectedSkill}
-            onAddSkillClick={() => setIsAddSkillOpen(true)}
-          />
+            <AnalyxCommandsBar
+              skills={filteredSkills}
+              searchQuery={skillSearchQuery}
+              onSearchChange={setSkillSearchQuery}
+              onSkillClick={setSelectedSkill}
+              onAddSkillClick={() => setIsAddSkillOpen(true)}
+            />
 
-          <AnalyxChipsBar
-            selectedContexts={selectedContexts}
-            selectedAgentIds={selectedAgentIds}
-            files={files}
-            agents={agents}
-            onRemoveContext={handleRemoveContext}
-            onRemoveAgent={handleAgentToggle}
-            onRemoveFile={handleRemoveFile}
-          />
+            <AnalyxChipsBar
+              selectedContexts={selectedContexts}
+              selectedAgentIds={selectedAgentIds}
+              files={files}
+              agents={agents}
+              onRemoveContext={handleRemoveContext}
+              onRemoveAgent={handleAgentToggle}
+              onRemoveFile={handleRemoveFile}
+            />
+          </StyledFormArea>
 
           <AnalyxTaskList
             tasks={tasks}
             activeTab={activeTab}
             searchQuery={searchQuery}
+            highlightTaskId={highlightTaskId}
             onTabChange={setActiveTab}
             onSearchChange={setSearchQuery}
             onRemoveTask={handleRemoveTask}
@@ -512,6 +638,7 @@ export const AnalyxPage = () => {
             prev.map((t) => (t.id === updatedTask.id ? updatedTask : t)),
           )
         }
+        onStopTask={handleStopTask}
       />
 
       <AnalyxCommandDetailPopup

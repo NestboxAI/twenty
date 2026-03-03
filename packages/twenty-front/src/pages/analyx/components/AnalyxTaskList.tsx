@@ -3,7 +3,7 @@ import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { useToggleDropdown } from '@/ui/layout/dropdown/hooks/useToggleDropdown';
-import { useTheme } from '@emotion/react';
+import { keyframes, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
   IconArchive,
@@ -11,6 +11,7 @@ import {
   IconDotsVertical,
   IconLoader,
   IconSearch,
+  IconPlayerStop,
   IconX,
   useIcons,
 } from 'twenty-ui/display';
@@ -82,15 +83,11 @@ const StyledTaskList = styled.div`
   flex-direction: column;
   width: 100%;
   max-width: 1100px;
-  max-height: 500px;
-  overflow-y: auto;
   border: 1px solid ${({ theme }) => theme.border.color.medium};
   border-radius: 8px;
 
   @media (max-width: 768px) {
     min-width: 100%;
-    max-height: none;
-    overflow-y: visible;
   }
 
   &::-webkit-scrollbar {
@@ -118,7 +115,12 @@ const StyledSearchTextInput = styled(TextInput)`
   }
 `;
 
-const StyledTaskRow = styled.div<{ isLast: boolean }>`
+const highlightFade = keyframes`
+  0%, 60% { background: rgba(255, 180, 50, 0.15); }
+  100% { background: transparent; }
+`;
+
+const StyledTaskRow = styled.div<{ isLast: boolean; $highlight?: boolean }>`
   display: grid;
   grid-template-columns: minmax(120px, 1fr) 100px 120px 220px 100px 60px;
   align-items: center;
@@ -129,6 +131,8 @@ const StyledTaskRow = styled.div<{ isLast: boolean }>`
     isLast ? 'none' : `1px solid ${theme.border.color.light}`};
   transition: background 0.2s;
   cursor: pointer;
+  ${({ $highlight }) =>
+    $highlight ? `animation: ${highlightFade} 4s ease-out forwards;` : ''}
 
   @media (max-width: 768px) {
     display: flex;
@@ -264,6 +268,7 @@ type AnalyxTaskListProps = {
   tasks: Task[];
   activeTab: string;
   searchQuery: string;
+  highlightTaskId: string | null;
   onTabChange: (tab: string) => void;
   onSearchChange: (query: string) => void;
   onRemoveTask: (taskId: string) => void;
@@ -275,6 +280,7 @@ export const AnalyxTaskList = ({
   tasks,
   activeTab,
   searchQuery,
+  highlightTaskId,
   onTabChange,
   onSearchChange,
   onRemoveTask,
@@ -349,6 +355,7 @@ export const AnalyxTaskList = ({
               <StyledTaskRow
                 key={task.id}
                 isLast={index === filteredTasks.length - 1}
+                $highlight={task.id === highlightTaskId}
                 onClick={() => onTaskClick(task.id)}
               >
                 <StyledCell style={{ fontWeight: 500 }}>{task.name}</StyledCell>
@@ -397,7 +404,7 @@ export const AnalyxTaskList = ({
                 <div style={{ justifySelf: 'end' }}>
                   <StyledStatusBadge status={task.status}>
                     <StyledStatusIcon status={task.status}>
-                      {task.status === 'Processing' && (
+                      {task.status === 'Working' && (
                         <StyledSpinningWrapper>
                           <IconLoader size={16} />
                         </StyledSpinningWrapper>
@@ -414,12 +421,15 @@ export const AnalyxTaskList = ({
                       {task.status === 'Ready' && (
                         <IconCheck size={10} stroke={4} />
                       )}
+                      {task.status === 'Stopped' && (
+                        <IconPlayerStop size={12} />
+                      )}
                     </StyledStatusIcon>
                     {task.status}
                   </StyledStatusBadge>
                 </div>
 
-                {task.status !== 'Processing' && (
+                {task.status !== 'Working' && (
                   <div
                     style={{
                       display: 'flex',

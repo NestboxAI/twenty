@@ -147,19 +147,18 @@ export const createNewItem = (
         lastEdited: new Date().toISOString(),
         content: AGENT_TEMPLATE(name, description),
       };
-
-    case 'hooks':
-      return {
-        id: nextId(),
-        name: 'hooks.json',
-        path: 'hooks/hooks.json',
-        type: 'file',
-        format: 'json',
-        validationStatus: 'ok',
-        lastEdited: new Date().toISOString(),
-        content: HOOK_TEMPLATE(),
-      };
   }
+  // else - hooks
+  return {
+    id: nextId(),
+    name: 'hooks.json',
+    path: 'hooks/hooks.json',
+    type: 'file',
+    format: 'json',
+    validationStatus: 'ok',
+    lastEdited: new Date().toISOString(),
+    content: HOOK_TEMPLATE(),
+  };
 };
 
 // Find the first file in a newly created node (for auto-selection)

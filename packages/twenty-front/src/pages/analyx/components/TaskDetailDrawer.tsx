@@ -1,3 +1,4 @@
+import { useDialogManager } from '@/ui/feedback/dialog-manager/hooks/useDialogManager';
 import { css, Global, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import React, { useEffect, useRef, useState } from 'react';
@@ -10,6 +11,7 @@ import {
   IconFile,
   IconFileText,
   IconLoader,
+  IconPlayerStop,
   IconSparkles,
   IconX,
   useIcons,
@@ -312,16 +314,39 @@ const VersionMenuItem = styled.div<{ isLatest: boolean }>`
   }
 `;
 
+const StyledStopButton = styled.button`
+  align-items: center;
+  background: none;
+  border: 1px solid ${({ theme }) => theme.border.color.medium};
+  border-radius: 6px;
+  color: ${({ theme }) => theme.font.color.tertiary};
+  cursor: pointer;
+  display: flex;
+  gap: 4px;
+  font-size: 12px;
+  padding: 4px 8px;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.font.color.danger};
+    color: ${({ theme }) => theme.font.color.danger};
+  }
+`;
+
 export const TaskDetailDrawer = ({
   task,
   isOpen,
   onClose,
   onUpdateTask,
+  onStopTask,
 }: {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
   onUpdateTask: (updatedTask: Task) => void;
+  onStopTask: (taskId: string) => void;
 }) => {
   const [chatInput, setChatInput] = useState('');
   const [activeDrawerTab, setActiveDrawerTab] = useState<
@@ -336,6 +361,7 @@ export const TaskDetailDrawer = ({
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const theme = useTheme();
   const { getIcon } = useIcons();
+  const { enqueueDialog } = useDialogManager();
 
   // Reset tab and prompt collapse when task changes
   useEffect(() => {
@@ -637,16 +663,53 @@ export const TaskDetailDrawer = ({
                 }}
               >
                 <TaskNameText title={task.name}>{task.name}</TaskNameText>
-                <StyledStatusBadge status={task.status}>
-                  <StyledStatusIcon status={task.status}>
-                    {task.status === 'Processing' && <IconLoader size={16} />}
-                    {task.status === 'Ready' && <IconCheck size={10} />}
-                    {task.status === 'Verified' && <IconCheck size={10} />}
-                    {task.status === 'Reviewed' && <IconCheck size={10} />}
-                    {task.status === 'Archived' && <IconArchive size={16} />}
-                  </StyledStatusIcon>
-                  {task.status}
-                </StyledStatusBadge>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <StyledStatusBadge status={task.status}>
+                    <StyledStatusIcon status={task.status}>
+                      {task.status === 'Working' && (
+                        <IconLoader size={16} />
+                      )}
+                      {task.status === 'Ready' && <IconCheck size={10} />}
+                      {task.status === 'Verified' && <IconCheck size={10} />}
+                      {task.status === 'Reviewed' && <IconCheck size={10} />}
+                      {task.status === 'Archived' && <IconArchive size={16} />}
+                      {task.status === 'Stopped' && (
+                        <IconPlayerStop size={12} />
+                      )}
+                    </StyledStatusIcon>
+                    {task.status}
+                  </StyledStatusBadge>
+                  {task.status === 'Working' && (
+                    <StyledStopButton
+                      title="Stop task"
+                      onClick={() => {
+                        enqueueDialog({
+                          title: 'Stop task',
+                          message:
+                            'Are you sure you want to stop this task? This cannot be undone.',
+                          buttons: [
+                            {
+                              title: 'Cancel',
+                              variant: 'secondary',
+                            },
+                            {
+                              title: 'Stop',
+                              variant: 'secondary',
+                              accent: 'danger',
+                              role: 'confirm',
+                              onClick: () => onStopTask(task.id),
+                            },
+                          ],
+                        });
+                      }}
+                    >
+                      <IconPlayerStop size={12} />
+                      Stop
+                    </StyledStopButton>
+                  )}
+                </div>
               </div>
 
               {/* Meta: type, date, context — single compact line */}

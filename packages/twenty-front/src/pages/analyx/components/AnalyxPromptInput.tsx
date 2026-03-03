@@ -16,7 +16,7 @@ import {
   type RefObject,
 } from 'react';
 import {
-  IconArrowRight,
+  IconArrowUp,
   IconChevronLeft,
   IconChevronRight,
   IconCpu,
@@ -520,7 +520,7 @@ export const AnalyxPromptInput = ({
           />
 
           <StyledGoButton onClick={onSubmit}>
-            <IconArrowRight size={18} stroke={3} />
+            <IconArrowUp size={18} stroke={3} />
           </StyledGoButton>
         </div>
       </StyledFooter>

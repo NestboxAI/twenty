@@ -31,7 +31,7 @@ export const StyledStatusBadge = styled.div<{ status: TaskStatus }>`
 
   ${({ status, theme }) => {
     switch (status) {
-      case 'Processing':
+      case 'Working':
         return `color: ${theme.color.gold};`;
       case 'Ready':
       case 'Verified':
@@ -41,6 +41,8 @@ export const StyledStatusBadge = styled.div<{ status: TaskStatus }>`
         return `color: ${theme.color.blue};`;
       case 'Archived':
         return `color: ${theme.font.color.tertiary};`;
+      case 'Stopped':
+        return `color: ${theme.font.color.danger};`;
       default:
         return `color: ${theme.font.color.secondary};`;
     }

@@ -31,12 +31,13 @@ export type StatusEvent =
     };
 
 export type TaskStatus =
-  | 'Processing'
+  | 'Working'
   | 'Ready'
   | 'Verified'
   | 'Done'
   | 'Reviewed'
-  | 'Archived';
+  | 'Archived'
+  | 'Stopped';
 export type TaskTab = 'Tasks' | 'Reviewed' | 'Archive';
 
 export type DocumentVersion = {
