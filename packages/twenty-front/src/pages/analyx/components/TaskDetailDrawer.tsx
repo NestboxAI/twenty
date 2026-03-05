@@ -22,12 +22,18 @@ import {
 } from 'twenty-ui/display';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
 import {
+  StyledContextChip,
   StyledIconButton,
   StyledStatusBadge,
   StyledStatusIcon,
 } from '../AnalyxSharedStyles';
 import { type Task } from '../AnalyxTypes';
-import { formatTaskDateTime, getEntityIcon, getTypeIcon } from '../AnalyxUtils';
+import {
+  formatFileSize,
+  formatTaskDateTime,
+  getEntityIcon,
+  getTypeIcon,
+} from '../AnalyxUtils';
 import { ResearchLogTimeline } from './ResearchLogTimeline';
 import { TrustAccuracyTab } from './TrustAccuracyTab';
 
@@ -369,6 +375,7 @@ export const TaskDetailDrawer = ({
   onStopTask: (taskId: string) => void;
 }) => {
   const [chatInput, setChatInput] = useState('');
+  const [showAllAttachments, setShowAllAttachments] = useState(false);
   const [activeDrawerTab, setActiveDrawerTab] = useState<
     'report' | 'research' | 'trust'
   >('report');
@@ -381,9 +388,10 @@ export const TaskDetailDrawer = ({
   const { enqueueDialog } = useDialogManager();
   const tokenPair = useRecoilValue(tokenPairState);
 
-  // Reset tab when task changes
+  // Reset tab and attachment expansion when task changes
   useEffect(() => {
     setActiveDrawerTab('report');
+    setShowAllAttachments(false);
   }, [task?.id]);
 
   // Close version dropdown on outside click
@@ -852,42 +860,47 @@ export const TaskDetailDrawer = ({
               {/* Attachments Section */}
               {task.attachments && task.attachments.length > 0 && (
                 <DetailSection>
-                  <SectionLabel>Attachments</SectionLabel>
+                  <SectionLabel>
+                    Attachments ({task.attachments.length})
+                  </SectionLabel>
                   <div
                     style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}
                   >
-                    {task.attachments.map((file, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '8px 12px',
-                          border: `1px solid ${theme.border.color.medium}`,
-                          borderRadius: '8px',
-                          fontSize: '13px',
-                        }}
-                      >
-                        <IconFile
-                          size={16}
-                          color={theme.font.color.secondary}
-                        />
-                        <div
-                          style={{ display: 'flex', flexDirection: 'column' }}
-                        >
-                          <span style={{ fontWeight: 500 }}>{file.name}</span>
-                          <span
-                            style={{
-                              fontSize: '11px',
-                              color: theme.font.color.tertiary,
-                            }}
-                          >
-                            {Math.round(file.size / 1024)} KB
-                          </span>
-                        </div>
-                      </div>
+                    {(showAllAttachments
+                      ? task.attachments
+                      : task.attachments.slice(0, 3)
+                    ).map((file, idx) => (
+                      <StyledContextChip key={idx}>
+                        <IconFile size={14} />
+                        <span>
+                          {file.name} · {formatFileSize(file.size)}
+                        </span>
+                      </StyledContextChip>
                     ))}
+                    {task.attachments.length > 3 && (
+                      <StyledContextChip
+                        as="button"
+                        onClick={() =>
+                          setShowAllAttachments((prev) => !prev)
+                        }
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <IconChevronDown
+                          size={14}
+                          style={{
+                            transform: showAllAttachments
+                              ? 'rotate(180deg)'
+                              : 'none',
+                            transition: 'transform 0.2s ease',
+                          }}
+                        />
+                        <span>
+                          {showAllAttachments
+                            ? 'Show less'
+                            : `+${task.attachments.length - 3} more`}
+                        </span>
+                      </StyledContextChip>
+                    )}
                   </div>
                 </DetailSection>
               )}

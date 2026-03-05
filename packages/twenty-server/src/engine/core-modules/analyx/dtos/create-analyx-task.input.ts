@@ -31,7 +31,10 @@ export class CreateAnalyxTaskInput {
     name: string;
     type: string;
     size: number;
-    content: string;
+    content?: string;
+    fileId?: string;
+    path?: string;
+    token?: string;
   }[];
 
   @Field(() => graphqlTypeJson, { nullable: true })

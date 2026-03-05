@@ -18,8 +18,7 @@ import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspac
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
 // ssh -p 443 -R0:localhost:3000 qr@free.pinggy.io
-const PINGGY_INSTANCE =
-  'https://grrty-2607-fea8-501-e900-c84d-9238-6449-77c.a.free.pinggy.link';
+const PINGGY_INSTANCE = 'https://gdtnm-66-207-198-10.a.free.pinggy.link';
 
 @Injectable()
 export class AnalyxTaskService {
@@ -295,12 +294,23 @@ export class AnalyxTaskService {
     const callbackUrl = `${serverUrl}/analyx/callback?taskId=${task.id}&workspaceId=${workspaceId}`;
 
     const apiKeyToken = await this.getApiKeyToken(workspaceId);
-    const fileAttachments = this.buildFileAttachments(input);
+
+    if (!apiKeyToken) {
+      throw new Error(
+        'No active API key found for this workspace. Please contact your administrator to create one in Settings > Accounts > API Keys.',
+      );
+    }
+
+    const fileReferences = this.buildFileReferences(
+      input,
+      serverUrl,
+      workspaceId,
+    );
     const enrichedEntities = await this.enrichEntityRecords(
       input.entities ?? [],
       workspaceId,
     );
-    const attachments = [...fileAttachments, ...enrichedEntities];
+    const attachments = [...enrichedEntities];
     const mcpConfig = this.buildMcpConfig(input.agentIds ?? []);
 
     this.logger.log(`Dispatching analyx task ${task.id} to agent`);
@@ -352,9 +362,14 @@ export class AnalyxTaskService {
       },
     };
 
-    // Only include attachments when there are actual files
+    // Only include attachments when there are actual entity enrichments
     if (attachments.length > 0) {
       params.attachments = attachments;
+    }
+
+    // Pass file references as download URLs for the agent to fetch
+    if (fileReferences.length > 0) {
+      params.input_files = fileReferences;
     }
 
     // Only include mcp_config when there are actual servers —
@@ -399,24 +414,25 @@ export class AnalyxTaskService {
     );
   }
 
-  private buildFileAttachments(
+  private buildFileReferences(
     input: CreateAnalyxTaskInput,
-  ): { filename: string; content: string; mime_type: string }[] {
-    const attachments: {
-      filename: string;
-      content: string;
-      mime_type: string;
-    }[] = [];
+    serverUrl: string,
+    workspaceId: string,
+  ): { filename: string; url: string; mime_type: string }[] {
+    return (input.attachments ?? [])
+      .filter((file) => file.path)
+      .map((file) => {
+        const signedPath = this.fileService.signFileUrl({
+          url: file.path!,
+          workspaceId,
+        });
 
-    for (const file of input.attachments ?? []) {
-      attachments.push({
-        filename: file.name,
-        content: file.content,
-        mime_type: file.type,
+        return {
+          filename: file.name,
+          url: `${serverUrl}/files/${signedPath}`,
+          mime_type: file.type,
+        };
       });
-    }
-
-    return attachments;
   }
 
   private async enrichEntityRecords(

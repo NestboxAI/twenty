@@ -9,11 +9,12 @@ import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
 import { PageHeader } from '@/ui/layout/page/components/PageHeader';
 import { GET_NESTBOX_AGENTS } from '@/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/graphql/getNestboxAgents';
-import { useMutation, useQuery } from '@apollo/client';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
+import { CREATE_FILE } from '@/file/graphql/mutations/createFile';
 import { IconBrain, IconFolder, useIcons } from 'twenty-ui/display';
 import { DEFAULT_COMMANDS } from './AnalyxDefaultCommands';
 import {
@@ -140,10 +141,16 @@ export const AnalyxPage = () => {
   const [archiveAnalyxTask] = useMutation(ARCHIVE_ANALYX_TASK);
   const [removeAnalyxTask] = useMutation(REMOVE_ANALYX_TASK);
 
+  const apolloClient = useApolloClient();
+
   // Form state
   const [prompt, setPrompt] = useState('');
   const [shakePrompt, setShakePrompt] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{
+    uploaded: number;
+    total: number;
+  } | null>(null);
   const [contextType, setContextType] = useState<string>(
     CONTEXT_TYPE_OPTIONS[0],
   );
@@ -448,25 +455,44 @@ export const AnalyxPage = () => {
 
     setIsSubmitting(true);
 
-    // Convert File objects to base64 for the mutation
-    const attachmentPayloads = await Promise.all(
-      files.map(async (file) => {
-        const buffer = await file.arrayBuffer();
-        const base64 = btoa(
-          new Uint8Array(buffer).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            '',
-          ),
-        );
+    // Upload files to Twenty storage and collect references
+    const attachmentPayloads: {
+      name: string;
+      type: string;
+      size: number;
+      fileId: string;
+      path: string;
+    }[] = [];
 
-        return {
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          content: base64,
-        };
-      }),
-    );
+    if (files.length > 0) {
+      setUploadProgress({ uploaded: 0, total: files.length });
+
+      for (const file of files) {
+        const { data } = await apolloClient.mutate({
+          mutation: CREATE_FILE,
+          variables: { file },
+        });
+        const result = data?.createFile as
+          | { id: string; path: string; size: number }
+          | undefined;
+
+        if (result) {
+          attachmentPayloads.push({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            fileId: result.id,
+            path: result.path,
+          });
+        }
+
+        setUploadProgress((prev) =>
+          prev ? { ...prev, uploaded: prev.uploaded + 1 } : null,
+        );
+      }
+
+      setUploadProgress(null);
+    }
 
     // Build entities payload
     const entitiesPayload = selectedContexts.map((ctx) => ({
@@ -623,6 +649,7 @@ export const AnalyxPage = () => {
               onMorphItemSelected={handleMorphItemSelected}
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
+              uploadProgress={uploadProgress}
               skills={skills}
             />
 

@@ -256,6 +256,12 @@ const StyledGoButton = styled.button`
   }
 `;
 
+const StyledUploadProgress = styled.span`
+  color: ${({ theme }) => theme.font.color.tertiary};
+  font-size: 13px;
+  white-space: nowrap;
+`;
+
 export type ContextObjectOption = {
   value: string;
   label: string;
@@ -281,6 +287,7 @@ type AnalyxPromptInputProps = {
   onMorphItemSelected: (item?: RecordPickerPickableMorphItem) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
+  uploadProgress: { uploaded: number; total: number } | null;
   skills: AnalyxCommand[];
 };
 
@@ -303,6 +310,7 @@ export const AnalyxPromptInput = ({
   onMorphItemSelected,
   onSubmit,
   isSubmitting,
+  uploadProgress,
   skills,
 }: AnalyxPromptInputProps) => {
   const { closeDropdown } = useCloseDropdown();
@@ -527,7 +535,15 @@ export const AnalyxPromptInput = ({
             }
           />
 
-          <StyledGoButton onClick={onSubmit} disabled={isSubmitting}>
+          {uploadProgress && (
+            <StyledUploadProgress>
+              Uploading files ({uploadProgress.uploaded}/{uploadProgress.total})...
+            </StyledUploadProgress>
+          )}
+          <StyledGoButton
+            onClick={onSubmit}
+            disabled={isSubmitting || !!uploadProgress}
+          >
             <IconArrowUp size={18} stroke={3} />
           </StyledGoButton>
         </div>
