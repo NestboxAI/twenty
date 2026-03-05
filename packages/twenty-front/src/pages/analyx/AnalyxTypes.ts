@@ -13,6 +13,7 @@ export type StatusEvent = {
 export type TaskStatus =
   | 'Working'
   | 'Ready'
+  | 'Failed'
   | 'Verified'
   | 'Done'
   | 'Reviewed'
@@ -77,6 +78,7 @@ export interface Task {
   factCheckScore?: number;
   runStats?: TaskRunStats;
   statusEvents?: StatusEvent[];
+  errorMessage?: string | null;
 }
 
 export type NestboxAgent = {

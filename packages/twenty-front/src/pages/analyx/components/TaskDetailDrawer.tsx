@@ -6,6 +6,7 @@ import styled from '@emotion/styled';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import {
+  IconAlertTriangle,
   IconArchive,
   IconArrowRight,
   IconCheck,
@@ -753,6 +754,9 @@ export const TaskDetailDrawer = ({
                       {task.status === 'Verified' && <IconCheck size={10} />}
                       {task.status === 'Reviewed' && <IconCheck size={10} />}
                       {task.status === 'Archived' && <IconArchive size={16} />}
+                      {task.status === 'Failed' && (
+                        <IconAlertTriangle size={12} />
+                      )}
                       {task.status === 'Stopped' && (
                         <IconPlayerStop size={12} />
                       )}
@@ -907,6 +911,30 @@ export const TaskDetailDrawer = ({
                         <TypingDot $delay={0.2} />
                         <TypingDot $delay={0.4} />
                       </TypingIndicator>
+                    )}
+                    {task.status === 'Failed' && task.errorMessage && (
+                      <div
+                        style={{
+                          alignSelf: 'flex-start',
+                          background: theme.background.danger,
+                          borderRadius: '18px 18px 18px 4px',
+                          color: theme.font.color.danger,
+                          fontSize: '14px',
+                          lineHeight: 1.5,
+                          maxWidth: '85%',
+                          padding: '10px 14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}
+                      >
+                        <IconAlertTriangle
+                          size={16}
+                          color={theme.font.color.danger}
+                          style={{ flexShrink: 0 }}
+                        />
+                        {task.errorMessage}
+                      </div>
                     )}
                     {task.output && task.status !== 'Working' && (
                       <MessageBubble role="ai">

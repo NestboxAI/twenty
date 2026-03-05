@@ -6,6 +6,7 @@ import { useToggleDropdown } from '@/ui/layout/dropdown/hooks/useToggleDropdown'
 import { keyframes, useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
+  IconAlertTriangle,
   IconArchive,
   IconCheck,
   IconDotsVertical,
@@ -122,7 +123,7 @@ const highlightFade = keyframes`
 
 const StyledTaskRow = styled.div<{ isLast: boolean; $highlight?: boolean }>`
   display: grid;
-  grid-template-columns: minmax(120px, 1fr) 100px 120px 220px 100px 60px;
+  grid-template-columns: minmax(120px, 1fr) 160px 120px 220px 100px 60px;
   align-items: center;
   padding: 16px 20px;
   gap: 16px;
@@ -341,12 +342,26 @@ export const AnalyxTaskList = ({
               padding: '60px 20px',
               textAlign: 'center',
               color: theme.font.color.tertiary,
-              fontSize: '14px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '8px',
             }}
           >
-            {searchQuery
-              ? `No tasks found matching "${searchQuery}"`
-              : 'No tasks available'}
+            {searchQuery ? (
+              <span style={{ fontSize: '14px' }}>
+                No tasks found matching &quot;{searchQuery}&quot;
+              </span>
+            ) : (
+              <>
+                <span style={{ fontSize: '14px', fontWeight: 500 }}>
+                  No research tasks yet
+                </span>
+                <span style={{ fontSize: '13px', maxWidth: '320px' }}>
+                  Submit a prompt above to start your first research task.
+                </span>
+              </>
+            )}
           </div>
         ) : (
           filteredTasks.map((task, index) => {
@@ -420,6 +435,9 @@ export const AnalyxTaskList = ({
                       )}
                       {task.status === 'Ready' && (
                         <IconCheck size={10} stroke={4} />
+                      )}
+                      {task.status === 'Failed' && (
+                        <IconAlertTriangle size={12} />
                       )}
                       {task.status === 'Stopped' && (
                         <IconPlayerStop size={12} />

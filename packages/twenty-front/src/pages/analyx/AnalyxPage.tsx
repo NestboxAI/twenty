@@ -180,7 +180,7 @@ export const AnalyxPage = () => {
       case 'completed':
         return 'Ready';
       case 'failed':
-        return 'Ready';
+        return 'Failed';
       case 'stopped':
         return 'Stopped';
       case 'archived':
@@ -256,6 +256,7 @@ export const AnalyxPage = () => {
             } satisfies TaskRunStats)
           : undefined,
         statusEvents: (result?.statusEvents as StatusEvent[]) ?? [],
+        errorMessage: t.errorMessage ?? null,
       };
     });
 

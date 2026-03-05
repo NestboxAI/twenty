@@ -18,7 +18,8 @@ import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspac
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
 // ssh -p 443 -R0:localhost:3000 qr@free.pinggy.io
-const PINGGY_INSTANCE = 'https://cjcco-66-207-198-10.a.free.pinggy.link';
+const PINGGY_INSTANCE =
+  'https://grrty-2607-fea8-501-e900-c84d-9238-6449-77c.a.free.pinggy.link';
 
 @Injectable()
 export class AnalyxTaskService {
@@ -321,10 +322,14 @@ export class AnalyxTaskService {
 
     const queryApi = new QueryApi(config);
 
+    const maxBudgetUsd = this.twentyConfigService.get(
+      'NESTBOX_AI_ANALYX_MAX_BUDGET_USD',
+    ) as number;
+
     const params: Record<string, unknown> = {
       prompt: input.prompt,
       max_turns: 30,
-      max_budget_usd: 5,
+      max_budget_usd: maxBudgetUsd,
       permission_mode: 'acceptEdits',
       output_format: this.resolveOutputFormat(input.contextType),
       allowed_tools: [

@@ -135,11 +135,19 @@ export const formatTaskDateTime = (isoOrLegacy: string): string => {
 export const formatTaskDateShort = (isoOrLegacy: string): string => {
   const date = new Date(isoOrLegacy);
   if (isNaN(date.getTime())) return isoOrLegacy;
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  return (
+    date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }) +
+    ', ' +
+    date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+  );
 };
 
 export const generateMockScores = (

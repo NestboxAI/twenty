@@ -1230,6 +1230,14 @@ export class ConfigVariables {
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.LLM,
+    description: 'Nestbox AI Analyx max budget per task in USD',
+    type: ConfigVariableType.NUMBER,
+  })
+  @IsOptional()
+  NESTBOX_AI_ANALYX_MAX_BUDGET_USD = 5;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LLM,
     description:
       'Comma-separated list of AI model IDs for speed-optimized operations, in priority order. The first available model will be used.',
     type: ConfigVariableType.STRING,

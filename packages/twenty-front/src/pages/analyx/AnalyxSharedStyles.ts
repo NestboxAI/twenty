@@ -41,6 +41,8 @@ export const StyledStatusBadge = styled.div<{ status: TaskStatus }>`
         return `color: ${theme.color.blue};`;
       case 'Archived':
         return `color: ${theme.font.color.tertiary};`;
+      case 'Failed':
+        return `color: ${theme.color.orange};`;
       case 'Stopped':
         return `color: ${theme.font.color.danger};`;
       default:
