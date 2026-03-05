@@ -17,39 +17,38 @@ import { useRecoilCallback } from 'recoil';
 import { IconBrain, IconFolder, useIcons } from 'twenty-ui/display';
 import { DEFAULT_COMMANDS } from './AnalyxDefaultCommands';
 import {
+  type AnalyxCommand,
+  type NestboxAgent,
+  type SelectedContext,
+  type StatusEvent,
+  type Task,
+  type TaskRunStats,
+  type TaskStatus,
+  type TaskTab,
+} from './AnalyxTypes';
+import {
+  CONTEXT_TYPE_OPTIONS,
+  generateMockScores,
+  generateRandomTitle,
+  getTaskType,
+} from './AnalyxUtils';
+import { AnalyxAddCommandForm } from './components/AnalyxAddCommandForm';
+import { AnalyxChipsBar } from './components/AnalyxChipsBar';
+import { AnalyxCommandDetailPopup } from './components/AnalyxCommandDetailPopup';
+import { AnalyxCommandsBar } from './components/AnalyxCommandsBar';
+import {
+  AnalyxPromptInput,
+  type ContextObjectOption,
+} from './components/AnalyxPromptInput';
+import { AnalyxTaskList } from './components/AnalyxTaskList';
+import { TaskDetailDrawer } from './components/TaskDetailDrawer';
+import {
   ARCHIVE_ANALYX_TASK,
   CREATE_ANALYX_TASK,
   GET_ANALYX_TASKS,
   REMOVE_ANALYX_TASK,
   STOP_ANALYX_TASK,
 } from './graphql/analyxTaskQueries';
-import {
-  type AnalyxCommand,
-  type NestboxAgent,
-  type SelectedContext,
-  type StatusEvent,
-  type Task,
-  type TaskStatus,
-  type TaskTab,
-  type TokenUsage,
-} from './AnalyxTypes';
-import {
-  CONTEXT_TYPE_OPTIONS,
-  generateMockScores,
-  generateMockStatusEvents,
-  generateMockTokenUsage,
-  generateRandomTitle,
-} from './AnalyxUtils';
-import { AnalyxAddCommandForm } from './components/AnalyxAddCommandForm';
-import { AnalyxChipsBar } from './components/AnalyxChipsBar';
-import {
-  AnalyxPromptInput,
-  type ContextObjectOption,
-} from './components/AnalyxPromptInput';
-import { AnalyxCommandDetailPopup } from './components/AnalyxCommandDetailPopup';
-import { AnalyxCommandsBar } from './components/AnalyxCommandsBar';
-import { AnalyxTaskList } from './components/AnalyxTaskList';
-import { TaskDetailDrawer } from './components/TaskDetailDrawer';
 
 const StyledContentWrapper = styled.div`
   font-family: 'Inter', sans-serif;
@@ -205,7 +204,7 @@ export const AnalyxPage = () => {
         id: t.id,
         name: t.name,
         date: t.createdAt,
-        type: 'task' as const,
+        type: getTaskType((t.input?.contextType as string) ?? 'document'),
         entities:
           (t.input?.entities as {
             name: string;
@@ -240,13 +239,23 @@ export const AnalyxPage = () => {
           }[]) ?? [],
         f1Score: (result?.f1Score as number) ?? scores.f1,
         factCheckScore: (result?.factCheckScore as number) ?? scores.factCheck,
-        agentCount: (result?.agentCount as number) ?? scores.agents,
-        tokenUsage:
-          (result?.tokenUsage as TokenUsage) ??
-          generateMockTokenUsage(t.id, scores.agents),
-        statusEvents:
-          (result?.statusEvents as StatusEvent[]) ??
-          generateMockStatusEvents(t.id, t.prompt),
+        runStats: result
+          ? ({
+              durationMs: result.durationMs
+                ? Number(result.durationMs)
+                : undefined,
+              turns: result.turns as number | undefined,
+              totalCostUsd: result.totalCostUsd as number | undefined,
+              budgetUsd: result.budgetUsd as number | undefined,
+              remainingBudgetUsd: result.remainingBudgetUsd as
+                | number
+                | undefined,
+              cumulativeSessionCostUsd: result.cumulativeSessionCostUsd as
+                | number
+                | undefined,
+            } satisfies TaskRunStats)
+          : undefined,
+        statusEvents: (result?.statusEvents as StatusEvent[]) ?? [],
       };
     });
 
@@ -376,6 +385,8 @@ export const AnalyxPage = () => {
               id: item.recordId,
               name: searchRecord?.label ?? 'Unknown',
               objectName: objectMeta?.labelSingular ?? contextObject ?? '',
+              objectNameSingular:
+                objectMeta?.nameSingular ?? contextObject ?? '',
               objectIcon: objectMeta?.icon ?? 'IconFolder',
             },
           ];
@@ -459,6 +470,9 @@ export const AnalyxPage = () => {
     // Build entities payload
     const entitiesPayload = selectedContexts.map((ctx) => ({
       objectName: ctx.objectName,
+      objectNameSingular: ctx.objectNameSingular,
+      name: ctx.name,
+      objectIcon: ctx.objectIcon,
       id: ctx.id,
     }));
 
@@ -476,7 +490,7 @@ export const AnalyxPage = () => {
       const { data } = await createAnalyxTask({
         variables: {
           input: {
-            name: generateRandomTitle(prompt, contextType || 'task'),
+            name: generateRandomTitle(prompt),
             prompt,
             contextType,
             entities: entitiesPayload,

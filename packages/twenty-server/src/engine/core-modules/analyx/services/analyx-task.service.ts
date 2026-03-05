@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Readable } from 'stream';
 
 import { Configuration as NestboxConfig, QueryApi } from '@nestbox-ai/agents';
+import archiver from 'archiver';
 import { FileFolder } from 'twenty-shared/types';
 import { Repository } from 'typeorm';
 
@@ -13,13 +14,11 @@ import { ApiKeyService } from 'src/engine/core-modules/api-key/services/api-key.
 import { FileUploadService } from 'src/engine/core-modules/file/file-upload/services/file-upload.service';
 import { FileService } from 'src/engine/core-modules/file/services/file.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
+import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
-// Hard-coded for demo
-const NESTBOX_HOST = 'http://34.122.76.126/v1';
-const NESTBOX_API_KEY = '254c24df-a208-4f94-b734-1ee42732275e';
-const NESTBOX_AGENT_ID = 'b2831949-06ec-4411-b87e-116efabb295a';
 // ssh -p 443 -R0:localhost:3000 qr@free.pinggy.io
-const PINGGY_INSTANCE = 'https://kivvm-66-207-198-10.a.free.pinggy.link';
+const PINGGY_INSTANCE = 'https://cjcco-66-207-198-10.a.free.pinggy.link';
 
 @Injectable()
 export class AnalyxTaskService {
@@ -32,6 +31,7 @@ export class AnalyxTaskService {
     private readonly apiKeyService: ApiKeyService,
     private readonly fileUploadService: FileUploadService,
     private readonly fileService: FileService,
+    private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
   ) {}
 
   // ── Queries ──────────────────────────────────────────────
@@ -61,6 +61,10 @@ export class AnalyxTaskService {
     workspaceId: string,
     userId: string | null,
   ): Promise<AnalyxTaskEntity> {
+    this.logger.log(
+      `Creating task — contextType: ${input.contextType ?? '(missing)'}`,
+    );
+
     const task = await this.analyxTaskRepository.save({
       name: input.name,
       prompt: input.prompt,
@@ -68,6 +72,7 @@ export class AnalyxTaskService {
       createdById: userId,
       workspaceId,
       input: {
+        contextType: input.contextType ?? null,
         entities: input.entities ?? [],
         attachments: (input.attachments ?? []).map(
           ({ content: _content, ...meta }) => meta,
@@ -181,15 +186,13 @@ export class AnalyxTaskService {
       }[]) ??
       [];
 
-    // Prefer a PDF/document file with content; fall back to the first with content
-    const fileToUpload =
-      outputFiles.find(
-        (f) => f.content && /\.(pdf|docx?|xlsx?)$/i.test(f.path ?? ''),
-      ) ?? outputFiles.find((f) => f.content);
+    const filesWithContent = outputFiles.filter((f) => f.content);
 
-    if (fileToUpload?.content) {
+    if (filesWithContent.length === 1) {
+      const fileToUpload = filesWithContent[0];
+
       try {
-        const buffer = Buffer.from(fileToUpload.content, 'base64');
+        const buffer = Buffer.from(fileToUpload.content!, 'base64');
         const name =
           fileToUpload.filename ??
           fileToUpload.path?.split('/').pop() ??
@@ -211,6 +214,29 @@ export class AnalyxTaskService {
         }
       } catch (error) {
         this.logger.error(`File upload failed for task ${taskId}: ${error}`);
+      }
+    } else if (filesWithContent.length > 1) {
+      try {
+        const zipBuffer = await this.zipFiles(filesWithContent);
+
+        const { files } = await this.fileUploadService.uploadFile({
+          file: zipBuffer,
+          filename: `analyx-output-${taskId.slice(0, 8)}.zip`,
+          mimeType: 'application/zip',
+          fileFolder: FileFolder.Attachment,
+          workspaceId,
+        });
+
+        if (files.length > 0) {
+          const path = files[0].path;
+          const parts = path.split('/');
+
+          fileId = parts[parts.length - 1];
+        }
+      } catch (error) {
+        this.logger.error(
+          `Zip file upload failed for task ${taskId}: ${error}`,
+        );
       }
     }
 
@@ -268,16 +294,28 @@ export class AnalyxTaskService {
     const callbackUrl = `${serverUrl}/analyx/callback?taskId=${task.id}&workspaceId=${workspaceId}`;
 
     const apiKeyToken = await this.getApiKeyToken(workspaceId);
-    const attachments = this.buildAttachments(input);
+    const fileAttachments = this.buildFileAttachments(input);
+    const enrichedEntities = await this.enrichEntityRecords(
+      input.entities ?? [],
+      workspaceId,
+    );
+    const attachments = [...fileAttachments, ...enrichedEntities];
     const mcpConfig = this.buildMcpConfig(input.agentIds ?? []);
 
     this.logger.log(`Dispatching analyx task ${task.id} to agent`);
     this.logger.log(`Callback URL: ${callbackUrl}`);
 
+    const analyxHost = this.twentyConfigService.get(
+      'NESTBOX_AI_ANALYX_HOST',
+    ) as string;
+    const analyxApiKey = this.twentyConfigService.get(
+      'NESTBOX_AI_ANALYX_API_KEY',
+    ) as string;
+
     const config = new NestboxConfig({
-      basePath: NESTBOX_HOST,
+      basePath: `${analyxHost}/v1`,
       baseOptions: {
-        headers: { Authorization: NESTBOX_API_KEY },
+        headers: { Authorization: analyxApiKey },
       },
     });
 
@@ -320,7 +358,11 @@ export class AnalyxTaskService {
       params.mcp_config = mcpConfig;
     }
 
-    await queryApi.agentOperationsQueryControllerCreateQuery(NESTBOX_AGENT_ID, {
+    const analyxAgentId = this.twentyConfigService.get(
+      'NESTBOX_AI_ANALYX_AGENT_ID',
+    ) as string;
+
+    await queryApi.agentOperationsQueryControllerCreateQuery(analyxAgentId, {
       params,
       adHocCallback: {
         url: callbackUrl,
@@ -352,7 +394,7 @@ export class AnalyxTaskService {
     );
   }
 
-  private buildAttachments(
+  private buildFileAttachments(
     input: CreateAnalyxTaskInput,
   ): { filename: string; content: string; mime_type: string }[] {
     const attachments: {
@@ -369,17 +411,132 @@ export class AnalyxTaskService {
       });
     }
 
-    for (const entity of input.entities ?? []) {
-      const payload = JSON.stringify(entity);
+    return attachments;
+  }
 
-      attachments.push({
-        filename: `${entity.objectName}-${entity.id}.json`,
-        content: Buffer.from(payload).toString('base64'),
-        mime_type: 'application/json',
-      });
+  private async enrichEntityRecords(
+    entities: {
+      objectName: string;
+      objectNameSingular?: string;
+      name?: string;
+      id: string;
+    }[],
+    workspaceId: string,
+  ): Promise<{ filename: string; content: string; mime_type: string }[]> {
+    if (entities.length === 0) return [];
+
+    const results: { filename: string; content: string; mime_type: string }[] =
+      [];
+    const systemAuthContext = buildSystemAuthContext(workspaceId);
+
+    for (const entity of entities) {
+      const objectName = entity.objectNameSingular ?? entity.objectName ?? '';
+
+      if (!objectName) {
+        this.logger.warn(
+          `Skipping entity enrichment: no objectNameSingular for ${entity.id}`,
+        );
+        continue;
+      }
+
+      try {
+        const record =
+          await this.globalWorkspaceOrmManager.executeInWorkspaceContext(
+            async () => {
+              const repository =
+                await this.globalWorkspaceOrmManager.getRepository(
+                  workspaceId,
+                  objectName,
+                  { shouldBypassPermissionChecks: true },
+                );
+
+              // Discover 1-level relations from TypeORM metadata
+              const relationNames = repository.metadata.relations.map(
+                (rel) => rel.propertyName,
+              );
+              const relations: Record<string, boolean> = {};
+
+              for (const name of relationNames) {
+                relations[name] = true;
+              }
+
+              return repository.findOne({
+                where: { id: entity.id } as any,
+                relations,
+              });
+            },
+            systemAuthContext,
+          );
+
+        if (record) {
+          const payload = JSON.stringify(record);
+
+          results.push({
+            filename: `${entity.objectName}-${entity.id}.json`,
+            content: Buffer.from(payload).toString('base64'),
+            mime_type: 'application/json',
+          });
+        } else {
+          this.logger.warn(
+            `Entity not found: ${objectName} ${entity.id}, using stub`,
+          );
+          const stub = JSON.stringify({
+            objectName: entity.objectName,
+            id: entity.id,
+          });
+
+          results.push({
+            filename: `${entity.objectName}-${entity.id}.json`,
+            content: Buffer.from(stub).toString('base64'),
+            mime_type: 'application/json',
+          });
+        }
+      } catch (error) {
+        this.logger.error(
+          `Failed to enrich entity ${objectName} ${entity.id}: ${error}`,
+        );
+        // Fall back to stub on error
+        const stub = JSON.stringify({
+          objectName: entity.objectName,
+          id: entity.id,
+        });
+
+        results.push({
+          filename: `${entity.objectName}-${entity.id}.json`,
+          content: Buffer.from(stub).toString('base64'),
+          mime_type: 'application/json',
+        });
+      }
     }
 
-    return attachments;
+    return results;
+  }
+
+  private zipFiles(
+    files: {
+      path: string;
+      filename?: string;
+      content?: string;
+      mimeType?: string;
+    }[],
+  ): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const archive = archiver('zip', { zlib: { level: 9 } });
+      const chunks: Buffer[] = [];
+
+      archive.on('data', (chunk: Buffer) => chunks.push(chunk));
+      archive.on('end', () => resolve(Buffer.concat(chunks)));
+      archive.on('error', reject);
+
+      for (const file of files) {
+        const name = file.filename ?? file.path?.split('/').pop() ?? 'unknown';
+        const buffer = Buffer.from(file.content!, 'base64');
+
+        archive.append(buffer, { name });
+      }
+
+      archive.finalize();
+    });
   }
 
   private buildMcpConfig(
@@ -401,9 +558,7 @@ export class AnalyxTaskService {
     return { inputs: [], servers };
   }
 
-  private resolveOutputFormat(
-    contextType?: string,
-  ): 'docx' | 'pptx' | 'xlsx' {
+  private resolveOutputFormat(contextType?: string): 'docx' | 'pptx' | 'xlsx' {
     switch (contextType?.toLowerCase().replace(' ', '_')) {
       case 'presentation':
         return 'pptx';

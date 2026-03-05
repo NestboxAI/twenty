@@ -1,3 +1,4 @@
+import { LazyMarkdownRenderer } from '@/ai/components/LazyMarkdownRenderer';
 import { tokenPairState } from '@/auth/states/tokenPairState';
 import { useDialogManager } from '@/ui/feedback/dialog-manager/hooks/useDialogManager';
 import { css, Global, useTheme } from '@emotion/react';
@@ -26,7 +27,6 @@ import {
 } from '../AnalyxSharedStyles';
 import { type Task } from '../AnalyxTypes';
 import { formatTaskDateTime, getEntityIcon, getTypeIcon } from '../AnalyxUtils';
-import { LazyMarkdownRenderer } from '@/ai/components/LazyMarkdownRenderer';
 import { ResearchLogTimeline } from './ResearchLogTimeline';
 import { TrustAccuracyTab } from './TrustAccuracyTab';
 
@@ -106,31 +106,8 @@ const SectionLabel = styled.div`
   color: ${({ theme }) => theme.font.color.tertiary};
 `;
 
-const PROMPT_LINE_HEIGHT = 1.4;
-const PROMPT_MAX_LINES = 8;
-
-const PromptBubbleText = styled.div<{ $collapsed: boolean }>`
-  overflow: hidden;
+const PromptBubbleText = styled.div`
   white-space: pre-wrap;
-  ${({ $collapsed }) =>
-    $collapsed
-      ? `display: -webkit-box; -webkit-line-clamp: ${PROMPT_MAX_LINES}; -webkit-box-orient: vertical;`
-      : ''}
-`;
-
-const PromptToggle = styled.button`
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  margin-top: 4px;
-  padding: 0;
-
-  &:hover {
-    color: white;
-  }
 `;
 
 const ChatContainer = styled.div`
@@ -156,26 +133,23 @@ const ChatMessages = styled.div`
 const MessageBubble = styled.div<{ role: 'user' | 'ai' }>`
   max-width: 85%;
   align-self: ${({ role }) => (role === 'user' ? 'flex-end' : 'flex-start')};
-  background: ${({ role }) =>
-    role === 'user' ? '#007AFF' : '#E9E9EB'};
+  background: ${({ role }) => (role === 'user' ? '#007AFF' : '#E9E9EB')};
   color: ${({ role }) => (role === 'user' ? '#FFFFFF' : '#1C1C1E')};
   padding: 10px 14px;
   border-radius: ${({ role }) =>
-    role === 'user'
-      ? '18px 18px 4px 18px'
-      : '18px 18px 18px 4px'};
+    role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px'};
   font-size: 14px;
   line-height: 1.5;
 `;
 
 const TypingIndicator = styled.div`
+  align-items: center;
   align-self: flex-start;
-  background: #E9E9EB;
+  background: #e9e9eb;
   border-radius: 18px 18px 18px 4px;
   display: flex;
   gap: 4px;
   padding: 12px 16px;
-  align-items: center;
 `;
 
 const typingDotKeyframes = `
@@ -186,40 +160,20 @@ const typingDotKeyframes = `
 `;
 
 const TypingDot = styled.span<{ $delay: number }>`
-  background: #8E8E93;
+  animation: typingDot 1.4s ease-in-out infinite;
+  animation-delay: ${({ $delay }) => $delay}s;
+  background: #8e8e93;
   border-radius: 50%;
   display: inline-block;
   height: 7px;
   width: 7px;
-  animation: typingDot 1.4s ease-in-out infinite;
-  animation-delay: ${({ $delay }) => $delay}s;
 `;
 
-const OutputBubbleText = styled.div<{ $collapsed: boolean }>`
-  overflow: hidden;
+const OutputBubbleText = styled.div`
   word-break: break-word;
-  ${({ $collapsed }) =>
-    $collapsed
-      ? 'display: -webkit-box; -webkit-line-clamp: 12; -webkit-box-orient: vertical;'
-      : ''}
 
   .markdown-section {
     margin: 0;
-  }
-`;
-
-const OutputToggle = styled.button`
-  background: none;
-  border: none;
-  color: #636366;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  margin-top: 4px;
-  padding: 0;
-
-  &:hover {
-    color: #1C1C1E;
   }
 `;
 
@@ -338,8 +292,14 @@ const VersionButton = styled.button`
   padding: 4px 8px;
   transition: background 0.15s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: ${({ theme }) => theme.background.transparent.lighter};
+  }
+
+  &:disabled {
+    color: ${({ theme }) => theme.font.color.light};
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 `;
 
@@ -412,12 +372,6 @@ export const TaskDetailDrawer = ({
     'report' | 'research' | 'trust'
   >('report');
   const [versionMenuOpen, setVersionMenuOpen] = useState(false);
-  const [promptExpanded, setPromptExpanded] = useState(false);
-  const [promptOverflows, setPromptOverflows] = useState(false);
-  const [outputExpanded, setOutputExpanded] = useState(false);
-  const [outputOverflows, setOutputOverflows] = useState(false);
-  const outputBubbleRef = useRef<HTMLDivElement>(null);
-  const promptBubbleRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const versionMenuRef = useRef<HTMLDivElement>(null);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
@@ -426,31 +380,10 @@ export const TaskDetailDrawer = ({
   const { enqueueDialog } = useDialogManager();
   const tokenPair = useRecoilValue(tokenPairState);
 
-  // Reset tab and prompt collapse when task changes
+  // Reset tab when task changes
   useEffect(() => {
     setActiveDrawerTab('report');
-    setPromptExpanded(false);
-    setOutputExpanded(false);
   }, [task?.id]);
-
-  // Detect if prompt text overflows the 8-line clamp
-  useEffect(() => {
-    const el = promptBubbleRef.current;
-    if (!el) return;
-    setPromptOverflows(el.scrollHeight > el.clientHeight);
-  }, [task?.prompt]);
-
-  // Detect if output text overflows the 12-line clamp
-  useEffect(() => {
-    const el = outputBubbleRef.current;
-    if (!el) return;
-    setOutputOverflows(el.scrollHeight > el.clientHeight);
-  }, [task?.output]);
-
-  // Scroll to bottom of chat when messages or status change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [task?.messages, task?.status, task?.output]);
 
   // Close version dropdown on outside click
   useEffect(() => {
@@ -542,8 +475,7 @@ export const TaskDetailDrawer = ({
     // Download from the backend endpoint using the stored file
     if (task.fileId) {
       try {
-        const token =
-          tokenPair?.accessOrWorkspaceAgnosticToken?.token ?? '';
+        const token = tokenPair?.accessOrWorkspaceAgnosticToken?.token ?? '';
         const response = await fetch(
           `${REACT_APP_SERVER_BASE_URL}/analyx/download/${task.id}`,
           {
@@ -679,6 +611,7 @@ export const TaskDetailDrawer = ({
                       onClick={() => handleDownload(latestVersion?.version)}
                       className="drawer-export-button"
                       title="Download latest version"
+                      disabled={task.status === 'Working'}
                       style={{
                         borderRadius: '6px 0 0 6px',
                         borderRight: 'none',
@@ -686,10 +619,12 @@ export const TaskDetailDrawer = ({
                       }}
                     >
                       <IconDownload size={14} />
+                      Download
                     </VersionButton>
                     <VersionButton
                       onClick={() => setVersionMenuOpen((prev) => !prev)}
                       title="Document versions"
+                      disabled={task.status === 'Working'}
                       style={{ borderRadius: '0 6px 6px 0' }}
                     >
                       v{latestVersion?.version}
@@ -741,13 +676,15 @@ export const TaskDetailDrawer = ({
                 </VersionDropdownWrapper>
               )}
               {versions.length === 0 && (
-                <StyledIconButton
+                <VersionButton
                   onClick={() => handleDownload()}
                   className="drawer-export-button"
                   title="Download report"
+                  disabled={task.status === 'Working'}
                 >
-                  <IconDownload size={18} />
-                </StyledIconButton>
+                  <IconDownload size={14} />
+                  Download Report
+                </VersionButton>
               )}
               <StyledIconButton
                 onClick={onClose}
@@ -785,14 +722,14 @@ export const TaskDetailDrawer = ({
             <ResearchLogTimeline
               events={task.statusEvents || []}
               taskDate={task.date}
-              agentCount={task.agentCount}
-              tokenUsage={task.tokenUsage}
+              runStats={task.runStats}
+              isWorking={task.status === 'Working'}
             />
           ) : activeDrawerTab === 'trust' && hasScores ? (
             <TrustAccuracyTab
               f1Score={task.f1Score!}
               factCheckScore={task.factCheckScore!}
-              agentCount={task.agentCount}
+              isWorking={task.status === 'Working'}
             />
           ) : (
             <DrawerContent>
@@ -811,9 +748,7 @@ export const TaskDetailDrawer = ({
                 >
                   <StyledStatusBadge status={task.status}>
                     <StyledStatusIcon status={task.status}>
-                      {task.status === 'Working' && (
-                        <IconLoader size={16} />
-                      )}
+                      {task.status === 'Working' && <IconLoader size={16} />}
                       {task.status === 'Ready' && <IconCheck size={10} />}
                       {task.status === 'Verified' && <IconCheck size={10} />}
                       {task.status === 'Reviewed' && <IconCheck size={10} />}
@@ -964,19 +899,7 @@ export const TaskDetailDrawer = ({
                 <ChatContainer>
                   <ChatMessages>
                     <MessageBubble role="user">
-                      <PromptBubbleText
-                        ref={promptBubbleRef}
-                        $collapsed={!promptExpanded}
-                      >
-                        {task.prompt}
-                      </PromptBubbleText>
-                      {(promptOverflows || promptExpanded) && (
-                        <PromptToggle
-                          onClick={() => setPromptExpanded((prev) => !prev)}
-                        >
-                          {promptExpanded ? 'Show less' : 'Show more'}
-                        </PromptToggle>
-                      )}
+                      <PromptBubbleText>{task.prompt}</PromptBubbleText>
                     </MessageBubble>
                     {task.status === 'Working' && (
                       <TypingIndicator>
@@ -987,21 +910,9 @@ export const TaskDetailDrawer = ({
                     )}
                     {task.output && task.status !== 'Working' && (
                       <MessageBubble role="ai">
-                        <OutputBubbleText
-                          ref={outputBubbleRef}
-                          $collapsed={!outputExpanded}
-                        >
+                        <OutputBubbleText>
                           <LazyMarkdownRenderer text={task.output} />
                         </OutputBubbleText>
-                        {(outputOverflows || outputExpanded) && (
-                          <OutputToggle
-                            onClick={() =>
-                              setOutputExpanded((prev) => !prev)
-                            }
-                          >
-                            {outputExpanded ? 'Show less' : 'Show more'}
-                          </OutputToggle>
-                        )}
                       </MessageBubble>
                     )}
                     {task.messages?.map((msg, idx) => (

@@ -3941,4 +3941,78 @@ export const DEFAULT_COMMANDS: AnalyxCommand[] = [
     placeholder: 'e.g. Analyze Snowflake costs by team and find the top optimization opportunities',
     defaultOutput: 'Document',
   },
+
+  // Geopolitical & Macro Risk
+  {
+    id: 'default-geopolitical-risk',
+    name: 'Geopolitical Risk',
+    description: `### Tasks Required
+- Monitor and assess active geopolitical conflicts, sanctions regimes, trade disputes, and political instability affecting portfolio companies
+- Map exposure channels: energy prices, supply chain disruption, FX volatility, credit spreads, and regulatory changes
+- Quantify portfolio-level impact: revenue at risk by geography, supplier concentration in affected regions, and currency exposure
+- Evaluate sector-specific risks and opportunities for PE/VC-backed companies across the portfolio
+- Stress-test fund performance under escalation and de-escalation scenarios
+- Develop CFO action items: hedging recommendations, supply chain contingency plans, and liquidity reserves
+- Track leading indicators and early-warning signals for emerging geopolitical threats
+
+### Data Sources
+- **Geopolitical Intelligence** (Stratfor, Eurasia Group, ACLED, Crisis Group) — conflict tracking, political risk indices, and country risk ratings
+- **Macroeconomic Data** (Federal Reserve FRED, IMF, World Bank, OECD) — GDP growth, inflation, interest rates, trade balances, and sanctions lists
+- **Commodity & Energy Markets** (Bloomberg, EIA, OPEC) — oil, natural gas, metals pricing, supply/demand forecasts, and strategic reserve data
+- **Portfolio Company Data** (ERP, CRM, supply chain systems) — revenue by geography, supplier locations, customer concentration, and FX exposure
+- **Credit & Capital Markets** (Bloomberg, Capital IQ, Moody's) — sovereign credit ratings, CDS spreads, bond yields, and equity risk premiums
+- **Shipping & Trade Data** (FreightWaves, UN Comtrade, WTO) — trade route disruptions, shipping rates, and tariff schedules
+- **News & Sentiment** (GDELT, Reuters, AP) — real-time event feeds, media sentiment analysis, and escalation tracking
+
+### Computation Process
+1. Identify the geopolitical event or risk scenario and define its geographic scope, affected sectors, and transmission channels
+2. Map portfolio exposure: for each portfolio company, quantify revenue, suppliers, customers, and assets in affected regions
+3. Model commodity price impact: estimate oil/energy price scenarios under escalation and de-escalation cases and their effect on input costs
+4. Assess supply chain vulnerability: identify single-source suppliers in affected regions, estimate lead time increases, and cost of alternative sourcing
+5. Quantify FX exposure: calculate net transactional and translational exposure to affected currencies under stress scenarios
+6. Analyze credit and funding impact: model changes in credit spreads, borrowing costs, and covenant headroom under stress
+7. Stress-test portfolio returns: re-run fund performance models under adverse macro assumptions (higher rates, lower growth, wider spreads)
+8. Score each portfolio company on a risk heat map: low/medium/high exposure across each transmission channel
+9. Develop mitigation playbook: specific hedging actions, supply chain diversification steps, liquidity buffer targets, and communication plans
+10. Establish ongoing monitoring: define KPIs, trigger thresholds, and reporting cadence for the risk
+
+### Output Structure
+- **Executive Briefing**: Situation overview, key risk channels, and top 3 portfolio implications
+- **Portfolio Exposure Heat Map**: Each portfolio company scored across energy, supply chain, FX, credit, and regulatory risk channels
+- **Commodity & Energy Impact**: Oil/gas price scenarios with margin impact by portfolio company
+- **Supply Chain Vulnerability Assessment**: Supplier concentration in affected regions with alternative sourcing options
+- **FX & Credit Stress Analysis**: Currency and borrowing cost impact under escalation scenarios
+- **Fund Performance Stress Test**: IRR/TVPI sensitivity under base, adverse, and severe scenarios
+- **Mitigation Action Plan**: Prioritized CFO actions with timeline, cost, and responsible owner
+- **Monitoring Dashboard**: Leading indicators, trigger thresholds, and escalation protocol
+
+### Required Sub-Skills
+- **Scenario Modeling**: Builds the integrated P&L, balance sheet, and cash flow projections under each geopolitical scenario
+- **FX Exposure Report**: Provides currency exposure quantification and hedging cost-benefit analysis
+- **DCF Valuation**: Re-values portfolio companies under stressed discount rates and cash flow assumptions
+- **Net Debt Analysis**: Assesses leverage and covenant headroom under adverse credit spread scenarios
+- **Treasury Dashboard**: Monitors real-time liquidity position and counterparty risk exposure
+
+### MCP Services & Integrations
+- **Bloomberg Terminal / DATA License**: Pull commodity prices, sovereign CDS spreads, FX rates, and equity risk premiums
+- **Federal Reserve FRED API**: Retrieve macroeconomic indicators (GDP, CPI, trade balance, Fed Funds Rate) for scenario calibration
+- **ACLED / GDELT API**: Access conflict event data and media sentiment for real-time geopolitical monitoring
+- **ERP / Supply Chain APIs** (SAP, Oracle, NetSuite): Extract supplier master data, purchase orders, and inventory positions by geography
+- **Salesforce / Twenty CRM**: Pull customer and revenue data segmented by region for exposure mapping
+- **Capital IQ / PitchBook**: Retrieve comparable company data and market multiples for re-valuation under stress
+- **Document Generation (Carbone, Google Slides API)**: Produce board-ready geopolitical risk briefings and portfolio impact reports`,
+    tags: [
+      'geopolitical',
+      'risk',
+      'macro',
+      'portfolio',
+      'scenario analysis',
+      'cfo',
+    ],
+    createdAt: '2024-01-01T00:00:00.000Z',
+    isDefault: true,
+    placeholder:
+      'e.g. Assess the impact of US-China trade tensions on our portfolio companies',
+    defaultOutput: 'Document',
+  },
 ];

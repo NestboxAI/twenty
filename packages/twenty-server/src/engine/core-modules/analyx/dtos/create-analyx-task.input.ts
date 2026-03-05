@@ -17,7 +17,13 @@ export class CreateAnalyxTaskInput {
 
   @Field(() => graphqlTypeJson, { nullable: true })
   @IsOptional()
-  entities?: { objectName: string; id: string }[];
+  entities?: {
+    objectName: string;
+    objectNameSingular?: string;
+    name?: string;
+    objectIcon?: string;
+    id: string;
+  }[];
 
   @Field(() => graphqlTypeJson, { nullable: true })
   @IsOptional()

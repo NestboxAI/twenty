@@ -30,19 +30,17 @@ export interface SelectedContext {
   id: string;
   name: string;
   objectName: string;
+  objectNameSingular: string;
   objectIcon?: string;
 }
 
-export type TokenUsage = {
-  inputTokens: number;
-  outputTokens: number;
-  totalTokens: number;
-  agentBreakdown: Array<{
-    agentName: string;
-    inputTokens: number;
-    outputTokens: number;
-  }>;
-  durationSeconds: number;
+export type TaskRunStats = {
+  durationMs?: number;
+  turns?: number;
+  totalCostUsd?: number;
+  budgetUsd?: number;
+  remainingBudgetUsd?: number;
+  cumulativeSessionCostUsd?: number;
 };
 
 export type OutputFile = {
@@ -77,8 +75,7 @@ export interface Task {
   outputFiles?: OutputFile[];
   f1Score?: number;
   factCheckScore?: number;
-  agentCount?: number;
-  tokenUsage?: TokenUsage;
+  runStats?: TaskRunStats;
   statusEvents?: StatusEvent[];
 }
 

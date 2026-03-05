@@ -1206,6 +1206,30 @@ export class ConfigVariables {
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.LLM,
+    description: 'Nestbox AI Analyx host URL',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  NESTBOX_AI_ANALYX_HOST = '';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LLM,
+    description: 'Nestbox AI Analyx API key',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  NESTBOX_AI_ANALYX_API_KEY = '';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LLM,
+    description: 'Nestbox AI Analyx agent ID',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  NESTBOX_AI_ANALYX_AGENT_ID = '';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LLM,
     description:
       'Comma-separated list of AI model IDs for speed-optimized operations, in priority order. The first available model will be used.',
     type: ConfigVariableType.STRING,

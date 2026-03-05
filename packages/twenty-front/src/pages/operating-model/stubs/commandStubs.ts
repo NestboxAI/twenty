@@ -1920,4 +1920,196 @@ description: Data Platform Cost Optimization
 - Build chargeback or showback models for finance data platform consumption
 - Forecast platform costs under growth scenarios and propose budget recommendations`,
   },
+
+  // Geopolitical & Macro Risk
+  {
+    id: 'cmd-geopolitical-risk',
+    name: 'geopolitical-risk.md',
+    path: 'commands/geopolitical-risk.md',
+    type: 'file',
+    format: 'md',
+    validationStatus: 'ok',
+    content: `---
+name: geopolitical-risk
+description: Assess geopolitical risks and their impact on PE/VC portfolio companies \u2014 conflicts, sanctions, trade disputes, commodity shocks, and supply chain disruption
+arguments:
+  - name: scenario
+    description: The geopolitical event, conflict, or risk scenario to analyze (e.g. "US-China trade war", "Middle East conflict", "Russia sanctions")
+    required: true
+---
+
+# /geopolitical-risk \u2014 Geopolitical Risk Assessment
+
+Analyze geopolitical events and quantify their impact on portfolio companies, fund performance, and CFO decision-making.
+
+## Scenario
+
+**\\\$ARGUMENTS**
+
+## Instructions
+
+### Step 1 \u2014 Initialize Workspace
+
+- Run \\\`mkdir -p output _research\\\`
+- Create \\\`_research/geo-risk-briefing.md\\\` for the situation overview
+- Create \\\`_research/exposure-map.md\\\` for portfolio exposure tracking
+- Create \\\`_research/gaps.md\\\` to track intelligence gaps
+
+### Step 2 \u2014 Situation Intelligence Gathering
+
+Research the geopolitical scenario using authoritative sources. Prioritize:
+
+**Primary Intelligence Sources:**
+- **Stratfor (Worldview)** \u2014 Geopolitical intelligence, mapping, forecasting, and scenario analysis
+- **Reuters / BBC World News** \u2014 Real-time reporting of unfolding events and verified facts
+- **Financial Times / Wall Street Journal** \u2014 Market reactions, policy analysis, and business impact
+- **The Economist Intelligence Unit (EIU)** \u2014 Country risk ratings, political stability indices, and economic forecasts
+- **ACLED (Armed Conflict Location & Event Data)** \u2014 Conflict event tracking and escalation patterns
+- **International Crisis Group** \u2014 Conflict analysis and policy recommendations
+
+**Macroeconomic & Market Data:**
+- **Federal Reserve FRED** \u2014 Interest rates, GDP, inflation, trade balances
+- **IMF World Economic Outlook** \u2014 Global growth forecasts and risk assessments
+- **World Bank** \u2014 Development indicators, commodity price forecasts
+- **OECD** \u2014 Trade policy, economic outlook, country reviews
+
+**Commodity & Energy Intelligence:**
+- **EIA (U.S. Energy Information Administration)** \u2014 Oil/gas supply, demand, and price forecasts
+- **OPEC Monthly Oil Market Report** \u2014 Production quotas, compliance, spare capacity
+- **Bloomberg Commodity Index** \u2014 Real-time commodity pricing and futures curves
+- **S&P Global Commodity Insights** \u2014 Energy market analysis and shipping data
+
+**Sanctions & Compliance:**
+- **OFAC SDN List** \u2014 U.S. sanctions designations
+- **EU Consolidated Sanctions List** \u2014 European restrictions
+- **UN Security Council Sanctions** \u2014 International sanctions regimes
+- **BIS Entity List** \u2014 U.S. export control restrictions
+
+**Shipping & Trade:**
+- **FreightWaves SONAR** \u2014 Shipping rates, route disruptions, port congestion
+- **UN Comtrade** \u2014 International trade flow data
+- **WTO Trade Monitoring** \u2014 Tariff schedules and trade dispute tracker
+
+Document all sources with retrieval dates in \\\`_research/geo-risk-briefing.md\\\`.
+
+### Step 3 \u2014 Identify Transmission Channels
+
+Assess how the geopolitical event transmits risk through these channels:
+
+\\\`\\\`\\\`markdown
+## Transmission Channel Assessment
+
+### 1. Energy & Commodities
+| Factor | Current Level | Stress Scenario | Probability |
+|--------|--------------|-----------------|-------------|
+| Oil (Brent) | \\\$[X]/bbl | \\\$[X]/bbl (+X%) | [H/M/L] |
+| Natural Gas | \\\$[X]/MMBtu | \\\$[X]/MMBtu (+X%) | [H/M/L] |
+| [Other commodity] | \\\$[X] | \\\$[X] (+X%) | [H/M/L] |
+
+### 2. Supply Chain
+| Risk Factor | Affected Routes/Regions | Lead Time Impact | Alternative Sources |
+|-------------|------------------------|-----------------|---------------------|
+| [Route/chokepoint] | [Region] | +[X] days | [Alternatives] |
+
+### 3. FX & Capital Markets
+| Currency Pair | Current | Base Case | Stress Case | Portfolio Exposure |
+|---------------|---------|-----------|-------------|-------------------|
+| [CCY/USD] | [rate] | [rate] | [rate] | \\\$[X]M |
+
+### 4. Regulatory & Sanctions
+| Action | Probability | Affected Sectors | Portfolio Impact |
+|--------|------------|-----------------|-----------------|
+| [Sanction/regulation] | [H/M/L] | [Sectors] | [Description] |
+\\\`\\\`\\\`
+
+### Step 4 \u2014 Portfolio Exposure Mapping
+
+For each portfolio company, score exposure across channels:
+
+\\\`\\\`\\\`markdown
+## Portfolio Exposure Heat Map
+
+| Company | Energy | Supply Chain | FX | Credit | Regulatory | Overall |
+|---------|--------|-------------|-----|--------|-----------|---------|
+| [Co 1] | [1-5] | [1-5] | [1-5] | [1-5] | [1-5] | [avg] |
+| [Co 2] | [1-5] | [1-5] | [1-5] | [1-5] | [1-5] | [avg] |
+
+### Scoring: 1 = Minimal | 2 = Low | 3 = Moderate | 4 = High | 5 = Critical
+
+### Exposure Detail \u2014 [Highest Risk Company]
+- **Direct exposure**: [Operations, customers, or suppliers in affected region]
+- **Indirect exposure**: [Supply chain dependencies, commodity inputs, FX]
+- **Revenue at risk**: \\\$[X]M ([X]% of total revenue)
+- **Supplier concentration**: [X] of [Y] key suppliers in affected region
+- **Mitigation in place**: [Existing hedges, alternative suppliers, insurance]
+\\\`\\\`\\\`
+
+### Step 5 \u2014 Scenario Stress Testing
+
+Model three scenarios using the \\\`macro-impact\\\` skill:
+
+\\\`\\\`\\\`markdown
+## Scenario Definitions
+
+| Parameter | De-escalation | Base Case | Escalation | Severe Escalation |
+|-----------|--------------|-----------|------------|-------------------|
+| Conflict duration | [X] months | [X] months | [X] months | [X]+ months |
+| Oil price | \\\$[X]/bbl | \\\$[X]/bbl | \\\$[X]/bbl | \\\$[X]/bbl |
+| Credit spreads | +[X]bps | +[X]bps | +[X]bps | +[X]bps |
+| GDP impact | [X]% | [X]% | [X]% | [X]% |
+| Probability | [X]% | [X]% | [X]% | [X]% |
+
+## Portfolio Impact by Scenario
+
+| Scenario | NAV Impact | IRR Impact | TVPI Impact | Key Driver |
+|----------|-----------|------------|-------------|------------|
+| De-escalation | [%] | [bps] | [X.Xx] | |
+| Base Case | [%] | [bps] | [X.Xx] | |
+| Escalation | [%] | [bps] | [X.Xx] | |
+| Severe | [%] | [bps] | [X.Xx] | |
+\\\`\\\`\\\`
+
+### Step 6 \u2014 CFO Action Plan
+
+Develop prioritized mitigation actions:
+
+\\\`\\\`\\\`markdown
+## CFO Action Items
+
+### Immediate (0-2 weeks)
+| Action | Owner | Cost | Risk Reduced | Priority |
+|--------|-------|------|-------------|----------|
+| [Action 1] | [Role] | \\\$[X] | [Description] | Critical |
+
+### Short-Term (2-8 weeks)
+| Action | Owner | Cost | Risk Reduced | Priority |
+|--------|-------|------|-------------|----------|
+
+### Medium-Term (2-6 months)
+| Action | Owner | Cost | Risk Reduced | Priority |
+|--------|-------|------|-------------|----------|
+
+### Monitoring & Escalation
+- **Daily**: [What to watch]
+- **Weekly**: [What to report]
+- **Trigger for escalation**: [Specific thresholds]
+\\\`\\\`\\\`
+
+### Step 7 \u2014 Write Output
+
+1. Save the full analysis to \\\`_research/geo-risk-briefing.md\\\`
+2. Save the exposure map to \\\`_research/exposure-map.md\\\`
+3. Generate the executive briefing document in \\\`output/\\\`
+
+## Critical Rules
+
+- Always cite the source and date for every geopolitical intelligence claim
+- Distinguish between confirmed facts, assessed likely, and speculative scenarios
+- Never present a single scenario as certain \u2014 always show a range
+- Quantify impact in dollar terms wherever possible \u2014 avoid vague language like "significant"
+- Separate direct exposure (operations in affected region) from indirect exposure (supply chain, customers, FX)
+- Include de-escalation scenarios, not just downside \u2014 geopolitical events can reverse
+- Every risk must have a corresponding mitigation action
+- State confidence levels: High (multiple corroborating sources), Medium (single credible source), Low (analyst assessment)`,
+  },
 ];

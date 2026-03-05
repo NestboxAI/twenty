@@ -1,6 +1,12 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { IconCheck, IconLock, IconSearch, IconUsers } from 'twenty-ui/display';
+import {
+  IconCheck,
+  IconLoader,
+  IconLock,
+  IconSearch,
+  IconUsers,
+} from 'twenty-ui/display';
 
 const Container = styled.div`
   display: flex;
@@ -161,14 +167,42 @@ type TrustAccuracyTabProps = {
   f1Score: number;
   factCheckScore: number;
   agentCount?: number;
+  isWorking?: boolean;
 };
 
 export const TrustAccuracyTab = ({
   f1Score,
   factCheckScore,
   agentCount,
+  isWorking = false,
 }: TrustAccuracyTabProps) => {
   const theme = useTheme();
+
+  if (isWorking) {
+    return (
+      <Container>
+        <div
+          style={{
+            alignItems: 'center',
+            color: theme.font.color.tertiary,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12,
+            marginTop: 60,
+            textAlign: 'center',
+          }}
+        >
+          <IconLoader size={24} color={theme.font.color.light} />
+          <div style={{ fontSize: 14, fontWeight: 500 }}>
+            Evaluating trust & accuracy...
+          </div>
+          <div style={{ fontSize: 12, maxWidth: 260 }}>
+            Trust scores will appear here once the agent finishes processing.
+          </div>
+        </div>
+      </Container>
+    );
+  }
 
   const testCases = Math.round(f1Score * 55);
   const ciMargin = (100 / Math.sqrt(testCases)).toFixed(1);

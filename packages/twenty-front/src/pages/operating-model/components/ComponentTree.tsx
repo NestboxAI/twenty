@@ -286,6 +286,13 @@ export const ComponentTree = ({
     );
   };
 
+  const sortNodes = (nodeList: FileNode[]): FileNode[] =>
+    [...nodeList].sort((a, b) => {
+      if (a.type === 'directory' && b.type !== 'directory') return -1;
+      if (a.type !== 'directory' && b.type === 'directory') return 1;
+      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+    });
+
   const renderNode = (node: FileNode, depth: number) => {
     if (!matchesSearch(node)) return null;
 
@@ -330,7 +337,7 @@ export const ComponentTree = ({
         </TreeNode>
         {isDir && isExpanded && (
           <>
-            {node.children?.map((c) => renderNode(c, depth + 1))}
+            {sortNodes(node.children ?? []).map((c) => renderNode(c, depth + 1))}
             {creating && creating.parentId === node.id && renderInlineInput(depth + 1)}
           </>
         )}
@@ -357,7 +364,7 @@ export const ComponentTree = ({
         </ToolbarRow>
       </TreeToolbar>
       <TreeContent>
-        {nodes.map((node) => renderNode(node, 0))}
+        {sortNodes(nodes).map((node) => renderNode(node, 0))}
         {creating && creating.parentId === null && renderInlineInput(0)}
       </TreeContent>
     </TreeContainer>

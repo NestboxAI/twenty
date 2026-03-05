@@ -222,4 +222,142 @@ Always state the hierarchy level and key assumptions.`,
       },
     ],
   },
+  {
+    id: 'skill-geo-risk',
+    name: 'geopolitical-risk-assessment',
+    path: 'skills/geopolitical-risk-assessment',
+    type: 'directory',
+    validationStatus: 'ok',
+    children: [
+      {
+        id: 'skill-geo-risk-md',
+        name: 'SKILL.md',
+        path: 'skills/geopolitical-risk-assessment/SKILL.md',
+        type: 'file',
+        format: 'md',
+        required: true,
+        validationStatus: 'ok',
+        lastEdited: '2025-12-04T09:00:00Z',
+        content: `---
+description: "Assess geopolitical risks and their impact on PE/VC portfolios — conflict tracking, sanctions analysis, commodity price transmission, supply chain exposure mapping, and portfolio stress testing."
+---
+
+# Geopolitical Risk Assessment
+
+Evaluate geopolitical events and quantify their impact on portfolio companies and fund performance.
+
+## When to Use
+
+Use for any geopolitical event, conflict, sanctions regime, trade dispute, or political instability that may affect portfolio companies.
+
+## Transmission Channels
+
+1. **Energy & Commodities** — Oil/gas price shocks, metals supply disruption, agricultural commodity impact
+2. **Supply Chain** — Shipping route disruptions, single-source supplier risk, lead time increases
+3. **FX & Capital Markets** — Currency volatility, credit spread widening, equity risk premium changes
+4. **Regulatory & Sanctions** — Trade restrictions, compliance requirements, market access changes
+
+## Risk Scoring
+
+Score each portfolio company on a 1-5 scale across each channel. Aggregate into a portfolio heat map.
+
+## Critical Rules
+
+1. Always cite sources for geopolitical intelligence
+2. Distinguish between direct exposure (operations in affected region) and indirect exposure (supply chain, customers)
+3. Present both escalation and de-escalation scenarios
+4. Quantify impact in dollar terms wherever possible
+5. Include actionable mitigation steps for each identified risk`,
+      },
+    ],
+  },
+  {
+    id: 'skill-sanctions',
+    name: 'sanctions-screening',
+    path: 'skills/sanctions-screening',
+    type: 'directory',
+    validationStatus: 'ok',
+    children: [
+      {
+        id: 'skill-sanctions-md',
+        name: 'SKILL.md',
+        path: 'skills/sanctions-screening/SKILL.md',
+        type: 'file',
+        format: 'md',
+        required: true,
+        validationStatus: 'ok',
+        lastEdited: '2025-12-04T10:00:00Z',
+        content: `---
+description: "Screen portfolio companies and counterparties against OFAC, EU, and UN sanctions lists. Identify restricted entities, blocked persons, and sectoral sanctions that affect deal flow, banking, and operations."
+---
+
+# Sanctions Screening
+
+Screen entities against global sanctions regimes and assess compliance risk.
+
+## Sanctions Lists
+
+- **OFAC SDN** — US Office of Foreign Assets Control Specially Designated Nationals
+- **EU Consolidated List** — European Union restrictive measures
+- **UN Security Council** — UN consolidated sanctions list
+- **UK OFSI** — UK Office of Financial Sanctions Implementation
+
+## Screening Process
+
+1. Extract entity names, aliases, and jurisdictions from portfolio data
+2. Run fuzzy matching against all active sanctions lists
+3. Flag matches with confidence score and list source
+4. Assess sectoral sanctions applicability (energy, finance, technology)
+5. Recommend remediation actions for flagged entities
+
+## Compliance Requirements
+
+Always document screening date, lists checked, and match resolution rationale.`,
+      },
+    ],
+  },
+  {
+    id: 'skill-commodity-impact',
+    name: 'commodity-impact-analysis',
+    path: 'skills/commodity-impact-analysis',
+    type: 'directory',
+    validationStatus: 'ok',
+    children: [
+      {
+        id: 'skill-commodity-impact-md',
+        name: 'SKILL.md',
+        path: 'skills/commodity-impact-analysis/SKILL.md',
+        type: 'file',
+        format: 'md',
+        required: true,
+        validationStatus: 'ok',
+        lastEdited: '2025-12-04T11:00:00Z',
+        content: `---
+description: "Analyze the impact of commodity price movements on portfolio company margins — oil, natural gas, metals, and agricultural inputs. Model pass-through rates, hedging effectiveness, and margin sensitivity."
+---
+
+# Commodity Impact Analysis
+
+Quantify how commodity price changes affect portfolio company costs and margins.
+
+## Commodities Tracked
+
+- **Energy** — Crude oil (WTI, Brent), natural gas (Henry Hub, TTF), diesel, jet fuel
+- **Metals** — Steel, aluminum, copper, lithium, rare earths
+- **Agricultural** — Wheat, corn, soybeans, palm oil, coffee
+
+## Analysis Framework
+
+1. Map each portfolio company's commodity exposure (direct purchases + embedded in COGS)
+2. Estimate cost pass-through rates (% of commodity cost increase absorbed vs. passed to customers)
+3. Model margin sensitivity: EBITDA impact per 10% commodity price change
+4. Evaluate existing hedges and their remaining effectiveness
+5. Recommend hedging strategies with cost-benefit analysis
+
+## Output
+
+For each company: exposure amount, pass-through rate, unhedged margin sensitivity, and recommended actions.`,
+      },
+    ],
+  },
 ];
