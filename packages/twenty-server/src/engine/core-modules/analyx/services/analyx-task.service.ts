@@ -18,7 +18,7 @@ import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspac
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
 // ssh -p 443 -R0:localhost:3000 qr@free.pinggy.io
-const PINGGY_INSTANCE = 'https://gdtnm-66-207-198-10.a.free.pinggy.link';
+const PINGGY_INSTANCE = 'https://jksha-70-29-50-59.a.free.pinggy.link';
 
 @Injectable()
 export class AnalyxTaskService {

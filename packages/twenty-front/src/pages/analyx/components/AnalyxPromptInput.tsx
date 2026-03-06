@@ -228,7 +228,36 @@ const StyledDropdownTrigger = styled.div`
   }
 `;
 
-const StyledGoButton = styled.button`
+const spinRing = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
+
+const subtlePulse = keyframes`
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+`;
+
+const StyledGoButtonWrapper = styled.div`
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StyledSpinnerRing = styled.div`
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: ${({ theme }) => theme.color.blue};
+  animation: ${spinRing} 0.8s linear infinite;
+  pointer-events: none;
+`;
+
+const StyledGoButton = styled.button<{ $submitting?: boolean }>`
   background: ${({ theme }) => theme.font.color.primary};
   border: none;
   border-radius: 50%;
@@ -239,19 +268,21 @@ const StyledGoButton = styled.button`
   justify-content: center;
   cursor: pointer;
   color: ${({ theme }) => theme.background.primary};
-  transition: opacity 0.15s ease;
+  transition:
+    transform 0.1s,
+    opacity 0.15s ease;
+  animation: ${({ $submitting }) =>
+    $submitting ? `${subtlePulse} 1.4s ease-in-out infinite` : 'none'};
 
   &:disabled {
     cursor: not-allowed;
-    opacity: 0.4;
   }
-  transition: transform 0.1s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     transform: scale(1.05);
   }
 
-  &:active {
+  &:active:not(:disabled) {
     transform: scale(0.95);
   }
 `;
@@ -324,7 +355,12 @@ export const AnalyxPromptInput = ({
     selectCommand,
     activeCommand,
     activePlaceholder,
-  } = useSlashCommandAutocomplete({ skills, prompt, onPromptChange, onContextTypeChange });
+  } = useSlashCommandAutocomplete({
+    skills,
+    prompt,
+    onPromptChange,
+    onContextTypeChange,
+  });
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
@@ -537,15 +573,20 @@ export const AnalyxPromptInput = ({
 
           {uploadProgress && (
             <StyledUploadProgress>
-              Uploading files ({uploadProgress.uploaded}/{uploadProgress.total})...
+              Uploading files ({uploadProgress.uploaded}/{uploadProgress.total}
+              )...
             </StyledUploadProgress>
           )}
-          <StyledGoButton
-            onClick={onSubmit}
-            disabled={isSubmitting || !!uploadProgress}
-          >
-            <IconArrowUp size={18} stroke={3} />
-          </StyledGoButton>
+          <StyledGoButtonWrapper>
+            {(isSubmitting || !!uploadProgress) && <StyledSpinnerRing />}
+            <StyledGoButton
+              $submitting={isSubmitting || !!uploadProgress}
+              onClick={onSubmit}
+              disabled={isSubmitting || !!uploadProgress}
+            >
+              <IconArrowUp size={18} stroke={3} />
+            </StyledGoButton>
+          </StyledGoButtonWrapper>
         </div>
       </StyledFooter>
     </StyledInputSection>

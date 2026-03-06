@@ -117,7 +117,7 @@ const StyledSearchTextInput = styled(TextInput)`
 `;
 
 const highlightFade = keyframes`
-  0%, 60% { background: rgba(255, 180, 50, 0.15); }
+  0% { background: rgba(25, 97, 237, 0.10); }
   100% { background: transparent; }
 `;
 
@@ -133,7 +133,7 @@ const StyledTaskRow = styled.div<{ isLast: boolean; $highlight?: boolean }>`
   transition: background 0.2s;
   cursor: pointer;
   ${({ $highlight }) =>
-    $highlight ? `animation: ${highlightFade} 4s ease-out forwards;` : ''}
+    $highlight ? `animation: ${highlightFade} 1s ease-out forwards;` : ''}
 
   @media (max-width: 768px) {
     display: flex;

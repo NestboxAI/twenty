@@ -1,3 +1,4 @@
+import { CREATE_FILE } from '@/file/graphql/mutations/createFile';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { MainContainerLayoutWithCommandMenu } from '@/object-record/components/MainContainerLayoutWithCommandMenu';
 import { searchRecordStoreFamilyState } from '@/object-record/record-picker/multiple-record-picker/states/searchRecordStoreComponentFamilyState';
@@ -14,7 +15,6 @@ import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
-import { CREATE_FILE } from '@/file/graphql/mutations/createFile';
 import { IconBrain, IconFolder, useIcons } from 'twenty-ui/display';
 import { DEFAULT_COMMANDS } from './AnalyxDefaultCommands';
 import {
