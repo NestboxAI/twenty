@@ -1,10 +1,14 @@
-import { IconCpu, IconFile, IconX, useIcons } from 'twenty-ui/display';
+import { IconCpu, IconFile, IconPlug, IconX, useIcons } from 'twenty-ui/display';
 import {
   StyledContextChip,
   StyledContextChipsContainer,
   StyledRemoveContextButton,
 } from '../AnalyxSharedStyles';
-import { type NestboxAgent, type SelectedContext } from '../AnalyxTypes';
+import {
+  type CustomMcpConnector,
+  type NestboxAgent,
+  type SelectedContext,
+} from '../AnalyxTypes';
 import { formatFileSize } from '../AnalyxUtils';
 
 type AnalyxChipsBarProps = {
@@ -12,9 +16,11 @@ type AnalyxChipsBarProps = {
   selectedAgentIds: string[];
   files: File[];
   agents: NestboxAgent[];
+  customMcpConnectors: CustomMcpConnector[];
   onRemoveContext: (id: string) => void;
   onRemoveAgent: (agentId: string) => void;
   onRemoveFile: (index: number) => void;
+  onRemoveCustomMcp: (id: string) => void;
 };
 
 export const AnalyxChipsBar = ({
@@ -22,16 +28,19 @@ export const AnalyxChipsBar = ({
   selectedAgentIds,
   files,
   agents,
+  customMcpConnectors,
   onRemoveContext,
   onRemoveAgent,
   onRemoveFile,
+  onRemoveCustomMcp,
 }: AnalyxChipsBarProps) => {
   const { getIcon } = useIcons();
 
   if (
     selectedContexts.length === 0 &&
     selectedAgentIds.length === 0 &&
-    files.length === 0
+    files.length === 0 &&
+    customMcpConnectors.length === 0
   ) {
     return null;
   }
@@ -68,6 +77,16 @@ export const AnalyxChipsBar = ({
           </StyledContextChip>
         );
       })}
+
+      {customMcpConnectors.map((mcp) => (
+        <StyledContextChip key={mcp.id}>
+          <IconPlug size={14} />
+          <span>{mcp.displayName}</span>
+          <StyledRemoveContextButton onClick={() => onRemoveCustomMcp(mcp.id)}>
+            <IconX size={12} stroke={2.5} />
+          </StyledRemoveContextButton>
+        </StyledContextChip>
+      ))}
 
       {files.map((file, index) => {
         const previewUrl = file.type.startsWith('image/')

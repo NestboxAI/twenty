@@ -5,6 +5,7 @@ import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { DropdownMenuSeparator } from '@/ui/layout/dropdown/components/DropdownMenuSeparator';
+import { StyledDropdownMenuSubheader as BaseDropdownMenuSubheader } from '@/ui/layout/dropdown/components/StyledDropdownMenuSubheader';
 import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -21,6 +22,7 @@ import {
   IconChevronRight,
   IconCpu,
   IconPaperclip,
+  IconPlug,
   IconPlus,
   type IconComponent,
 } from 'twenty-ui/display';
@@ -28,6 +30,7 @@ import { MenuItem } from 'twenty-ui/navigation';
 import { StyledIconButton } from '../AnalyxSharedStyles';
 import {
   type AnalyxCommand,
+  type CustomMcpConnector,
   type NestboxAgent,
   type SelectedContext,
 } from '../AnalyxTypes';
@@ -293,6 +296,12 @@ const StyledUploadProgress = styled.span`
   white-space: nowrap;
 `;
 
+const StyledDropdownMenuSubheader = styled(BaseDropdownMenuSubheader)`
+  color: ${({ theme }) => theme.font.color.light};
+  font-weight: 400;
+  padding: 8px 6px;
+`;
+
 export type ContextObjectOption = {
   value: string;
   label: string;
@@ -315,6 +324,8 @@ type AnalyxPromptInputProps = {
   selectedAgentIds: string[];
   agents: NestboxAgent[];
   onAgentToggle: (agentId: string) => void;
+  customMcpConnectors: CustomMcpConnector[];
+  onAddCustomMcp: () => void;
   onMorphItemSelected: (item?: RecordPickerPickableMorphItem) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
@@ -338,6 +349,8 @@ export const AnalyxPromptInput = ({
   selectedAgentIds,
   agents,
   onAgentToggle,
+  customMcpConnectors,
+  onAddCustomMcp,
   onMorphItemSelected,
   onSubmit,
   isSubmitting,
@@ -466,6 +479,10 @@ export const AnalyxPromptInput = ({
           dropdownComponents={
             !contextObject ? (
               <DropdownContent widthInPixels={240}>
+                <StyledDropdownMenuSubheader>
+                  INCLUDED CONTEXT OBJECTS
+                </StyledDropdownMenuSubheader>
+
                 <DropdownMenuItemsContainer>
                   {contextObjectOptions.map((option) => (
                     <MenuItem
@@ -512,9 +529,14 @@ export const AnalyxPromptInput = ({
             </StyledDropdownTrigger>
           }
           dropdownComponents={
-            <DropdownContent>
+            <DropdownContent widthInPixels={240}>
+              <StyledDropdownMenuSubheader>
+                MCP CONNECTORS
+              </StyledDropdownMenuSubheader>
+
               <DropdownMenuItemsContainer>
-                {unselectedAgents.length === 0 ? (
+                {unselectedAgents.length === 0 &&
+                customMcpConnectors.length === 0 ? (
                   <MenuItem text="No agents available" />
                 ) : (
                   unselectedAgents.map((agent) => (
@@ -529,6 +551,47 @@ export const AnalyxPromptInput = ({
                     />
                   ))
                 )}
+                <DropdownMenuSeparator />
+                <MenuItem
+                  LeftIcon={() => <IconPlug size={14} />}
+                  text="Add custom MCP connector"
+                  onClick={() => {
+                    onAddCustomMcp();
+                    closeDropdown('agents-dropdown');
+                  }}
+                />
+              </DropdownMenuItemsContainer>
+            </DropdownContent>
+          }
+        />
+
+        <Dropdown
+          dropdownId="context-type-dropdown"
+          clickableComponent={
+            <StyledDropdownTrigger>
+              <ContextTypeIcon size={16} /> {contextType}
+            </StyledDropdownTrigger>
+          }
+          dropdownComponents={
+            <DropdownContent>
+              <StyledDropdownMenuSubheader>
+                OUTPUT FORMAT
+              </StyledDropdownMenuSubheader>
+              <DropdownMenuItemsContainer>
+                {CONTEXT_TYPE_OPTIONS.map((option) => {
+                  const OptionIcon = getTypeIcon(getTaskType(option));
+                  return (
+                    <MenuItem
+                      key={option}
+                      text={option}
+                      LeftIcon={OptionIcon}
+                      onClick={() => {
+                        onContextTypeChange(option);
+                        closeDropdown('context-type-dropdown');
+                      }}
+                    />
+                  );
+                })}
               </DropdownMenuItemsContainer>
             </DropdownContent>
           }
@@ -542,35 +605,6 @@ export const AnalyxPromptInput = ({
             gap: '24px',
           }}
         >
-          <Dropdown
-            dropdownId="context-type-dropdown"
-            clickableComponent={
-              <StyledDropdownTrigger>
-                <ContextTypeIcon size={16} /> {contextType}
-              </StyledDropdownTrigger>
-            }
-            dropdownComponents={
-              <DropdownContent widthInPixels={200}>
-                <DropdownMenuItemsContainer>
-                  {CONTEXT_TYPE_OPTIONS.map((option) => {
-                    const OptionIcon = getTypeIcon(getTaskType(option));
-                    return (
-                      <MenuItem
-                        key={option}
-                        text={option}
-                        LeftIcon={OptionIcon}
-                        onClick={() => {
-                          onContextTypeChange(option);
-                          closeDropdown('context-type-dropdown');
-                        }}
-                      />
-                    );
-                  })}
-                </DropdownMenuItemsContainer>
-              </DropdownContent>
-            }
-          />
-
           {uploadProgress && (
             <StyledUploadProgress>
               Uploading files ({uploadProgress.uploaded}/{uploadProgress.total}

@@ -19,6 +19,7 @@ import { IconBrain, IconFolder, useIcons } from 'twenty-ui/display';
 import { DEFAULT_COMMANDS } from './AnalyxDefaultCommands';
 import {
   type AnalyxCommand,
+  type CustomMcpConnector,
   type NestboxAgent,
   type SelectedContext,
   type StatusEvent,
@@ -34,6 +35,7 @@ import {
   getTaskType,
 } from './AnalyxUtils';
 import { AnalyxAddCommandForm } from './components/AnalyxAddCommandForm';
+import { McpConnectorModal } from './components/McpConnectorModal';
 import { AnalyxChipsBar } from './components/AnalyxChipsBar';
 import { AnalyxCommandDetailPopup } from './components/AnalyxCommandDetailPopup';
 import { AnalyxCommandsBar } from './components/AnalyxCommandsBar';
@@ -161,6 +163,10 @@ export const AnalyxPage = () => {
   const [selectedAgentIds, setSelectedAgentIds] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [customMcpConnectors, setCustomMcpConnectors] = useState<
+    CustomMcpConnector[]
+  >([]);
+  const [isMcpModalOpen, setIsMcpModalOpen] = useState(false);
 
   // Task state
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -344,6 +350,14 @@ export const AnalyxPage = () => {
     );
   };
 
+  const handleAddCustomMcp = (connector: CustomMcpConnector) => {
+    setCustomMcpConnectors((prev) => [...prev, connector]);
+  };
+
+  const handleRemoveCustomMcp = (id: string) => {
+    setCustomMcpConnectors((prev) => prev.filter((c) => c.id !== id));
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const newFiles = Array.from(event.target.files);
@@ -352,13 +366,17 @@ export const AnalyxPage = () => {
         return;
       }
       for (const file of newFiles) {
-        if (file.size > 10 * 1024 * 1024) {
-          alert(`File ${file.name} is too large. Max 10MB allowed.`);
+        if (file.size > 75 * 1024 * 1024) {
+          alert(`File ${file.name} is too large. Max 75MB allowed.`);
           return;
         }
       }
       setFiles((prev) => [...prev, ...newFiles]);
     }
+    // Reset the input value so the same file (or any file) can be
+    // selected again on subsequent clicks — without this, the browser
+    // skips firing onChange when the value hasn't changed.
+    event.target.value = '';
   };
 
   const handleRemoveFile = (indexToRemove: number) => {
@@ -523,6 +541,16 @@ export const AnalyxPage = () => {
             entities: entitiesPayload,
             attachments: attachmentPayloads,
             agentIds: agentIdsPayload,
+            customMcp:
+              customMcpConnectors.length > 0
+                ? customMcpConnectors.map((c) => ({
+                    displayName: c.displayName,
+                    transport: c.transport,
+                    scope: c.scope,
+                    description: c.description,
+                    config: c.config,
+                  }))
+                : undefined,
           },
         },
       });
@@ -546,6 +574,7 @@ export const AnalyxPage = () => {
       setContextObject(null);
       setSelectedContexts([]);
       setSelectedAgentIds([]);
+      setCustomMcpConnectors([]);
       setFiles([]);
       setIsSubmitting(false);
       setFormAnimation('in');
@@ -646,6 +675,8 @@ export const AnalyxPage = () => {
               selectedAgentIds={selectedAgentIds}
               agents={agents}
               onAgentToggle={handleAgentToggle}
+              customMcpConnectors={customMcpConnectors}
+              onAddCustomMcp={() => setIsMcpModalOpen(true)}
               onMorphItemSelected={handleMorphItemSelected}
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
@@ -666,9 +697,11 @@ export const AnalyxPage = () => {
               selectedAgentIds={selectedAgentIds}
               files={files}
               agents={agents}
+              customMcpConnectors={customMcpConnectors}
               onRemoveContext={handleRemoveContext}
               onRemoveAgent={handleAgentToggle}
               onRemoveFile={handleRemoveFile}
+              onRemoveCustomMcp={handleRemoveCustomMcp}
             />
           </StyledFormArea>
 
@@ -709,6 +742,12 @@ export const AnalyxPage = () => {
         isOpen={isAddSkillOpen}
         onClose={() => setIsAddSkillOpen(false)}
         onSave={handleAddSkill}
+      />
+
+      <McpConnectorModal
+        isOpen={isMcpModalOpen}
+        onClose={() => setIsMcpModalOpen(false)}
+        onSave={handleAddCustomMcp}
       />
     </PageContainer>
   );

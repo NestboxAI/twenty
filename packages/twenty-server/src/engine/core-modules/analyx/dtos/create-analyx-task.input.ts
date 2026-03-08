@@ -45,4 +45,14 @@ export class CreateAnalyxTaskInput {
   @IsOptional()
   @IsString()
   contextType?: string;
+
+  @Field(() => graphqlTypeJson, { nullable: true })
+  @IsOptional()
+  customMcp?: {
+    displayName: string;
+    transport: string;
+    scope: string;
+    description?: string;
+    config: Record<string, unknown>;
+  }[];
 }

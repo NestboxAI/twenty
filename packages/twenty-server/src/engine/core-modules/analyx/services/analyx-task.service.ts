@@ -18,7 +18,7 @@ import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspac
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
 // ssh -p 443 -R0:localhost:3000 qr@free.pinggy.io
-const PINGGY_INSTANCE = 'https://jksha-70-29-50-59.a.free.pinggy.link';
+const PINGGY_INSTANCE = 'https://upgwi-70-29-50-59.a.free.pinggy.link';
 
 @Injectable()
 export class AnalyxTaskService {
@@ -78,6 +78,7 @@ export class AnalyxTaskService {
           ({ content: _content, ...meta }) => meta,
         ),
         agentIds: input.agentIds ?? [],
+        customMcp: input.customMcp ?? [],
       },
     });
 
@@ -312,6 +313,32 @@ export class AnalyxTaskService {
     );
     const attachments = [...enrichedEntities];
     const mcpConfig = this.buildMcpConfig(input.agentIds ?? []);
+
+    // Merge custom MCP connector entries
+    for (const [i, mcp] of (input.customMcp ?? []).entries()) {
+      const key = `custom_mcp_${i}`;
+      const config = mcp.config as Record<string, unknown>;
+
+      if (mcp.transport === 'http') {
+        mcpConfig.servers[key] = {
+          type: 'streamable-http',
+          url: config.url,
+          headers: (config.headers as Record<string, string>) ?? {},
+        };
+      } else if (mcp.transport === 'stdio') {
+        mcpConfig.servers[key] = {
+          type: 'stdio',
+          command: config.command,
+          args: typeof config.args === 'string' ? config.args.split(' ') : [],
+          env:
+            typeof config.envVars === 'string' && config.envVars
+              ? JSON.parse(config.envVars)
+              : {},
+        };
+      } else if (mcp.transport === 'sse') {
+        mcpConfig.servers[key] = { type: 'sse', url: config.url };
+      }
+    }
 
     this.logger.log(`Dispatching analyx task ${task.id} to agent`);
     this.logger.log(`Callback URL: ${callbackUrl}`);

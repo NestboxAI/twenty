@@ -106,3 +106,22 @@ export type SlashCommand = {
   placeholder?: string;
   defaultOutput?: string;
 };
+
+export type CustomMcpConnector = {
+  id: string;
+  displayName: string;
+  transport: 'http' | 'stdio' | 'sse';
+  scope: 'personal' | 'workspace';
+  description?: string;
+  config: {
+    url?: string;
+    headers?: Record<string, string>;
+    authType?: string;
+    authValue?: string;
+    timeout?: number;
+    command?: string;
+    args?: string;
+    envVars?: string;
+    workingDir?: string;
+  };
+};
