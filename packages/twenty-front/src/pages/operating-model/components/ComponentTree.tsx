@@ -171,6 +171,23 @@ export const ComponentTree = ({
   const [newName, setNewName] = useState('');
   const inlineInputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-expand all directory nodes when tree data loads
+  useEffect(() => {
+    if (nodes.length > 0) {
+      const allDirIds = new Set<string>();
+      const collectDirs = (nodeList: FileNode[]) => {
+        for (const node of nodeList) {
+          if (node.type === 'directory') {
+            allDirIds.add(node.id);
+            if (node.children) collectDirs(node.children);
+          }
+        }
+      };
+      collectDirs(nodes);
+      setExpanded(allDirIds);
+    }
+  }, [nodes]);
+
   useEffect(() => {
     if (creating && inlineInputRef.current) {
       inlineInputRef.current.focus();

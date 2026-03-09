@@ -1,0 +1,12 @@
+{
+  "name": "{{WORKSPACE_SLUG}}-agent",
+  "version": "1.0.0",
+  "description": "Operating model agent for {{WORKSPACE_SLUG}}",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@nestbox-ai/functions": "^2.0.30"
+  }
+}

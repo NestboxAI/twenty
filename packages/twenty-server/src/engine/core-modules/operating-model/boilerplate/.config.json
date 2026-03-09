@@ -1,0 +1,8 @@
+{
+  "status": "initializing",
+  "pluginName": "{{PLUGIN_NAME}}",
+  "lastAppliedCommitSha": null,
+  "lastAppliedAt": null,
+  "lastAppliedByUserId": null,
+  "errorMessage": null
+}

@@ -1,4 +1,5 @@
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
+import { useDialogManager } from '@/ui/feedback/dialog-manager/hooks/useDialogManager';
 import { MainContainerLayoutWithCommandMenu } from '@/object-record/components/MainContainerLayoutWithCommandMenu';
 import { useSnackBar } from '@/ui/feedback/snack-bar-manager/hooks/useSnackBar';
 import { PageContainer } from '@/ui/layout/page/components/PageContainer';
@@ -18,10 +19,10 @@ import { EditorPanel } from './components/EditorPanel';
 import { RightPanel } from './components/RightPanel';
 import { OverviewPanel } from './components/OverviewPanel';
 import { ThreePanelLayout } from './components/ThreePanelLayout';
-import { AGENT_STUBS } from './stubs/agentStubs';
-import { COMMAND_STUBS } from './stubs/commandStubs';
-import { HOOK_STUBS } from './stubs/hookStubs';
-import { SKILL_STUBS } from './stubs/skillStubs';
+import { useOperatingModelCounts } from './hooks/useOperatingModelCounts';
+import { useOperatingModelFiles } from './hooks/useOperatingModelFiles';
+import { useOperatingModelHistory } from './hooks/useOperatingModelHistory';
+import { useOperatingModelMutations } from './hooks/useOperatingModelMutations';
 import {
   createBareFile,
   createBareFolder,
@@ -111,16 +112,13 @@ const findFile = (nodes: FileNode[], id: string): FileNode | null => {
   return null;
 };
 
-const STUBS_BY_TAB: Record<ModelTab, FileNode[]> = {
-  overview: [],
-  commands: COMMAND_STUBS,
-  skills: SKILL_STUBS,
-  agents: AGENT_STUBS,
-  hooks: HOOK_STUBS,
-};
-
 export const OperatingModelPage = () => {
-  const { enqueueSuccessSnackBar, enqueueInfoSnackBar } = useSnackBar();
+  const {
+    enqueueSuccessSnackBar,
+    enqueueInfoSnackBar,
+    enqueueErrorSnackBar,
+  } = useSnackBar();
+  const { enqueueDialog } = useDialogManager();
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
 
   // Core state
@@ -135,7 +133,7 @@ export const OperatingModelPage = () => {
   >(() => new Map());
   const [highlightLine, setHighlightLine] = useState<number | null>(null);
 
-  // Full mutable tree per tab, lazily initialized from stubs
+  // Full mutable tree per tab, populated from API
   const [tabTrees, setTabTrees] = useState<Map<ModelTab, FileNode[]>>(
     () => new Map(),
   );
@@ -143,17 +141,37 @@ export const OperatingModelPage = () => {
   // Panel state
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
 
-  // Get or initialize tree for active tab
+  // ── API hooks ──────────────────────────────────────────
+  const { tree: apiTree, loading: filesLoading, refetch: refetchFiles } =
+    useOperatingModelFiles(activeTab);
+  const { versions, refetch: refetchHistory } = useOperatingModelHistory();
+  const {
+    saveFiles,
+    deleteFile: deleteFileApi,
+    apply,
+    loading: mutationLoading,
+  } = useOperatingModelMutations();
+
+  // Sync API tree into tabTrees when API data arrives
+  useEffect(() => {
+    if (activeTab !== 'overview') {
+      setTabTrees((prev) => {
+        const next = new Map(prev);
+        next.set(activeTab, apiTree);
+        return next;
+      });
+    }
+  }, [apiTree, activeTab]);
+
+  // Get tree for active tab (empty array if not yet loaded)
   const nodesForTab = useMemo<FileNode[]>(() => {
-    return tabTrees.get(activeTab) ?? STUBS_BY_TAB[activeTab];
+    return tabTrees.get(activeTab) ?? [];
   }, [activeTab, tabTrees]);
 
-  // Ensure the tab tree is mutable (deep-clone stubs on first mutation)
+  // Get the current tree for a tab (returns existing or empty)
   const getMutableTree = useCallback(
-    (tab: ModelTab, trees: Map<ModelTab, FileNode[]>): FileNode[] => {
-      const existing = trees.get(tab);
-      if (existing) return existing;
-      return JSON.parse(JSON.stringify(STUBS_BY_TAB[tab])) as FileNode[];
+    (_tab: ModelTab, trees: Map<ModelTab, FileNode[]>): FileNode[] => {
+      return trees.get(_tab) ?? [];
     },
     [],
   );
@@ -185,22 +203,8 @@ export const OperatingModelPage = () => {
     return edited !== (selectedFile.content ?? '');
   }, [selectedFile, editedContent]);
 
-  // Compute file counts per tab for the overview
-  const tabCounts = useMemo(() => {
-    const countFiles = (nodes: FileNode[]): number =>
-      nodes.reduce((sum, node) => {
-        if (node.type === 'file') return sum + 1;
-        return sum + (node.children ? countFiles(node.children) : 0);
-      }, 0);
-
-    const tabs: ModelTab[] = ['commands', 'skills', 'agents', 'hooks'];
-    const counts: Record<string, number> = {};
-    for (const tab of tabs) {
-      const tree = tabTrees.get(tab) ?? STUBS_BY_TAB[tab];
-      counts[tab] = countFiles(tree);
-    }
-    return counts;
-  }, [tabTrees]);
+  // Fetch file counts per tab independently (works even on overview tab)
+  const { counts: tabCounts } = useOperatingModelCounts();
 
   // Validate only the selected file (on selection or content change)
   useEffect(() => {
@@ -275,9 +279,73 @@ export const OperatingModelPage = () => {
     [nodesForTab],
   );
 
+  // Save all edited files to backend
+  const handleSave = useCallback(async () => {
+    if (editedContent.size === 0) return;
+    const files: { path: string; content: string }[] = [];
+    const findPath = (nodes: FileNode[], id: string): string | null => {
+      for (const n of nodes) {
+        if (n.id === id) return n.path;
+        if (n.children) {
+          const p = findPath(n.children, id);
+          if (p) return p;
+        }
+      }
+      return null;
+    };
+    for (const [fileId, content] of editedContent.entries()) {
+      const path = findPath(nodesForTab, fileId);
+      if (path) files.push({ path, content });
+    }
+    if (files.length === 0) return;
+    try {
+      const result = await saveFiles(files);
+      if (result?.success) {
+        setEditedContent(new Map());
+        refetchFiles();
+        refetchHistory();
+        enqueueSuccessSnackBar({ message: 'Files saved' });
+      } else {
+        enqueueErrorSnackBar({ message: result?.error ?? 'Save failed' });
+      }
+    } catch (e) {
+      enqueueErrorSnackBar({ message: 'Save failed' });
+    }
+  }, [editedContent, nodesForTab, saveFiles, refetchFiles, refetchHistory, enqueueSuccessSnackBar, enqueueErrorSnackBar]);
+
   const handleApply = useCallback(() => {
-    enqueueSuccessSnackBar({ message: 'Model applied successfully' });
-  }, [enqueueSuccessSnackBar]);
+    enqueueDialog({
+      title: 'Apply Operating Model',
+      message:
+        'This will deploy the current model to your workspace agent. Continue?',
+      buttons: [
+        { title: 'Cancel' },
+        {
+          title: 'Apply',
+          variant: 'primary',
+          onClick: async () => {
+            try {
+              // Save any pending edits first
+              if (editedContent.size > 0) {
+                await handleSave();
+              }
+              const result = await apply();
+              if (result?.success) {
+                refetchHistory();
+                enqueueSuccessSnackBar({ message: 'Model applied successfully' });
+              } else {
+                enqueueErrorSnackBar({
+                  message: result?.error ?? 'Apply failed',
+                });
+              }
+            } catch {
+              enqueueErrorSnackBar({ message: 'Apply failed' });
+            }
+          },
+        },
+      ],
+    });
+  }, [enqueueDialog, editedContent, handleSave, apply, refetchHistory, enqueueSuccessSnackBar, enqueueErrorSnackBar]);
 
   // Insert a node into the tree at a given parent
   const insertNode = useCallback(
@@ -339,10 +407,16 @@ export const OperatingModelPage = () => {
     [getParentPath, insertNode, enqueueSuccessSnackBar],
   );
 
-  // Remove selected file from tree
-  const handleRemoveFile = useCallback(() => {
+  // Remove selected file from tree (and delete via API)
+  const handleRemoveFile = useCallback(async () => {
     if (!selectedFile) return;
     const removedName = selectedFile.name;
+    // Delete from backend
+    try {
+      await deleteFileApi(selectedFile.path);
+    } catch {
+      // Continue with local removal even if API fails
+    }
     setTabTrees((prev) => {
       const next = new Map(prev);
       const tree = getMutableTree(activeTab, prev);
@@ -363,8 +437,9 @@ export const OperatingModelPage = () => {
       next.delete(selectedFile.id);
       return next;
     });
+    refetchHistory();
     enqueueInfoSnackBar({ message: `Removed ${removedName}` });
-  }, [selectedFile, activeTab, getMutableTree, enqueueInfoSnackBar]);
+  }, [selectedFile, activeTab, getMutableTree, deleteFileApi, refetchHistory, enqueueInfoSnackBar]);
 
   return (
     <PageContainer>
@@ -386,9 +461,18 @@ export const OperatingModelPage = () => {
               </TabButton>
             ))}
             <TabSpacer />
-            <ActionButton $primary onClick={handleApply}>
+            {editedContent.size > 0 && (
+              <ActionButton onClick={handleSave} disabled={mutationLoading.saving}>
+                {mutationLoading.saving ? 'Saving...' : 'Save'}
+              </ActionButton>
+            )}
+            <ActionButton
+              $primary
+              onClick={handleApply}
+              disabled={mutationLoading.applying}
+            >
               <IconPlayerPlay size={14} />
-              Apply
+              {mutationLoading.applying ? 'Applying...' : 'Apply'}
             </ActionButton>
           </TabBar>
           {activeTab === 'overview' ? (
@@ -435,6 +519,7 @@ export const OperatingModelPage = () => {
                   selectedFile={selectedFile}
                   validationItems={validationItems}
                   nodes={nodesForTab}
+                  versions={versions}
                   onValidationClick={handleValidationClick}
                   onCollapse={() => setRightPanelOpen(false)}
                 />

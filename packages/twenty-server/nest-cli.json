@@ -39,6 +39,10 @@
       {
         "include": "engine/workspace-manager/dev-seeder/data/sample-files/**",
         "outDir": "dist/assets"
+      },
+      {
+        "include": "engine/core-modules/operating-model/boilerplate/**",
+        "outDir": "dist/assets"
       }
     ]
   },

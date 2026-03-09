@@ -13,12 +13,13 @@ import { AnalyxTaskEntity } from 'src/engine/core-modules/analyx/entities/analyx
 import { ApiKeyService } from 'src/engine/core-modules/api-key/services/api-key.service';
 import { FileUploadService } from 'src/engine/core-modules/file/file-upload/services/file-upload.service';
 import { FileService } from 'src/engine/core-modules/file/services/file.service';
+import { OperatingModelService } from 'src/engine/core-modules/operating-model/services/operating-model.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { GlobalWorkspaceOrmManager } from 'src/engine/twenty-orm/global-workspace-datasource/global-workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 
 // ssh -p 443 -R0:localhost:3000 qr@free.pinggy.io
-const PINGGY_INSTANCE = 'https://upgwi-70-29-50-59.a.free.pinggy.link';
+const PINGGY_INSTANCE = 'https://qwegp-72-138-59-58.a.free.pinggy.link';
 
 @Injectable()
 export class AnalyxTaskService {
@@ -32,6 +33,7 @@ export class AnalyxTaskService {
     private readonly fileUploadService: FileUploadService,
     private readonly fileService: FileService,
     private readonly globalWorkspaceOrmManager: GlobalWorkspaceOrmManager,
+    private readonly operatingModelService: OperatingModelService,
   ) {}
 
   // ── Queries ──────────────────────────────────────────────
@@ -405,9 +407,34 @@ export class AnalyxTaskService {
       params.mcp_config = mcpConfig;
     }
 
-    const analyxAgentId = this.twentyConfigService.get(
+    // Per-workspace agent routing: use workspace agent if deployed, else shared
+    const sharedAgentId = this.twentyConfigService.get(
       'NESTBOX_AI_ANALYX_AGENT_ID',
     ) as string;
+    let analyxAgentId = sharedAgentId;
+
+    this.logger.log(
+      `Checking for workspace-specific agent for workspace ${workspaceId}`,
+    );
+
+    try {
+      const wsStatus = await this.operatingModelService.getStatus(workspaceId);
+
+      this.logger.log(
+        `Workspace status for ${workspaceId}: ${JSON.stringify(wsStatus)}`,
+      );
+
+      if (wsStatus.status === 'ready' && wsStatus.nestboxAgentId) {
+        analyxAgentId = wsStatus.nestboxAgentId;
+        this.logger.log(
+          `Routing task ${task.id} to workspace agent ${analyxAgentId}`,
+        );
+      }
+    } catch {
+      this.logger.warn(
+        `Failed to get workspace status for ${workspaceId}, using shared agent`,
+      );
+    }
 
     await queryApi.agentOperationsQueryControllerCreateQuery(analyxAgentId, {
       params,

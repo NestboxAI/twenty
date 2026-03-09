@@ -97,6 +97,7 @@ export type AnalyxCommand = {
   isDefault: boolean;
   placeholder?: string;
   defaultOutput?: string;
+  icon?: string;
 };
 
 export type SlashCommand = {

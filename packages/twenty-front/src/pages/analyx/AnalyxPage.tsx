@@ -16,7 +16,6 @@ import styled from '@emotion/styled';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRecoilCallback } from 'recoil';
 import { IconBrain, IconFolder, useIcons } from 'twenty-ui/display';
-import { DEFAULT_COMMANDS } from './AnalyxDefaultCommands';
 import {
   type AnalyxCommand,
   type CustomMcpConnector,
@@ -28,6 +27,7 @@ import {
   type TaskStatus,
   type TaskTab,
 } from './AnalyxTypes';
+import { useWorkspaceCommands } from './hooks/useWorkspaceCommands';
 import {
   CONTEXT_TYPE_OPTIONS,
   generateMockScores,
@@ -178,12 +178,14 @@ export const AnalyxPage = () => {
 
   // Skills state
   const [skills, setSkills] = useState<AnalyxCommand[]>([]);
-  const [skillsInitialized, setSkillsInitialized] = useState(false);
   const [skillSearchQuery, setSkillSearchQuery] = useState('');
   const [selectedSkill, setSelectedSkill] = useState<AnalyxCommand | null>(
     null,
   );
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
+
+  // Workspace commands from operating model API
+  const { commands: workspaceCommands } = useWorkspaceCommands();
 
   // Map backend status to UI TaskStatus
   const mapBackendStatus = useCallback((status: string): TaskStatus => {
@@ -289,50 +291,10 @@ export const AnalyxPage = () => {
     return () => clearInterval(interval);
   }, [tasks, refetchTasks]);
 
-  // Load skills from localStorage on mount, merging with latest DEFAULT_COMMANDS
+  // Sync skills from API workspace commands
   useEffect(() => {
-    const stored = localStorage.getItem('analyx-skills');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as AnalyxCommand[];
-        const defaultSkillMap = new Map(DEFAULT_COMMANDS.map((s) => [s.id, s]));
-        const storedIds = new Set(parsed.map((s) => s.id));
-
-        // For default skills, always use the latest from code.
-        // For user-edited or custom skills, keep the stored version.
-        const merged = parsed.map((s) =>
-          s.isDefault && defaultSkillMap.has(s.id)
-            ? defaultSkillMap.get(s.id)!
-            : s,
-        );
-
-        // Add any new default skills that weren't in localStorage yet
-        for (const ds of DEFAULT_COMMANDS) {
-          if (!storedIds.has(ds.id)) {
-            merged.push(ds);
-          }
-        }
-
-        setSkills(merged);
-      } catch (e) {
-        console.error('Failed to parse stored skills:', e);
-        setSkills(DEFAULT_COMMANDS);
-      }
-    } else {
-      setSkills(DEFAULT_COMMANDS);
-    }
-    setSkillsInitialized(true);
-  }, []);
-
-  // Save skills to localStorage whenever they change
-  useEffect(() => {
-    if (!skillsInitialized) return;
-    try {
-      localStorage.setItem('analyx-skills', JSON.stringify(skills));
-    } catch (e) {
-      console.error('Failed to save skills to localStorage:', e);
-    }
-  }, [skills]); // eslint-disable-line react-hooks/exhaustive-deps
+    setSkills(workspaceCommands);
+  }, [workspaceCommands]);
 
   const contextObjectOptions: ContextObjectOption[] = objectMetadataItems
     .filter((item) => !item.isSystem && item.isActive)

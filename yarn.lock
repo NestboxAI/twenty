@@ -10001,6 +10001,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kwsites/file-exists@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@kwsites/file-exists@npm:1.1.1"
+  dependencies:
+    debug: "npm:^4.1.1"
+  checksum: 10c0/39e693239a72ccd8408bb618a0200e4a8d61682057ca7ae2c87668d7e69196e8d7e2c9cde73db6b23b3b0230169a15e5f1bfe086539f4be43e767b2db68e8ee4
+  languageName: node
+  linkType: hard
+
+"@kwsites/promise-deferred@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@kwsites/promise-deferred@npm:1.1.1"
+  checksum: 10c0/ef1ad3f1f50991e3bed352b175986d8b4bc684521698514a2ed63c1d1fc9848843da4f2bc2df961c9b148c94e1c34bf33f0da8a90ba2234e452481f2cc9937b1
+  languageName: node
+  linkType: hard
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.5
   resolution: "@leichtgewicht/ip-codec@npm:2.0.5"
@@ -55546,6 +55562,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"simple-git@npm:^3.32.3":
+  version: 3.32.3
+  resolution: "simple-git@npm:3.32.3"
+  dependencies:
+    "@kwsites/file-exists": "npm:^1.1.1"
+    "@kwsites/promise-deferred": "npm:^1.1.1"
+    debug: "npm:^4.4.0"
+  checksum: 10c0/b08ad0811b82d69a9b150109cbf29247bc13f8d5fb5380dcb834a5e0467124c3b5a41a2b9a5dd3c16f1edc9af7fae9add5182ac6476ef0d50e2341c7820fa0f0
+  languageName: node
+  linkType: hard
+
 "simple-swizzle@npm:^0.2.2":
   version: 0.2.2
   resolution: "simple-swizzle@npm:0.2.2"
@@ -58621,6 +58648,7 @@ __metadata:
     graphql-type-json: "npm:0.3.2"
     graphql-upload: "npm:16.0.2"
     graphql-yoga: "npm:4.0.5"
+    gray-matter: "npm:^4.0.3"
     html-to-text: "npm:^9.0.5"
     imapflow: "npm:1.2.1"
     ioredis: "npm:5.6.0"
@@ -58673,6 +58701,7 @@ __metadata:
     rxjs: "npm:7.8.1"
     semver: "npm:7.6.3"
     sharp: "npm:0.32.6"
+    simple-git: "npm:^3.32.3"
     stripe: "npm:19.3.1"
     temporal-polyfill: "npm:^0.3.0"
     transliteration: "npm:2.3.5"

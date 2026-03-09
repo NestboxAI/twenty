@@ -1,0 +1,72 @@
+agents:
+  - name: {{WORKSPACE_SLUG}}-agent
+    description: Operating model agent for {{WORKSPACE_SLUG}}
+    entry: workspaceAgent
+    inputSchema:
+      type: object
+      properties:
+        prompt:
+          type: string
+          description: The prompt to send to Claude.
+          minLength: 1
+        session_id:
+          type: string
+          description: Resume an existing session.
+        fork_session_id:
+          type: string
+          description: Fork from this session.
+        model:
+          type: string
+          enum: [claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001]
+          default: claude-haiku-4-5-20251001
+        system_prompt:
+          type: string
+        max_turns:
+          type: integer
+          default: 5
+        allowed_tools:
+          type: array
+          items: { type: string }
+        permission_mode:
+          type: string
+          enum: [default, acceptEdits, bypassPermissions]
+          default: acceptEdits
+        mcp_config:
+          type: object
+        claude_options:
+          type: object
+        hooks:
+          type: object
+          properties:
+            audit_tools: { type: boolean, default: false }
+            block_dangerous_bash: { type: boolean, default: false }
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              filename: { type: string }
+              content: { type: string }
+              mime_type: { type: string }
+            required: [filename, content, mime_type]
+        input_files:
+          type: array
+          items:
+            type: object
+            properties:
+              filename: { type: string }
+              url: { type: string }
+              mime_type: { type: string }
+            required: [filename, url, mime_type]
+        timeout_seconds:
+          type: integer
+          default: 300
+        terminate_after:
+          type: boolean
+          default: true
+        max_budget_usd:
+          type: number
+        output_format:
+          type: string
+          enum: [docx, pptx, xlsx]
+      required: [prompt]

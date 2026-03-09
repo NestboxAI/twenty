@@ -9,6 +9,7 @@ import {
 } from 'twenty-ui/display';
 
 import { type ModelTab } from '../OperatingModelTypes';
+import { GitSyncPanel } from './GitSyncPanel';
 
 type OverviewPanelProps = {
   workspaceName: string;
@@ -71,11 +72,17 @@ const Subtitle = styled.p`
   margin: 0 0 32px;
 `;
 
+const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+`;
+
 const Grid = styled.div`
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(2, 1fr);
-  max-width: 720px;
 `;
 
 const Card = styled.div`
@@ -179,35 +186,38 @@ export const OverviewPanel = ({
         Configure commands, skills, agents, and hooks that define how your
         workspace operates.
       </Subtitle>
-      <Grid>
-        {CATEGORY_CARDS.map(({ tab, title, icon: Icon, description }) => {
-          const count = tabCounts[tab] ?? 0;
-          return (
-            <Card key={tab}>
-              <CardHeader>
-                <CardIconWrapper>
-                  <Icon size={18} />
-                </CardIconWrapper>
-                <CardTitle>{title}</CardTitle>
-                <CardCount>
-                  {count} {count === 1 ? 'item' : 'items'}
-                </CardCount>
-              </CardHeader>
-              <CardDescription>{description}</CardDescription>
-              <CardActions>
-                <OpenButton onClick={() => onNavigateTab(tab)}>
-                  Open
-                  <IconChevronRight size={12} />
-                </OpenButton>
-                <AddLink onClick={() => onNavigateTab(tab)}>
-                  <IconPlus size={12} />
-                  Add new
-                </AddLink>
-              </CardActions>
-            </Card>
-          );
-        })}
-      </Grid>
+      <ContentWrapper>
+        <Grid>
+          {CATEGORY_CARDS.map(({ tab, title, icon: Icon, description }) => {
+            const count = tabCounts[tab] ?? 0;
+            return (
+              <Card key={tab}>
+                <CardHeader>
+                  <CardIconWrapper>
+                    <Icon size={18} />
+                  </CardIconWrapper>
+                  <CardTitle>{title}</CardTitle>
+                  <CardCount>
+                    {count} {count === 1 ? 'item' : 'items'}
+                  </CardCount>
+                </CardHeader>
+                <CardDescription>{description}</CardDescription>
+                <CardActions>
+                  <OpenButton onClick={() => onNavigateTab(tab)}>
+                    Open
+                    <IconChevronRight size={12} />
+                  </OpenButton>
+                  <AddLink onClick={() => onNavigateTab(tab)}>
+                    <IconPlus size={12} />
+                    Add new
+                  </AddLink>
+                </CardActions>
+              </Card>
+            );
+          })}
+        </Grid>
+        <GitSyncPanel />
+      </ContentWrapper>
     </Container>
   );
 };

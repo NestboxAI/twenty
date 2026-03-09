@@ -8,6 +8,7 @@ import { AnalyxTaskService } from 'src/engine/core-modules/analyx/services/analy
 import { ApiKeyModule } from 'src/engine/core-modules/api-key/api-key.module';
 import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
 import { FileModule } from 'src/engine/core-modules/file/file.module';
+import { OperatingModelModule } from 'src/engine/core-modules/operating-model/operating-model.module';
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 
 @Module({
@@ -16,6 +17,7 @@ import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/
     ApiKeyModule,
     TokenModule,
     FileModule,
+    OperatingModelModule,
     WorkspaceCacheStorageModule,
   ],
   providers: [AnalyxTaskService, AnalyxTaskResolver],

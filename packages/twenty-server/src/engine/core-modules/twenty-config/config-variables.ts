@@ -1238,6 +1238,14 @@ export class ConfigVariables {
 
   @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.LLM,
+    description: 'Path to the operating model git repo on a persistent volume',
+    type: ConfigVariableType.STRING,
+  })
+  @IsOptional()
+  OPERATING_MODEL_REPO_PATH: string = '/app/operating-model-repo';
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.LLM,
     description:
       'Comma-separated list of AI model IDs for speed-optimized operations, in priority order. The first available model will be used.',
     type: ConfigVariableType.STRING,

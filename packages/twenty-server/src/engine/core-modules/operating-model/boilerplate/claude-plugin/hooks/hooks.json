@@ -1,0 +1,27 @@
+{
+  "hooks": [
+    {
+      "event": "PreToolUse",
+      "tools": ["Write", "Edit"],
+      "type": "prompt",
+      "prompt": "You are a PE/VC financial report quality checker. Review the content about to be written or edited. Check for these issues and warn (do not block) if any are found:\n\n1. Financial figures without an as-of date\n2. Monetary values without currency labels (USD, EUR, GBP, etc.)\n3. Return figures (IRR, returns) without gross/net designation\n4. Performance metrics without confidence level (VERIFIED/REPORTED/ESTIMATED/ASSUMED)\n5. Percentage values that seem unreasonable (IRR > 100% or < -50%, TVPI > 10x)\n\nIf writing to a file in _research/ or containing financial data, check these. For non-financial files, skip checks.\n\nRespond with a brief warning if issues found, or approve if clean."
+    },
+    {
+      "event": "PostToolUse",
+      "tools": ["Write", "Edit"],
+      "type": "prompt",
+      "prompt": "You are a PE/VC data provenance checker. Review the content that was just written or edited. Verify:\n\n1. Any stated facts or figures have source attribution (document name, page/section)\n2. Data that appears to be from external sources has provenance tags\n3. No data appears to be fabricated (stated with high confidence but no source)\n\nFor files in _research/ or financial reports only. Skip for code files or configuration.\n\nRespond with a brief note about provenance coverage, or flag missing attributions."
+    },
+    {
+      "event": "PostToolUse",
+      "tools": ["Bash"],
+      "type": "prompt",
+      "prompt": "You are a PE/VC computation sanity checker. If the bash command just executed was a Python script performing financial calculations, review the output for:\n\n1. TVPI should approximately equal DPI + RVPI (within rounding)\n2. IRR should be in a reasonable range (-50% to +100% for most PE/VC funds)\n3. DPI and RVPI should be non-negative\n4. TVPI should be non-negative\n5. Percentages should sum correctly where applicable\n\nIf the command was not a financial calculation, skip checks.\n\nRespond with a brief sanity check result or flag any anomalies."
+    },
+    {
+      "event": "Stop",
+      "type": "prompt",
+      "prompt": "You are a PE/VC research completeness checker. Before the session ends, check if there is an active research workspace (_research/ directory). If so, verify:\n\n1. All ACSR phases present (01-aggregation-summary.md, 02-computation-results.md, 03-synthesis.md, 04-repeat-decision.md)\n2. Critical data gaps in _research/gaps.md have been addressed or acknowledged\n3. A final output file exists (report markdown, PPTX, DOCX, or XLSX)\n4. The repeat-decision scorecard shows adequate completeness\n\nIf research is incomplete, note what remains to be done. Do not block — just inform.\n\nRespond with a brief research completeness summary."
+    }
+  ]
+}

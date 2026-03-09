@@ -12,9 +12,9 @@ import {
   type RightPanelTab,
   type ValidationItem,
   type VersionChange,
+  type VersionEntry,
 } from '../OperatingModelTypes';
 import { REFERENCE_DATA, type FieldReference } from '../utils/referenceData';
-import { VERSION_STUBS } from '../stubs/versionStubs';
 
 const Container = styled.div`
   display: flex;
@@ -329,6 +329,7 @@ type RightPanelProps = {
   selectedFile: FileNode | null;
   validationItems: ValidationItem[];
   nodes: FileNode[];
+  versions?: VersionEntry[];
   onValidationClick?: (file: string, line?: number) => void;
   onCollapse?: () => void;
 };
@@ -338,6 +339,7 @@ export const RightPanel = ({
   selectedFile,
   validationItems,
   nodes,
+  versions,
   onValidationClick,
   onCollapse,
 }: RightPanelProps) => {
@@ -354,15 +356,17 @@ export const RightPanel = ({
 
   const fileCount = useMemo(() => countFiles(nodes), [nodes]);
 
+  const allVersions = versions ?? [];
+
   // Filter history versions by selected file
   const fileVersions = useMemo(() => {
-    if (!selectedFile) return VERSION_STUBS;
-    return VERSION_STUBS.filter((version) =>
+    if (!selectedFile) return allVersions;
+    return allVersions.filter((version) =>
       version.changes.some((change) =>
         selectedFile.path.endsWith(change.file),
       ),
     );
-  }, [selectedFile]);
+  }, [selectedFile, allVersions]);
 
   const formatDate = (timestamp: string) => {
     const date = new Date(timestamp);

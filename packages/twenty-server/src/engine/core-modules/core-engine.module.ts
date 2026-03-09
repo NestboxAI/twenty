@@ -71,6 +71,8 @@ import { ChannelSyncModule } from 'src/modules/connected-account/channel-sync/ch
 import { DashboardModule } from 'src/modules/dashboard/dashboard.module';
 import { LogicFunctionResourceService } from 'src/engine/core-modules/logic-function/logic-function-resource/logic-function-resource.service';
 
+import { OperatingModelModule } from 'src/engine/core-modules/operating-model/operating-model.module';
+
 import { AuditModule } from './audit/audit.module';
 import { ClientConfigModule } from './client-config/client-config.module';
 import { EventLogsModule } from './event-logs/event-logs.module';
@@ -161,6 +163,7 @@ import { FileModule } from './file/file.module';
     TrashCleanupModule,
     DashboardModule,
     EventLogsModule,
+    OperatingModelModule,
   ],
   exports: [
     AuditModule,
