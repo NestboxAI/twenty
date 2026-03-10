@@ -52,7 +52,7 @@ RUN apk add --no-cache curl jq
 
 RUN npm install -g tsx
 
-RUN apk add --no-cache postgresql-client
+RUN apk add --no-cache postgresql-client git openssh-client
 
 COPY ./packages/twenty-docker/twenty/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
