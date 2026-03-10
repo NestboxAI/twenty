@@ -24,6 +24,7 @@ export interface GitShowResult {
 @Injectable()
 export class GitService {
   private readonly logger = new Logger(GitService.name);
+  private readonly initLocks = new Map<string, Promise<void>>();
 
   private git(repoPath: string, env?: Record<string, string>): SimpleGit {
     const instance = simpleGit({ baseDir: repoPath });
@@ -44,25 +45,51 @@ export class GitService {
   }
 
   async ensureRepo(repoPath: string): Promise<void> {
-    if (!fs.existsSync(path.join(repoPath, '.git'))) {
-      fs.mkdirSync(repoPath, { recursive: true });
-
-      const git = this.git(repoPath);
-
-      await git.init();
-      await git.addConfig('user.email', 'system@operating-model');
-      await git.addConfig('user.name', 'Operating Model');
-
-      // Create .gitignore for .ssh directory
-      const gitignorePath = path.join(repoPath, '.gitignore');
-
-      fs.writeFileSync(gitignorePath, '.ssh/\n');
-
-      await git.add('.gitignore');
-      await git.commit('Initial repository setup');
-
-      this.logger.log(`Initialized git repo at ${repoPath}`);
+    if (fs.existsSync(path.join(repoPath, '.git'))) {
+      return;
     }
+
+    // Prevent concurrent init for the same repo path
+    const existing = this.initLocks.get(repoPath);
+
+    if (existing) {
+      return existing;
+    }
+
+    const initPromise = this.doInitRepo(repoPath);
+
+    this.initLocks.set(repoPath, initPromise);
+
+    try {
+      await initPromise;
+    } finally {
+      this.initLocks.delete(repoPath);
+    }
+  }
+
+  private async doInitRepo(repoPath: string): Promise<void> {
+    // Double-check after acquiring the lock
+    if (fs.existsSync(path.join(repoPath, '.git'))) {
+      return;
+    }
+
+    fs.mkdirSync(repoPath, { recursive: true });
+
+    const git = this.git(repoPath);
+
+    await git.init(['--initial-branch=main']);
+    await git.addConfig('user.email', 'system@operating-model');
+    await git.addConfig('user.name', 'Operating Model');
+
+    // Create .gitignore for .ssh directory
+    const gitignorePath = path.join(repoPath, '.gitignore');
+
+    fs.writeFileSync(gitignorePath, '.ssh/\n');
+
+    await git.add('.gitignore');
+    await git.commit('Initial repository setup');
+
+    this.logger.log(`Initialized git repo at ${repoPath}`);
   }
 
   async listFiles(
