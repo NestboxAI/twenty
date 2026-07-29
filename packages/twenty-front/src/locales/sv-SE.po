@@ -646,6 +646,7 @@ msgid "Add or remove users"
 msgstr "Lägg till eller ta bort användare"
 
 #. js-lingui-id: 7YdkgZ
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Add Output Field"
 msgstr "Lägg till utdatafält"
@@ -841,6 +842,7 @@ msgid "AI Model"
 msgstr "AI-modell"
 
 #. js-lingui-id: QwgquD
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "AI Response Schema"
 msgstr "AI-svarsschema"
@@ -1489,6 +1491,7 @@ msgid "Both"
 msgstr "Båda"
 
 #. js-lingui-id: qDsMss
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Brief explanation of this output field"
 msgstr "Kort förklaring av detta utdatafält"
@@ -1817,6 +1820,7 @@ msgid "Click on \"Add Field\" below to add the first input to your form. The for
 msgstr "Klicka på \"Lägg till fält\" nedan för att lägga till den första inmatningen till ditt formulär. Formuläret visas på användarens skärm när arbetsflödet startas från en manuell utlösare. För andra typer av utlösare visas det på arbetsflödets körsida."
 
 #. js-lingui-id: RFmRvm
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Click on \"Add Output Field\" below to define the structure of your AI agent's response. These fields will be used to format and validate the AI's output when the workflow is executed, and can be referenced by subsequent workflow steps."
 msgstr "Klicka på \"Lägg till utdatafält\" nedan för att definiera strukturen på ditt AI-agentens svar. Dessa fält kommer att användas för att formatera och validera AI:s utdata när arbetsflödet körs, och kan refereras av efterföljande arbetsflödessteg."
@@ -2932,6 +2936,7 @@ msgstr "Beskriv när denna överlämning ska användas"
 #: src/pages/settings/applications/tabs/SettingsApplicationDetailAboutTab.tsx
 #: src/pages/settings/applications/components/SettingsApplicationsTable.tsx
 #: src/pages/settings/ai/components/SettingsAgentHandoffTable.tsx
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/settings/roles/role-permissions/permission-flags/components/SettingsRolePermissionsSettingsTableHeader.tsx
 #: src/modules/settings/roles/role-assignment/components/SettingsRoleAssignmentTable.tsx
@@ -3120,6 +3125,7 @@ msgid "e.g., Analytics Dashboard"
 msgstr "t.ex., analysinstrumentpanel"
 
 #. js-lingui-id: GhTFTJ
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "e.g., summary, status, count"
 msgstr "t.ex., sammanfattning, status, antal"
@@ -3167,11 +3173,6 @@ msgstr "Redigera Konto"
 #: src/pages/settings/ai/SettingsAgentForm.tsx
 msgid "Edit Agent"
 msgstr "Redigera agent"
-
-#. js-lingui-id: X8x8v5
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid "Edit Connection"
-msgstr "Redigera Anslutning"
 
 #. js-lingui-id: 6vZ75d
 #: src/modules/settings/roles/role-permissions/permission-flags/components/SettingsRolePermissionsSettingsSection.tsx
@@ -3223,11 +3224,6 @@ msgstr "Redigera betalningsmetod, se dina fakturor och mer"
 #: src/modules/settings/roles/role-permissions/objects-permissions/components/SettingsRolePermissionsObjectsSection.tsx
 msgid "Edit Records on All Objects"
 msgstr "Redigera poster i alla objekt"
-
-#. js-lingui-id: vjOt/P
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid "Edit the information to connect your database"
-msgstr "Redigera informationen för att ansluta din databas"
 
 #. js-lingui-id: 6o1M/Q
 #: src/pages/settings/domains/SettingsDomains.tsx
@@ -4014,6 +4010,7 @@ msgid "Field name"
 msgstr "Fältnamn"
 
 #. js-lingui-id: fV7qkH
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Field Name"
 msgstr "Fältnamn"
@@ -4652,7 +4649,6 @@ msgstr "Instruktioner för AI"
 #. js-lingui-id: nbfdhU
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
 #: src/modules/settings/hooks/useSettingsNavigationItems.tsx
 msgid "Integrations"
 msgstr "Integrationer"
@@ -5983,6 +5979,7 @@ msgid "No workflow versions yet"
 msgstr "Inga arbetsflödesversioner än"
 
 #. js-lingui-id: EdQY6l
+#: src/pages/settings/ai/forms/components/SettingsAIAgentForm.tsx
 #: src/pages/settings/ai/components/SettingsAgentRoleTab.tsx
 #: src/modules/settings/accounts/components/SettingsAccountsMessageAutoCreationCard.tsx
 #: src/modules/object-record/record-table/record-table-footer/components/RecordTableColumnAggregateFooterMenuContent.tsx
@@ -6328,6 +6325,7 @@ msgid "Our team can help you set up your workspace to match your specific needs 
 msgstr "Vårt team kan hjälpa dig att ställa in din arbetsyta så att den matchar dina specifika behov och arbetsflöden."
 
 #. js-lingui-id: xvfn7l
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Output Field {fieldNumber}"
 msgstr "Utdatafält {fieldNumber}"
@@ -9204,15 +9202,6 @@ msgstr "Du har inte tillåtelse att skapa poster i detta objekt"
 #: src/modules/settings/accounts/components/SettingsAccountsConnectionForm.tsx
 msgid "You can set up any combination of IMAP (receiving emails), SMTP (sending emails), and CalDAV (calendar sync)."
 msgstr "Du kan konfigurera valfri kombination av IMAP (ta emot e-post), SMTP (skicka e-post) och CalDAV (kalendersynkronisering)."
-
-#. js-lingui-id: aiJY7y
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid ""
-"You cannot edit this connection because it has tracked tables.\n"
-"If you need to make changes, please create a new connection or unsync the tables first."
-msgstr ""
-"Du kan inte redigera denna anslutning eftersom den har spårade tabeller. \n"
-"Om du behöver göra ändringar, vänligen skapa en ny anslutning eller avsynkronisera tabellerna först."
 
 #. js-lingui-id: eqUj2Z
 #: src/modules/page-layout/widgets/components/PageLayoutWidgetForbiddenDisplay.tsx

@@ -646,6 +646,7 @@ msgid "Add or remove users"
 msgstr "Voeg by of verwyder gebruikers"
 
 #. js-lingui-id: 7YdkgZ
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Add Output Field"
 msgstr "Voeg Uitvoerveld by"
@@ -841,6 +842,7 @@ msgid "AI Model"
 msgstr "KI Model"
 
 #. js-lingui-id: QwgquD
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "AI Response Schema"
 msgstr "KI Antwoord Skema"
@@ -1489,6 +1491,7 @@ msgid "Both"
 msgstr "Albei"
 
 #. js-lingui-id: qDsMss
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Brief explanation of this output field"
 msgstr "Kort verduideliking van hierdie uitvoerveld"
@@ -1817,6 +1820,7 @@ msgid "Click on \"Add Field\" below to add the first input to your form. The for
 msgstr "Klik op \"Voeg Veld By\" hieronder om die eerste inset by jou vorm te voeg. Die vorm sal op die gebruiker se skerm verskyn wanneer die werkvloei vanaf 'n handmatige sneller bekendgestel word. Vir ander soorte snellers sal dit op die Werkvloei-looprekordbladsy vertoon word."
 
 #. js-lingui-id: RFmRvm
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Click on \"Add Output Field\" below to define the structure of your AI agent's response. These fields will be used to format and validate the AI's output when the workflow is executed, and can be referenced by subsequent workflow steps."
 msgstr "Klik op \"Voeg Uitvoerveld by\" hieronder om die struktuur van jou KI-agent se reaksie te definieer. Hierdie velde sal gebruik word om die KI se uitvoer te formateer en te valideer wanneer die werkvloei uitgevoer word, en kan deur daaropvolgende werkvloeistandaarde verwys word."
@@ -2932,6 +2936,7 @@ msgstr "Beskryf wanneer hierdie oorhandiging gebruik moet word"
 #: src/pages/settings/applications/tabs/SettingsApplicationDetailAboutTab.tsx
 #: src/pages/settings/applications/components/SettingsApplicationsTable.tsx
 #: src/pages/settings/ai/components/SettingsAgentHandoffTable.tsx
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/settings/roles/role-permissions/permission-flags/components/SettingsRolePermissionsSettingsTableHeader.tsx
 #: src/modules/settings/roles/role-assignment/components/SettingsRoleAssignmentTable.tsx
@@ -3120,6 +3125,7 @@ msgid "e.g., Analytics Dashboard"
 msgstr "bv., Analytics Dashboard"
 
 #. js-lingui-id: GhTFTJ
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "e.g., summary, status, count"
 msgstr "bv., opsomming, status, telling"
@@ -3167,11 +3173,6 @@ msgstr "Wysig Rekening"
 #: src/pages/settings/ai/SettingsAgentForm.tsx
 msgid "Edit Agent"
 msgstr "Wysig Agent"
-
-#. js-lingui-id: X8x8v5
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid "Edit Connection"
-msgstr "Wysig Verbinding"
 
 #. js-lingui-id: 6vZ75d
 #: src/modules/settings/roles/role-permissions/permission-flags/components/SettingsRolePermissionsSettingsSection.tsx
@@ -3223,11 +3224,6 @@ msgstr "Redigeer betalingsmetode, sien jou fakture en meer"
 #: src/modules/settings/roles/role-permissions/objects-permissions/components/SettingsRolePermissionsObjectsSection.tsx
 msgid "Edit Records on All Objects"
 msgstr "Wysig rekords op alle voorwerpe"
-
-#. js-lingui-id: vjOt/P
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid "Edit the information to connect your database"
-msgstr "Wysig die inligting om jou databasis te koppel"
 
 #. js-lingui-id: 6o1M/Q
 #: src/pages/settings/domains/SettingsDomains.tsx
@@ -4014,6 +4010,7 @@ msgid "Field name"
 msgstr "Veldnaam"
 
 #. js-lingui-id: fV7qkH
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Field Name"
 msgstr "Veldnaam"
@@ -4652,7 +4649,6 @@ msgstr "Instruksies vir KI"
 #. js-lingui-id: nbfdhU
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
 #: src/modules/settings/hooks/useSettingsNavigationItems.tsx
 msgid "Integrations"
 msgstr "Integrasies"
@@ -5981,6 +5977,7 @@ msgid "No workflow versions yet"
 msgstr "Geen werkstroom weergawes tot nou toe"
 
 #. js-lingui-id: EdQY6l
+#: src/pages/settings/ai/forms/components/SettingsAIAgentForm.tsx
 #: src/pages/settings/ai/components/SettingsAgentRoleTab.tsx
 #: src/modules/settings/accounts/components/SettingsAccountsMessageAutoCreationCard.tsx
 #: src/modules/object-record/record-table/record-table-footer/components/RecordTableColumnAggregateFooterMenuContent.tsx
@@ -6326,6 +6323,7 @@ msgid "Our team can help you set up your workspace to match your specific needs 
 msgstr "Ons span kan jou help om jou werkruimte op te stel sodat dit by jou spesifieke behoeftes en werksvloei pas."
 
 #. js-lingui-id: xvfn7l
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Output Field {fieldNumber}"
 msgstr "Uitvoerveld {fieldNumber}"
@@ -9192,15 +9190,6 @@ msgstr "Jy mag nie rekords vir hierdie voorwerp skep nie"
 #: src/modules/settings/accounts/components/SettingsAccountsConnectionForm.tsx
 msgid "You can set up any combination of IMAP (receiving emails), SMTP (sending emails), and CalDAV (calendar sync)."
 msgstr "U kan enige kombinasie van IMAP (ontvang e-posse), SMTP (stuur e-posse), en CalDAV (kalender-sinkronisering) opstel."
-
-#. js-lingui-id: aiJY7y
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid ""
-"You cannot edit this connection because it has tracked tables.\n"
-"If you need to make changes, please create a new connection or unsync the tables first."
-msgstr ""
-"Jy kan nie hierdie verbinding wysig omdat dit opgespoorde tabelle het nie.\n"
-"As jy veranderinge wil aanbring, skep asseblief 'n nuwe verbinding of ontkoppel eers die tabelle."
 
 #. js-lingui-id: eqUj2Z
 #: src/modules/page-layout/widgets/components/PageLayoutWidgetForbiddenDisplay.tsx

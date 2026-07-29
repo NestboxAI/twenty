@@ -14,6 +14,21 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+#: src/emails/api-key-created.email.tsx
+msgid "Your AI-Powered workspace is ready!"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/emails/api-key-created.email.tsx
+msgid "Workspace Access Details"
+msgstr ""
+
+#. js-lingui-explicit-id
+#: src/emails/api-key-created.email.tsx
+msgid "Access Your Workspace"
+msgstr ""
+
+#. js-lingui-explicit-id
 #: src/emails/warn-suspended-workspace.email.tsx
 msgid "Suspended Workspace"
 msgstr ""

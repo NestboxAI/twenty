@@ -646,6 +646,7 @@ msgid "Add or remove users"
 msgstr "Afegeix o elimina usuaris"
 
 #. js-lingui-id: 7YdkgZ
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Add Output Field"
 msgstr "Afegeix camp de sortida"
@@ -841,6 +842,7 @@ msgid "AI Model"
 msgstr "Model IA"
 
 #. js-lingui-id: QwgquD
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "AI Response Schema"
 msgstr "Esquema de resposta IA"
@@ -1489,6 +1491,7 @@ msgid "Both"
 msgstr "Tots dos"
 
 #. js-lingui-id: qDsMss
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Brief explanation of this output field"
 msgstr "Breu explicació d'aquest camp de sortida"
@@ -1817,6 +1820,7 @@ msgid "Click on \"Add Field\" below to add the first input to your form. The for
 msgstr "Fes clic a \"Afegeix Camp\" a continuació per afegir el primer element d'entrada al teu formulari. El formulari apareixerà en la pantalla de l'usuari quan el flux de treball es llanci des d'un desencadenador manual. Per a altres tipus de desencadenadors, es mostrarà a la pàgina del registre de l'execució del flux de treball."
 
 #. js-lingui-id: RFmRvm
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Click on \"Add Output Field\" below to define the structure of your AI agent's response. These fields will be used to format and validate the AI's output when the workflow is executed, and can be referenced by subsequent workflow steps."
 msgstr "Feu clic a \"Afegeix camp de sortida\" a continuació per definir l'estructura de la resposta del vostre agent d'IA. Aquests camps s'utilitzaran per formatar i validar la sortida de la IA quan s'executi el flux de treball, i es poden referenciar en els passos següents del flux de treball."
@@ -2932,6 +2936,7 @@ msgstr "Descriu quan s'ha d'utilitzar aquesta transferència"
 #: src/pages/settings/applications/tabs/SettingsApplicationDetailAboutTab.tsx
 #: src/pages/settings/applications/components/SettingsApplicationsTable.tsx
 #: src/pages/settings/ai/components/SettingsAgentHandoffTable.tsx
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/settings/roles/role-permissions/permission-flags/components/SettingsRolePermissionsSettingsTableHeader.tsx
 #: src/modules/settings/roles/role-assignment/components/SettingsRoleAssignmentTable.tsx
@@ -3120,6 +3125,7 @@ msgid "e.g., Analytics Dashboard"
 msgstr "p. ex., Quadre de comandament analític"
 
 #. js-lingui-id: GhTFTJ
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "e.g., summary, status, count"
 msgstr "p. ex., resum, estat, comptador"
@@ -3167,11 +3173,6 @@ msgstr "Edita el compte"
 #: src/pages/settings/ai/SettingsAgentForm.tsx
 msgid "Edit Agent"
 msgstr "Edita Agent"
-
-#. js-lingui-id: X8x8v5
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid "Edit Connection"
-msgstr "Edita Connexió"
 
 #. js-lingui-id: 6vZ75d
 #: src/modules/settings/roles/role-permissions/permission-flags/components/SettingsRolePermissionsSettingsSection.tsx
@@ -3223,11 +3224,6 @@ msgstr "Edita el mètode de pagament, veure les factures i més"
 #: src/modules/settings/roles/role-permissions/objects-permissions/components/SettingsRolePermissionsObjectsSection.tsx
 msgid "Edit Records on All Objects"
 msgstr "Editar registres de tots els objectes"
-
-#. js-lingui-id: vjOt/P
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid "Edit the information to connect your database"
-msgstr "Edita la informació per connectar-te a la base de dades"
 
 #. js-lingui-id: 6o1M/Q
 #: src/pages/settings/domains/SettingsDomains.tsx
@@ -4014,6 +4010,7 @@ msgid "Field name"
 msgstr "Nom del camp"
 
 #. js-lingui-id: fV7qkH
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Field Name"
 msgstr "Nom del camp"
@@ -4652,7 +4649,6 @@ msgstr "Instruccions per a la IA"
 #. js-lingui-id: nbfdhU
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
 #: src/modules/settings/hooks/useSettingsNavigationItems.tsx
 msgid "Integrations"
 msgstr "Integracions"
@@ -5981,6 +5977,7 @@ msgid "No workflow versions yet"
 msgstr "Encara no hi ha versions de workflows"
 
 #. js-lingui-id: EdQY6l
+#: src/pages/settings/ai/forms/components/SettingsAIAgentForm.tsx
 #: src/pages/settings/ai/components/SettingsAgentRoleTab.tsx
 #: src/modules/settings/accounts/components/SettingsAccountsMessageAutoCreationCard.tsx
 #: src/modules/object-record/record-table/record-table-footer/components/RecordTableColumnAggregateFooterMenuContent.tsx
@@ -6326,6 +6323,7 @@ msgid "Our team can help you set up your workspace to match your specific needs 
 msgstr "El nostre equip pot ajudar-te a configurar el teu espai de treball perquè s'adapti a les teves necessitats i fluxos de treball específics."
 
 #. js-lingui-id: xvfn7l
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Output Field {fieldNumber}"
 msgstr "Camp de sortida {fieldNumber}"
@@ -9192,15 +9190,6 @@ msgstr "No tens permís per crear registres en aquest objecte"
 #: src/modules/settings/accounts/components/SettingsAccountsConnectionForm.tsx
 msgid "You can set up any combination of IMAP (receiving emails), SMTP (sending emails), and CalDAV (calendar sync)."
 msgstr "Podeu configurar qualsevol combinació d'IMAP (recepció de correus), SMTP (enviament de correus) i CalDAV (sincronització de calendaris)."
-
-#. js-lingui-id: aiJY7y
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid ""
-"You cannot edit this connection because it has tracked tables.\n"
-"If you need to make changes, please create a new connection or unsync the tables first."
-msgstr ""
-"No pots editar aquesta connexió perquè té taules rastrejades.\n"
-"Si necessites fer canvis, crea una nova connexió o desincronitza primer les taules."
 
 #. js-lingui-id: eqUj2Z
 #: src/modules/page-layout/widgets/components/PageLayoutWidgetForbiddenDisplay.tsx

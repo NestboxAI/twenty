@@ -646,6 +646,7 @@ msgid "Add or remove users"
 msgstr "添加或移除用户"
 
 #. js-lingui-id: 7YdkgZ
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Add Output Field"
 msgstr "添加输出字段"
@@ -841,6 +842,7 @@ msgid "AI Model"
 msgstr "AI 模型"
 
 #. js-lingui-id: QwgquD
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "AI Response Schema"
 msgstr "AI 响应架构"
@@ -1489,6 +1491,7 @@ msgid "Both"
 msgstr "两个"
 
 #. js-lingui-id: qDsMss
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Brief explanation of this output field"
 msgstr "对这个输出字段的简要解释"
@@ -1817,6 +1820,7 @@ msgid "Click on \"Add Field\" below to add the first input to your form. The for
 msgstr "点击下方的“添加字段”以向您的表单中添加第一个输入。当从手动触发启动工作流时，表单将会弹出在用户的屏幕上。对于其他类型的触发器，表单会显示在工作流运行记录页面。"
 
 #. js-lingui-id: RFmRvm
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Click on \"Add Output Field\" below to define the structure of your AI agent's response. These fields will be used to format and validate the AI's output when the workflow is executed, and can be referenced by subsequent workflow steps."
 msgstr "点击下面的 \"添加输出字段\" 来定义你的 AI 代理的响应结构。这些字段将在执行工作流时用于格式化和验证 AI 的输出，并可被后续的工作流步骤引用。"
@@ -2932,6 +2936,7 @@ msgstr "描述何时使用此交接"
 #: src/pages/settings/applications/tabs/SettingsApplicationDetailAboutTab.tsx
 #: src/pages/settings/applications/components/SettingsApplicationsTable.tsx
 #: src/pages/settings/ai/components/SettingsAgentHandoffTable.tsx
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/settings/roles/role-permissions/permission-flags/components/SettingsRolePermissionsSettingsTableHeader.tsx
 #: src/modules/settings/roles/role-assignment/components/SettingsRoleAssignmentTable.tsx
@@ -3120,6 +3125,7 @@ msgid "e.g., Analytics Dashboard"
 msgstr "例如，分析仪表板"
 
 #. js-lingui-id: GhTFTJ
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "e.g., summary, status, count"
 msgstr "例如：总结、状态、计数"
@@ -3167,11 +3173,6 @@ msgstr "编辑账户"
 #: src/pages/settings/ai/SettingsAgentForm.tsx
 msgid "Edit Agent"
 msgstr "编辑代理"
-
-#. js-lingui-id: X8x8v5
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid "Edit Connection"
-msgstr "编辑连接"
 
 #. js-lingui-id: 6vZ75d
 #: src/modules/settings/roles/role-permissions/permission-flags/components/SettingsRolePermissionsSettingsSection.tsx
@@ -3223,11 +3224,6 @@ msgstr "编辑付款方式、查看发票等"
 #: src/modules/settings/roles/role-permissions/objects-permissions/components/SettingsRolePermissionsObjectsSection.tsx
 msgid "Edit Records on All Objects"
 msgstr "编辑所有对象上的记录"
-
-#. js-lingui-id: vjOt/P
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid "Edit the information to connect your database"
-msgstr "编辑连接数据库的信息"
 
 #. js-lingui-id: 6o1M/Q
 #: src/pages/settings/domains/SettingsDomains.tsx
@@ -4014,6 +4010,7 @@ msgid "Field name"
 msgstr "字段名称"
 
 #. js-lingui-id: fV7qkH
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Field Name"
 msgstr "字段名称"
@@ -4652,7 +4649,6 @@ msgstr "AI 指令"
 #. js-lingui-id: nbfdhU
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
 #: src/pages/settings/integrations/SettingsIntegrations.tsx
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
 #: src/modules/settings/hooks/useSettingsNavigationItems.tsx
 msgid "Integrations"
 msgstr "集成"
@@ -5981,6 +5977,7 @@ msgid "No workflow versions yet"
 msgstr "尚无工作流版本"
 
 #. js-lingui-id: EdQY6l
+#: src/pages/settings/ai/forms/components/SettingsAIAgentForm.tsx
 #: src/pages/settings/ai/components/SettingsAgentRoleTab.tsx
 #: src/modules/settings/accounts/components/SettingsAccountsMessageAutoCreationCard.tsx
 #: src/modules/object-record/record-table/record-table-footer/components/RecordTableColumnAggregateFooterMenuContent.tsx
@@ -6326,6 +6323,7 @@ msgid "Our team can help you set up your workspace to match your specific needs 
 msgstr "我们的团队可以帮助您设置工作空间，以符合您的特定需求和工作流程。"
 
 #. js-lingui-id: xvfn7l
+#: src/modules/workflow/workflow-steps/workflow-actions/nestbox-ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 #: src/modules/workflow/workflow-steps/workflow-actions/ai-agent-action/components/WorkflowOutputSchemaBuilder.tsx
 msgid "Output Field {fieldNumber}"
 msgstr "输出字段 {fieldNumber}"
@@ -9192,15 +9190,6 @@ msgstr "您无权为此对象创建记录"
 #: src/modules/settings/accounts/components/SettingsAccountsConnectionForm.tsx
 msgid "You can set up any combination of IMAP (receiving emails), SMTP (sending emails), and CalDAV (calendar sync)."
 msgstr "您可以根据需要设置 IMAP（接收电子邮件）、SMTP（发送电子邮件）和 CalDAV（日历同步）的任意组合。"
-
-#. js-lingui-id: aiJY7y
-#: src/modules/settings/integrations/database-connection/components/SettingsIntegrationEditDatabaseConnectionContent.tsx
-msgid ""
-"You cannot edit this connection because it has tracked tables.\n"
-"If you need to make changes, please create a new connection or unsync the tables first."
-msgstr ""
-"您不能编辑此连接，因为它具有跟踪表。\n"
-"如果您需要进行更改，请创建新连接或首先取消同步表。"
 
 #. js-lingui-id: eqUj2Z
 #: src/modules/page-layout/widgets/components/PageLayoutWidgetForbiddenDisplay.tsx
